@@ -103,11 +103,29 @@ if ($id != "") {
     $block1->contentTitle($strings["details"]);
 } 
 
-echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["name"] . " :</td><td><input size=\"24\" style=\"width: 250px;\"type=\"text\" name=\"n\" value=\"$n\"></td>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["name_print"] . " :</td><td><input size=\"24\" style=\"width: 250px;\" type=\"text\" name=\"np\" value=\"$np\"></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["hourly_rate"] . " :</td><td><input size=\"24\" style=\"width: 250px;\" type=\"text\" name=\"hr\" value=\"$hr\"></td></tr>";
+// ---------- NAME ----------
+echo '<div class="mb-3">
+        <label class="form-label fw-bold">' . $strings["name"] . ' :</label>
+        <input type="text" name="n" value="' . htmlspecialchars($n) . '" class="form-control" >
+      </div>';
 
-echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td><input type=\"submit\" name=\"Save\" value=\"" . $strings["save"] . "\"></td></tr>";
+// ---------- NAME PRINT ----------
+echo '<div class="mb-3">
+        <label class="form-label fw-bold">' . $strings["name_print"] . ' :</label>
+        <input type="text" name="np" value="' . htmlspecialchars($np) . '" class="form-control" >
+      </div>';
+
+// ---------- HOURLY RATE ----------
+echo '<div class="mb-3">
+        <label class="form-label fw-bold">' . $strings["hourly_rate"] . ' :</label>
+        <input type="text" name="hr" value="' . htmlspecialchars($hr) . '" class="form-control" >
+      </div>';
+
+// ---------- SUBMIT BUTTON ----------
+echo '<div class="mb-3">
+        <input type="submit" name="Save" value="' . $strings["save"] . '" class="btn btn-primary">
+      </div>';
+
 
 $block1->closeContent();
 $block1->headingForm_close();

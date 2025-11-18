@@ -158,7 +158,7 @@ $block1->openContent();
 $block1->contentTitle($strings['details']);
 
 if ($clientsFilter == 'true') {
-    $selectOwner = '<select name="cown">';
+    $selectOwner = '<select name="cown" class="form-select" >';
 
     $tmpquery = "WHERE (mem.profil='5' OR mem.profil='1' OR mem.profil='0') AND mem.login != 'demo' ORDER BY mem.name";
     $clientOwner = new request();
@@ -174,30 +174,77 @@ if ($clientsFilter == 'true') {
     } 
 
     $selectOwner .= '</select>';
-    $block1->contentRow($strings['owner'], $selectOwner);
+    $block1->formRow($strings['owner'], $selectOwner);
 } 
 
-$block1->contentRow('* ' . $strings['name'], '<input size="44" value="' . $cn . '" style="width: 400px" name="cn" maxlength="100" type="TEXT">');
+$block1->formRow(
+    '* ' . $strings['name'],
+    '<input type="text" name="cn" maxlength="100" value="' . $cn . '" class="form-control">'
+);
+// ---------- ADDRESS ----------
+$block1->formRow(
+    $strings['address'],
+    '<textarea name="add" rows="3" class="form-control">' . $add . '</textarea>'
+);
 
-$block1->contentRow($strings['address'], '<textarea rows="3" style="width: 400px; height: 50px;" name="add" cols="43">' . $add . '</textarea>');
 
-$block1->contentRow($strings['phone'], '<input size="32" value="' . $wp . '" style="width: 250px" name="wp" maxlength="32" type="TEXT">');
+// ---------- PHONE ----------
+$block1->formRow(
+    $strings['phone'],
+    '<input type="text" name="wp" maxlength="32" value="' . $wp . '" class="form-control">'
+);
 
-$block1->contentRow($strings['url'], '<input size="44" value="' . $url . '" style="width: 400px" name="url" maxlength="2000" type="TEXT">');
 
-$block1->contentRow($strings['email'], '<input size="44" value="' . $email . '" style="width: 400px" name="email" maxlength="2000" type="TEXT">');
+// ---------- URL ----------
+$block1->formRow(
+    $strings['url'],
+    '<input type="text" name="url" maxlength="2000" value="' . $url . '" class="form-control">'
+);
 
-$block1->contentRow($strings['comments'], '<textarea rows="3" style="width: 400px; height: 50px;" name="c" cols="43">' . $c . '</textarea>');
 
-$block1->contentRow($strings['logo'], '<input size="44" style="width: 400px" name="upload" type="file">');
+// ---------- EMAIL ----------
+$block1->formRow(
+    $strings['email'],
+    '<input type="text" name="email" maxlength="2000" value="' . $email . '" class="form-control">'
+);
 
+
+// ---------- COMMENTS ----------
+$block1->formRow(
+    $strings['comments'],
+    '<textarea name="c" rows="3" class="form-control">' . $c . '</textarea>'
+);
+
+
+// ---------- LOGO UPLOAD ----------
+$block1->formRow(
+    $strings['logo'],
+    '<input type="file" name="upload" class="form-control">'
+);
+
+
+// ---------- LOGO PREVIEW + DELETE ----------
 if ($id != '') {
-    if (file_exists('../logos_clients/' . $id . '.' . $clientDetail->org_extension_logo[0])) {
-        $block1->contentRow('', '<img src="../logos_clients/' . $id . '.' . $clientDetail->org_extension_logo[0] . '"> <input name="extensionOld" type="hidden" value="' . $clientDetail->org_extension_logo[0] . '"><input name="logoDel" type="checkbox" value="on"> ' . $strings['delete']);
-    } 
-} 
+    $logoPath = '../logos_clients/' . $id . '.' . $clientDetail->org_extension_logo[0];
 
-$block1->contentRow('', '<input type="SUBMIT" value="' . $strings['save'] . '">');
+    if (file_exists($logoPath)) {
+        $block1->formRow(
+            '',
+            '<img src="' . $logoPath . '" class="img-fluid mb-2">
+
+             <input type="hidden" name="extensionOld" value="' . $clientDetail->org_extension_logo[0] . '">
+
+             <div class="form-check mt-2">
+                 <input class="form-check-input" type="checkbox" name="logoDel" value="on">
+                 <label class="form-check-label">' . $strings['delete'] . '</label>
+             </div>'
+        );
+    }
+}
+
+
+
+$block1->formRow('', '<input  class="btn btn-primary" type="SUBMIT" value="' . $strings['save'] . '">');
 
 $block1->closeContent();
 $block1->headingForm_close();

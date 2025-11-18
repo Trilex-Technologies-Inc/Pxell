@@ -29,8 +29,9 @@ require_once('../themes/' . THEME . '/header.php');
 $block1 = new block();
 $block1->headingForm($strings['administration']);
 
-$block1->openContent();
+
 $block1->contentTitle($strings['admin_intro']);
+echo '<div class="admin-grid" >';
 
 $block1->contentRow('', buildLink('../users/listusers.php', $strings['user_management'], LINK_INSIDE));
 $block1->contentRow('', buildLink('../services/listservices.php', $strings['service_management'], LINK_INSIDE));
@@ -57,8 +58,8 @@ if ($updateChecker == 'true' && $installationType == 'online') {
 if (is_dir('../installation')) {
     $block1->contentRow('', '<b>' . $strings['attention'] . '</b> : ' . $strings['install_erase']);
 }
+echo '</div>';
 
-$block1->closeContent();
 $block1->headingForm_close();
 
 

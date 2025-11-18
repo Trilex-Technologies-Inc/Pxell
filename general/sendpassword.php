@@ -79,9 +79,25 @@ $block1->headingForm('NetOffice : ' . $strings['password']);
 
 $block1->openContent();
 $block1->contentTitle($strings['enter_login']);
-
-$block1->contentRow('* ' . $strings['user_name'], '<input style="width: 125px" maxlength="16" size="16" value="' . $loginForm . '" type="text" name="loginForm">');
-$block1->contentRow('', '<input type="submit" name="send" value="' . $strings['send'] . '">');
+$block1->formRow(
+    '* ' . $strings['user_name'],
+    '<input 
+        type="text" 
+        name="loginForm" 
+        value="' . $loginForm . '"
+        class="form-control"
+        maxlength="16"
+      
+    >'
+);
+$block1->formRow(
+    '',
+    '<button 
+        type="submit" 
+        name="send" 
+        class="btn btn-primary"
+    >' . $strings['send'] . '</button>'
+);
 
 $block1->closeContent();
 $block1->headingForm_close();

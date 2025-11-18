@@ -408,10 +408,27 @@ $block1->openContent();
 $block1->form = 'hoT';
 $block1->openForm("../administration/listholidays.php?action=add&amp;d=" . $d. "&amp;c=" . $c . "#" . $block1->form . "Anchor");
 
-$block1->contentRow($strings["date"], "<input type=\"text\" style=\"width: 150px;\" name=\"d\" id=\"sel1\" size=\"20\" value=\"$sd\"><button type=\"reset\" id=\"trigger_a\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel1\", button:\"trigger_a\" });</script>");
-$block1->contentRow($strings["comments"], "<textarea rows=\"10\" style=\"width: 400px; height: 160px;\" name=\"c\" cols=\"47\">$c</textarea>");
+// ---------- DATE ----------
+echo '<div class="mb-3">
+        <label class="form-label fw-bold">' . $strings["date"] . ' :</label>
+        <div class="input-group" style="max-width: 200px;">
+            <input type="date" name="d" id="sel1" value="' . htmlspecialchars($sd) . '" class="form-control">
+            <button type="button" id="trigger_a" class="btn btn-outline-secondary">...</button>
+        </div>
+      
+      </div>';
 
-echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td><input type=\"SUBMIT\" value=\"" . $strings["save"] . "\"></td></tr>";
+// ---------- COMMENTS ----------
+echo '<div class="mb-3">
+        <label class="form-label fw-bold">' . $strings["comments"] . ' :</label>
+        <textarea name="c" rows="10" class="form-control" style="max-width: 400px; height: 160px;">' . htmlspecialchars($c) . '</textarea>
+      </div>';
+
+// ---------- SUBMIT BUTTON ----------
+echo '<div class="mb-3">
+        <input type="submit" value="' . $strings["save"] . '" class="btn btn-primary">
+      </div>';
+
 
 $block1->closeContent();
 

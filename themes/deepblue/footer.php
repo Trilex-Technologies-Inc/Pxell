@@ -26,8 +26,47 @@ if ($footerDev == true) {
     echo ' - <a href="http://validator.w3.org/check/referer" target="w3c">w3c</a> (in progress)';
 } 
 
-echo '</p>
-</body>
-</html>';
+echo '</p>'
 
 ?>
+
+<!-- JavaScript -->
+<script>
+    // Toggle sidebar
+    document.getElementById('sidebarToggle').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('collapsed');
+    });
+
+    // Mobile menu toggle
+    document.getElementById('mobileMenuToggle').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('active');
+    });
+
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+        const sidebar = document.getElementById('sidebar');
+        const mobileToggle = document.getElementById('mobileMenuToggle');
+
+        if (window.innerWidth <= 992 &&
+            !sidebar.contains(event.target) &&
+            !mobileToggle.contains(event.target)) {
+            sidebar.classList.remove('active');
+        }
+    });
+
+    // Adjust content margin on window resize
+    window.addEventListener('resize', function() {
+        const sidebar = document.getElementById('sidebar');
+        const content = document.querySelector('.content');
+
+        if (window.innerWidth > 992) {
+            if (sidebar.classList.contains('collapsed')) {
+                content.style.marginLeft = 'calc(70px + 20px)';
+            } else {
+                content.style.marginLeft = 'calc(250px + 20px)';
+            }
+        }
+    });
+</script>
+</body>
+</html>

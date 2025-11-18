@@ -140,11 +140,13 @@ if ($auth == 'on') {
                 }
             }
         } else {
-            if ((!$ssl) and (!is_password_match($loginForm, $passwordForm, $loginUser->mem_password[0]))) {
+            
+            if ((!is_password_match($loginForm, $passwordForm, $loginUser->mem_password[0]))) {
                 $error = $strings['invalid_login'];
             } else {
                 $match = true;
-            } 
+            }
+          
         }
 
         if ($match == true) {
@@ -267,24 +269,51 @@ $block1->headingForm('NetOffice : ' . $strings['login']);
 $block1->openContent();
 #$block1->contentTitle($strings['please_login']);
 // build lang drop list
-$selectLanguage = '<select name="languageForm">';
-array_multisort($langValue, SORT_ASC, SORT_STRING);
-foreach ($langValue as $key => $value) {
-    if (file_exists('../languages/lang_' . $key . '.php')) {
-        if ($langDefault == $key) {
-            $selectLanguage .= '<option value="' . $key . '" selected>' . $value . ' (Default)</option>';
-        } else {
-            $selectLanguage .= '<option value="' . $key . '">' . $value . '</option>';
-        }
-    }
-}
-$selectLanguage .= '</select>';
+?>
 
-$block1->contentRow($strings['language'], $selectLanguage);
-$block1->contentRow('* ' . $strings['user_name'], '<input value="' . $loginForm . '" type="text" name="loginForm">');
-$block1->contentRow('* ' . $strings['password'], '<input value="' . $passwordForm . '" type="password" name="passwordForm">');
-$block1->contentRow($strings['remember_password'],'<input type="checkbox" name="rememberForm" value="on">');
-$block1->contentRow('', '<input type="submit" name="loginSubmit" value="' . $strings['login'] . '"><br><br><br>' . buildLink('../general/sendpassword.php', $strings['forgot_pwd'], in));
+ <div class="mb-3">
+        <label for="languageForm" class="form-label"><?php echo $strings['language']; ?></label>
+        <select name="languageForm" id="languageForm" class="form-select">
+            <?php
+            array_multisort($langValue, SORT_ASC, SORT_STRING);
+            foreach ($langValue as $key => $value) {
+                if (file_exists('../languages/lang_' . $key . '.php')) {
+                    $selected = ($langDefault == $key) ? 'selected' : '';
+                    $display = ($langDefault == $key) ? "$value (Default)" : $value;
+                    echo '<option value="' . $key . '" ' . $selected . '>' . htmlspecialchars($display) . '</option>';
+                }
+            }
+            ?>
+        </select>
+    </div>
+
+    <!-- Username -->
+    <div class="mb-3">
+        <label for="loginForm" class="form-label">* <?php echo $strings['user_name']; ?></label>
+        <input type="text" name="loginForm" id="loginForm" value="<?php echo htmlspecialchars($loginForm); ?>" class="form-control">
+    </div>
+
+    <!-- Password -->
+    <div class="mb-3">
+        <label for="passwordForm" class="form-label">* <?php echo $strings['password']; ?></label>
+        <input type="password" name="passwordForm" id="passwordForm" value="<?php echo htmlspecialchars($passwordForm); ?>" class="form-control">
+    </div>
+        <!-- Remember Me -->
+    <div class="form-check mb-3">
+        <input type="checkbox" name="rememberForm" value="on" id="rememberForm" class="form-check-input">
+        <label class="form-check-label" for="rememberForm"><?php echo $strings['remember_password']; ?></label>
+    </div>
+        <!-- Submit -->
+    <div class="d-grid mb-3">
+        <input  type="submit" name="loginSubmit" class="btn btn-primary" value="<?php echo $strings['login']; ?>">
+    </div>
+        <!-- Forgot Password -->
+    <div class="text-center">
+        <?php echo buildLink('../general/sendpassword.php', $strings['forgot_pwd'], 'in'); ?>
+    </div>
+
+<?php
+
 
 $block1->closeContent();
 $block1->headingForm_close();

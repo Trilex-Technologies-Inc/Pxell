@@ -292,139 +292,113 @@ echo '
 if ($version == $versionNew) {
     if ($versionOld == '') {
         $versionOld = $version;
-    } 
-
+    }
     echo '<input value="' . $versionOld . '" name="versionOldNew" type="hidden">';
 } else {
     echo '<input value="' . $version . '" name="versionOldNew" type="hidden">';
-} 
+}
 
-$safemodeTest = ini_get(safe_mode);
-
-if ($safemodeTest == '1') {
-    $safemode = 'on';
-} else {
-    $safemode = 'off';
-} 
-
+$safemodeTest = ini_get('safe_mode');
+$safemode = ($safemodeTest == '1') ? 'on' : 'off';
 $notificationsTest = function_exists('mail');
+$mail = ($notificationsTest == true) ? 'on' : 'off';
 
-if ($notificationsTest == 'true') {
-    $mail = 'on';
-} else {
-    $mail = 'off';
-} 
+$checked1_a = ($mkdirMethod == 'FTP') ? 'checked' : '';
+$checked2_a = ($mkdirMethod != 'FTP') ? 'checked' : '';
+$checked2_b = ($notifications == 'true') ? 'checked' : '';
+$checked1_b = ($notifications != 'true') ? 'checked' : '';
+$checked1_c = ($forcedLogin == 'true') ? 'checked' : '';
+$checked2_c = ($forcedLogin != 'true') ? 'checked' : '';
+$checked1_d = ($clientsFilter == 'true') ? 'checked' : '';
+$checked2_d = ($clientsFilter != 'true') ? 'checked' : '';
+$checked1_e = ($updateChecker == 'true') ? 'checked' : '';
+$checked2_e = ($updateChecker != 'true') ? 'checked' : '';
+$checked1_f = ($gmtTimezone == 'true') ? 'checked' : '';
+$checked2_f = ($gmtTimezone != 'true') ? 'checked' : '';
+$checked1_h = ($projectsFilter == 'true') ? 'checked' : '';
+$checked2_h = ($projectsFilter != 'true') ? 'checked' : '';
+$checked1_j = ($footerDev == true) ? 'checked' : '';
+$checked2_j = ($footerDev != true) ? 'checked' : '';
+$checked1_k = ($enableMantis == 'true') ? 'checked' : '';
+$checked2_k = ($enableMantis != 'true') ? 'checked' : '';
+$checked1_g = ($notificationMethod == 'smtp') ? 'checked' : '';
+$checked2_g = ($notificationMethod != 'smtp') ? 'checked' : '';
+$installCheckOffline = ($installationType == 'offline') ? 'checked' : '';
+$installCheckOnline = ($installationType != 'offline') ? 'checked' : '';
 
-if ($mkdirMethod == 'FTP') {
-    $checked1_a = 'checked';
-} else {
-    $checked2_a = 'checked';
-} 
-
-if ($notifications == 'true') {
-    $checked2_b = 'checked';
-} else {
-    $checked1_b = 'checked';
-} 
-
-if ($forcedLogin == 'true') {
-    $checked1_c = 'checked';
-} else {
-    $checked2_c = 'checked';
-} 
-
-if ($clientsFilter == 'true') {
-    $checked1_d = 'checked';
-} else {
-    $checked2_d = 'checked';
-} 
-
-if ($updateChecker == 'true') {
-    $checked1_e = 'checked';
-} else {
-    $checked2_e = 'checked';
-} 
-
-if ($gmtTimezone == 'true') {
-    $checked1_f = 'checked';
-} else {
-    $checked2_f = 'checked';
-} 
-
-if ($projectsFilter == 'true') {
-    $checked1_h = 'checked';
-} else {
-    $checked2_h = 'checked';
-} 
-
-if ($footerDev == true) {
-    $checked1_j = 'checked';
-} else {
-    $checked2_j = 'checked';
-} 
-
-if ($enableMantis == 'true') {
-    $checked1_k = 'checked';
-} else {
-    $checked2_k = 'checked';
-} 
-
-if ($notificationMethod == 'smtp') {
-    $checked1_g = 'checked';
-} else {
-    $checked2_g = 'checked';
-} 
-
-if ($installationType == 'offline') {
-    $installCheckOffline = 'checked';
-} else {
-    $installCheckOnline = 'checked';
-} 
-
-$block1->contentRow('Installation type', '<input type="radio" name="installationTypeNew" value="offline" ' . $installCheckOffline . '> Offline (firewall/intranet, no update checker)&nbsp;<input type="radio" name="installationTypeNew" value="online" ' . $installCheckOnline . '> Online');
-
-$block1->contentRow('Update checker', '<input type="radio" name="updateCheckerNew" value="false" ' . $checked2_e . '> False&nbsp;<input type="radio" name="updateCheckerNew" value="true" ' . $checked1_e . '> True');
+$block1->contentRow('Installation type', '
+  <div class="form-group">
+    <input class="form-radio" type="radio" name="installationTypeNew" value="offline" ' . $installCheckOffline . '> Offline 
+    <input class="form-radio" type="radio" name="installationTypeNew" value="online" ' . $installCheckOnline . '> Online
+  </div>');
+$block1->contentRow('Update checker', '
+  <div class="mb-3">
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="updateCheckerNew" value="false" ' . $checked2_e . '>
+      <label class="form-check-label">False</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="updateCheckerNew" value="true" ' . $checked1_e . '>
+      <label class="form-check-label">True</label>
+    </div>
+  </div>');
 
 echo '
-  <tr class="odd">
-    <td valign="top" class="leftvalue">* Create folder method' . $blockPage->printHelp('setup_mkdirMethod') . '</td>
-    <td>
-	  <table cellpadding="0" cellspacing="0" width="500">
-        <tr>
-          <td valign="top">
-		    <input type="radio" name="mkdirMethodNew" value="PHP" ' . $checked2_a . '> PHP&nbsp;
-            <input type="radio" name="mkdirMethodNew" value="FTP" ' . $checked1_a . '> FTP<br>
-            [Safe-mode ' . $safemode . ']</td>
-          <td align="right">
-            Ftp server <input size="44" value="' . FTPSERVER . '" style="width: 200px" name="ftpserverNew" maxlength="100" type="text"><br>
-            Ftp login <input size="44" value="' . FTPLOGIN . '" style="width: 200px" name="ftploginNew" maxlength="100" type="text"><br>
-            Ftp password <input size="44" value="' . FTPPASSWORD . '" style="width: 200px" name="ftppasswordNew" maxlength="100" type="password"><br>
-            Ftp root <input size="44" value="' . $ftpRoot . '" style="width: 200px" name="ftpRootNew" maxlength="100" type="text">
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-  <tr class="odd">
-    <td valign="top" class="leftvalue">* Notification method' . $blockPage->printHelp('setup_notificationMethod') . '</td>
-	<td>
-      <table cellpadding="0" cellspacing="0" width="500">
-	    <tr>
-		  <td valign="top">
-		    <input type="radio" name="notificationMethodNew" value="mail" ' . $checked2_g . '> PHP mail function&nbsp;
-			<input type="radio" name="notificationMethodNew" value="smtp" ' . $checked1_g . '> SMTP</td>
-          <td align="right">
-            Smtp server <input size="44" value="' . SMTPSERVER . '" style="width: 200px" name="smtpserverNew" maxlength="100" type="text"><br>
-            Smtp login <input size="44" value="' . SMTPLOGIN . '" style="width: 200px" name="smtploginNew" maxlength="100" type="text"><br>
-            Smtp password <input size="44" value="' . SMTPPASSWORD . '" style="width: 200px" name="smtppasswordNew" maxlength="100" type="password">
-          </td>
-		</tr>
-      </table>
-    </td>
-  </tr>
-  <tr class="odd">
-    <td valign="top" class="leftvalue">* Theme :</td>
-    <td><select name="mythemeNew">';
+<div class="mb-4">
+  <label class="form-label">* Create folder method ' . $blockPage->printHelp('setup_mkdirMethod') . '</label>
+  <div class="mb-3">
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="mkdirMethodNew" value="PHP" ' . $checked2_a . '>
+      <label class="form-check-label">PHP</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="mkdirMethodNew" value="FTP" ' . $checked1_a . '>
+      <label class="form-check-label">FTP</label>
+    </div>
+    <span class="text-muted">[Safe-mode ' . $safemode . ']</span>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">FTP server</label>
+    <input class="form-control" name="ftpserverNew" value="' . FTPSERVER . '" type="text">
+
+    <label class="form-label mt-2">FTP login</label>
+    <input class="form-control" name="ftploginNew" value="' . FTPLOGIN . '" type="text">
+
+    <label class="form-label mt-2">FTP password</label>
+    <input class="form-control" name="ftppasswordNew" value="' . FTPPASSWORD . '" type="password">
+
+    <label class="form-label mt-2">FTP root</label>
+    <input class="form-control" name="ftpRootNew" value="' . $ftpRoot . '" type="text">
+  </div>
+</div>
+
+<div class="mb-4">
+  <label class="form-label">* Notification method ' . $blockPage->printHelp('setup_notificationMethod') . '</label>
+  <div class="mb-3">
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="notificationMethodNew" value="mail" ' . $checked2_g . '>
+      <label class="form-check-label">PHP mail function</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="notificationMethodNew" value="smtp" ' . $checked1_g . '>
+      <label class="form-check-label">SMTP</label>
+    </div>
+  </div>
+
+  <label class="form-label">SMTP server</label>
+  <input class="form-control" name="smtpserverNew" value="' . SMTPSERVER . '" type="text">
+
+  <label class="form-label mt-2">SMTP login</label>
+  <input class="form-control" name="smtploginNew" value="' . SMTPLOGIN . '" type="text">
+
+  <label class="form-label mt-2">SMTP password</label>
+  <input class="form-control" name="smtppasswordNew" value="' . SMTPPASSWORD . '" type="password">
+</div>
+
+<div class="mb-4">
+  <label class="form-label">* Theme :</label>
+  <select class="form-select" name="mythemeNew">';
 
 $all = opendir('../themes');
 while ($directory = readdir($all)) {
@@ -433,69 +407,127 @@ while ($directory = readdir($all)) {
             echo '<option value="' . $directory . '" selected>' . $directory . '</option>';
         } else {
             echo '<option value="' . $directory . '">' . $directory . '</option>';
-        } 
-    } 
-} 
+        }
+    }
+}
 closedir($all);
 
-echo '</td></tr>';
+echo '</select>
+</div>';
 
-$block1->contentRow('Notifications' . $blockPage->printHelp('setup_notifications'), '<input type="radio" name="notificationsNew" value="false" ' . $checked1_b . '> False&nbsp;<input type="radio" name="notificationsNew" value="true" ' . $checked2_b . '> True<br>[Mail ' . $mail . ']');
-$block1->contentRow('Timezone (GMT)', '<input type="radio" name="gmtTimezoneNew" value="false" ' . $checked2_f . '> False&nbsp;<input type="radio" name="gmtTimezoneNew" value="true" ' . $checked1_f . '> True');
-$block1->contentRow('* Forced login' . $blockPage->printHelp('setup_forcedlogin'), '<input type="radio" name="forcedloginNew" value="false" ' . $checked2_c . '> False&nbsp;<input type="radio" name="forcedloginNew" value="true" ' . $checked1_c . '> True');
+$block1->contentRow('Notifications' . $blockPage->printHelp('setup_notifications'), '
+  <div class="mb-3">
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="notificationsNew" value="false" ' . $checked1_b . '>
+      <label class="form-check-label">False</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="notificationsNew" value="true" ' . $checked2_b . '>
+      <label class="form-check-label">True</label>
+    </div>
+    <span class="text-muted">[Mail ' . $mail . ']</span>
+  </div>');
+
+$block1->contentRow('Timezone (GMT)', '
+  <div class="mb-3">
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="gmtTimezoneNew" value="false" ' . $checked2_f . '>
+      <label class="form-check-label">False</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="gmtTimezoneNew" value="true" ' . $checked1_f . '>
+      <label class="form-check-label">True</label>
+    </div>
+  </div>');
+
+$block1->contentRow('* Forced login' . $blockPage->printHelp('setup_forcedlogin'), '
+  <div class="mb-3">
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="forcedloginNew" value="false" ' . $checked2_c . '>
+      <label class="form-check-label">False</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="forcedloginNew" value="true" ' . $checked1_c . '>
+      <label class="form-check-label">True</label>
+    </div>
+  </div>');
 
 echo '
-  <tr class="odd">
-    <td valign="top" class="leftvalue">Default language' . $blockPage->printHelp('setup_langdefault') . '</td>
-    <td><select name="langNew">
-      <option value="">Blank</option>
-      <option value="az" ' . $langSelected['az'] . '>Azerbaijani</option>
-      <option value="pt-br" ' . $langSelected['pt-br'] . '>Brazilian Portuguese</option>
-      <option value="bg" ' . $langSelected['bg'] . '>Bulgarian</option>
-      <option value="ca" ' . $langSelected['ca'] . '>Catalan</option>
-      <option value="zh" ' . $langSelected['zh'] . '>Chinese simplified</option>
-      <option value="zh-tw" ' . $langSelected['zh-tw'] . '>Chinese traditional</option>
-      <option value="cs-iso" ' . $langSelected['cs-iso'] . '>Czech (iso)</option>
-      <option value="cs-win1250" ' . $langSelected['cs-win1250'] . '>Czech (win1250)</option>
-      <option value="da" ' . $langSelected['da'] . '>Danish</option>
-      <option value="nl" ' . $langSelected['nl'] . '>Dutch</option>
-      <option value="en" ' . $langSelected['en'] . '>English</option>
-      <option value="et" ' . $langSelected['et'] . '>Estonian</option>
-      <option value="fr" ' . $langSelected['fr'] . '>French</option>
-      <option value="de" ' . $langSelected['de'] . '>German</option>
-      <option value="hu" ' . $langSelected['hu'] . '>Hungarian</option>
-      <option value="is" ' . $langSelected['is'] . '>Icelandic</option>
-      <option value="in" ' . $langSelected['in'] . '>Indonesian</option>
-      <option value="it" ' . $langSelected['it'] . '>Italian</option>
-      <option value="ko" ' . $langSelected['ko'] . '>Korean</option>
-      <option value="lv" ' . $langSelected['lv'] . '>Latvian</option>
-      <option value="no" ' . $langSelected['no'] . '>Norwegian</option>
-      <option value="pl" ' . $langSelected['pl'] . '>Polish</option>
-      <option value="pt" ' . $langSelected['pt'] . '>Portuguese</option>
-      <option value="ro" ' . $langSelected['ro'] . '>Romanian</option>
-      <option value="ru" ' . $langSelected['ru'] . '>Russian</option>
-      <option value="sk-win1250" ' . $langSelected['sk-win1250'] . '>Slovak (win1250)</option>
-      <option value="es" ' . $langSelected['es'] . '>Spanish</option>
-      <option value="tr" ' . $langSelected['tr'] . '>Turkish</option>
-      <option value="uk" ' . $langSelected['uk'] . '>Ukrainian</option>
-      </select>
-    </td>
-  </tr>';
+<div class="mb-4">
+  <label class="form-label">Default language ' . $blockPage->printHelp('setup_langdefault') . '</label>
+  <select class="form-select" name="langNew">
+    <option value="">Blank</option>
+    <option value="az" ' . $langSelected['az'] . '>Azerbaijani</option>
+    <option value="pt-br" ' . $langSelected['pt-br'] . '>Brazilian Portuguese</option>
+    <option value="bg" ' . $langSelected['bg'] . '>Bulgarian</option>
+    <option value="ca" ' . $langSelected['ca'] . '>Catalan</option>
+    <option value="zh" ' . $langSelected['zh'] . '>Chinese simplified</option>
+    <option value="zh-tw" ' . $langSelected['zh-tw'] . '>Chinese traditional</option>
+    <option value="cs-iso" ' . $langSelected['cs-iso'] . '>Czech (iso)</option>
+    <option value="cs-win1250" ' . $langSelected['cs-win1250'] . '>Czech (win1250)</option>
+    <option value="da" ' . $langSelected['da'] . '>Danish</option>
+    <option value="nl" ' . $langSelected['nl'] . '>Dutch</option>
+    <option value="en" ' . $langSelected['en'] . '>English</option>
+    <option value="et" ' . $langSelected['et'] . '>Estonian</option>
+    <option value="fr" ' . $langSelected['fr'] . '>French</option>
+    <option value="de" ' . $langSelected['de'] . '>German</option>
+    <option value="hu" ' . $langSelected['hu'] . '>Hungarian</option>
+    <option value="is" ' . $langSelected['is'] . '>Icelandic</option>
+    <option value="in" ' . $langSelected['in'] . '>Indonesian</option>
+    <option value="it" ' . $langSelected['it'] . '>Italian</option>
+    <option value="ko" ' . $langSelected['ko'] . '>Korean</option>
+    <option value="lv" ' . $langSelected['lv'] . '>Latvian</option>
+    <option value="no" ' . $langSelected['no'] . '>Norwegian</option>
+    <option value="pl" ' . $langSelected['pl'] . '>Polish</option>
+    <option value="pt" ' . $langSelected['pt'] . '>Portuguese</option>
+    <option value="ro" ' . $langSelected['ro'] . '>Romanian</option>
+    <option value="ru" ' . $langSelected['ru'] . '>Russian</option>
+    <option value="sk-win1250" ' . $langSelected['sk-win1250'] . '>Slovak (win1250)</option>
+    <option value="es" ' . $langSelected['es'] . '>Spanish</option>
+    <option value="tr" ' . $langSelected['tr'] . '>Turkish</option>
+    <option value="uk" ' . $langSelected['uk'] . '>Ukrainian</option>
+  </select>
+</div>';
 
-$block1->contentRow('* Root', '<input size="44" value="' . $root . '" style="width: 200px" name="rootNew" maxlength="100" type="text">');
+$block1->contentRow('* Root', '<input class="form-control" value="' . $root . '" name="rootNew" maxlength="100" type="text">');
 
-$block1->contentRow('* Default max file size', '<input size="44" value="' . $maxFileSize . '" style="width: 200px" name="maxFileSizeNew" maxlength="100" type="text"> ' . $byteUnits[0]);
+$block1->contentRow('* Default max file size', '<input class="form-control d-inline-block w-auto" value="' . $maxFileSize . '" name="maxFileSizeNew" maxlength="100" type="text"> ' . $byteUnits[0]);
 
 $block1->contentTitle('Options');
-$block1->contentRow('Clients filter' . $blockPage->printHelp('setup_clientsfilter'), '<input type="radio" name="clientsFilterNew" value="false" ' . $checked2_d . '> False&nbsp;<input type="radio" name="clientsFilterNew" value="true" ' . $checked1_d . '> True');
-$block1->contentRow('Projects filter' . $blockPage->printHelp('setup_projectsfilter'), '<input type="radio" name="projectsFilterNew" value="false" ' . $checked2_h . '> False&nbsp;<input type="radio" name="projectsFilterNew" value="true" ' . $checked1_h . '> True');
+$block1->contentRow('Clients filter' . $blockPage->printHelp('setup_clientsfilter'), '
+  <div class="form-check form-check-inline">
+    <input class="form-check-input" type="radio" name="clientsFilterNew" value="false" ' . $checked2_d . '>
+    <label class="form-check-label">False</label>
+  </div>
+  <div class="form-check form-check-inline">
+    <input class="form-check-input" type="radio" name="clientsFilterNew" value="true" ' . $checked1_d . '>
+    <label class="form-check-label">True</label>
+  </div>');
+
+$block1->contentRow('Projects filter' . $blockPage->printHelp('setup_projectsfilter'), '
+  <div class="form-check form-check-inline">
+    <input class="form-check-input" type="radio" name="projectsFilterNew" value="false" ' . $checked2_h . '>
+    <label class="form-check-label">False</label>
+  </div>
+  <div class="form-check form-check-inline">
+    <input class="form-check-input" type="radio" name="projectsFilterNew" value="true" ' . $checked1_h . '>
+    <label class="form-check-label">True</label>
+  </div>');
 
 $block1->contentTitle('Advanced');
-$block1->contentRow('Extended footer (dev)', '<input type="radio" name="footerdevNew" value="false" ' . $checked2_j . '> False&nbsp;<input type="radio" name="footerdevNew" value="true" ' . $checked1_j . '> True');
-$block1->contentRow('MySQL client charset', '<input name="mycharsetNew" value="'.$databaseCharset.'" size="10" maxlength="50" type="text"');
-// $block1->contentRow('Mantis integration','<input type="radio" name="mantisNew" value="false" '.$checked2_k.'> False&nbsp;<input type="radio" name="mantisNew" value="true" '.$checked1_k.'> True');
-// $block1->contentRow('Mantis url','<input size="44" value="'.$pathMantis.'" style="width: 200px" name="pathMantisNew" maxlength="100" type="text">');
-$block1->contentRow('', '<input type="SUBMIT" value="' . $strings['save'] . '">');
+$block1->contentRow('Extended footer (dev)', '
+  <div class="form-check form-check-inline">
+    <input class="form-check-input" type="radio" name="footerdevNew" value="false" ' . $checked2_j . '>
+    <label class="form-check-label">False</label>
+  </div>
+  <div class="form-check form-check-inline">
+    <input class="form-check-input" type="radio" name="footerdevNew" value="true" ' . $checked1_j . '>
+    <label class="form-check-label">True</label>
+  </div>');
+
+$block1->contentRow('MySQL client charset', '<input class="form-control w-auto d-inline-block" name="mycharsetNew" value="'.$databaseCharset.'" size="10" maxlength="50" type="text">');
+
+$block1->contentRow('', '<button type="submit" class="btn btn-primary">' . $strings['save'] . '</button>');
 
 $block1->closeContent();
 $block1->headingForm_close();

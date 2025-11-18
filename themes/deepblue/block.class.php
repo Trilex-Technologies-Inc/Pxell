@@ -81,22 +81,18 @@ class block {
     //=== heading with embedded icon-palette ============
     // NOTE: must by closed by "headingForm_close()"
     function headingForm($title) {
-
-     	echo "<div class=blockHeader>";
-        echo "<table class=title>";
-        echo "<tr>";
-	    echo "<td>";
-		echo "&nbsp;".$title."</td>";
-		echo "<td width=\"1%\">&nbsp;&nbsp;&nbsp;";
-    	echo "</td>";
-		echo "</tr>";
-		echo "<tr><td class=blockForm colspan=2>";
-
-	}
+        echo '<div class="blockHeader border rounded mb-3">';
+        echo '<div class="title  text-primary d-flex justify-content-between align-items-center px-3 py-2">';
+        echo '<div class="fw-bold">' . htmlspecialchars($title) . '</div>';
+        echo '<div class="ms-3">&nbsp;</div>'; // optional right space
+        echo '</div>';
+        echo '<div class="blockForm bg-light p-3">';
+    }
 
     function headingForm_close() {
-		echo "</td></tr></table></div>";
-	}
+        echo '</div>'; // close blockForm
+        echo '</div>'; // close blockHeader
+    }
 
     function closeToggle() {
         echo "</div>\n\n";
@@ -177,9 +173,15 @@ class block {
      * @param string $content Text printed in content error table
      * @access public
      */
-    function contentError($content) {
-        echo "<table class=\"error\"><tr><td>" . $content . "</td></tr></table>\n";
-    }
+   function contentError($content)
+{
+    echo '
+    <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <div>' . $content . '</div>
+    </div>';
+}
+
 
 
     function returnBorne($current) {
@@ -523,151 +525,142 @@ document." . $this->form . "Form.buttons = new Array();\n";
     }
 
     /**
-     * Start a table to display sheet/form
+     * Start a div container to display sheet/form
      *
-     * @see block::contentRow()
      * @access public
      */
-    function openContent()   {
-        //echo "<table class=\"content\" cellspacing=\"0\" cellpadding=\"0\">";
-        echo "<div class=content><table cellspacing=\"0\" cellpadding=\"0\">";
-
+    function openContent() {
+        echo '<div class=" border p-3 rounded bg-light">';
     }
 
     /**
-     * Display a table line in sheet/form
+     * Display a row in sheet/form using Bootstrap classes
      *
-     * @param string $left Text in left cell
-     * @param string $right Text in right cell
-     * @param boolean $altern Option to altern background color
+     * @param string $left Text in left column
+     * @param string $right Text in right column
+     * @param boolean $altern Option to alternate background color
      * @access public
      */
-    function contentRow($left, $right, $altern = "false")
-    {
-        if ($this->class == "") {
-            $this->class = "odd";
-        }
-        if ($left != "") {
-            echo "<tr class=\"$this->class\"><td valign=\"top\" class=\"leftvalue\">" . $left . " :</td><td>" . $right . "&nbsp;</td></tr>\n";
-        }
-        else {
-            echo "<tr class=\"$this->class\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td>" . $right . "&nbsp;</td></tr>\n";
-        }
-        if ($this->class == "odd" && $altern == "true") {
-            $this->class = "even";
-        }
-        else if ($this->class == "even" && $altern == "true") {
-            $this->class = "odd";
-        }
+   function contentRow($left, $right, $altern = false)
+{
+    if ($this->class == "") {
+        $this->class = "bg-white";
     }
 
-    function openRow($ref=-1) {
+    $bgClass = $this->class;
 
-     	if($ref == -1) {
-	        echo '<tr class="'.$this->class.'"';
-	        echo " onmouseover=\"this.style.backgroundColor='". $this->highlightOn  ."'\"";
-	        echo " onmouseout=\"this.style.backgroundColor='" . $this->highlightOff ."'\"";
-	        echo ">";
-	        if ($this->class == "odd") {
-	            $this->class = "even";
-	            $this->highlightOff = $this->evenColor;
-	            $change = "false";
-	        }
-	        else if ($this->class == "even" && $change != "false") {
-	            $this->class = "odd";
-	            $this->highlightOff = $this->oddColor;
-	        }
-		}
-		else {
-		 	$change = "true";
-	        echo '<tr class="'.$this->class.'"';
-	        echo " onmouseover=\"this.style.backgroundColor='". $this->highlightOn  ."'\" ";
-	        echo " onmouseout=\"this.style.backgroundColor='" . $this->highlightOff ."'\" ";
-	        echo " onclick=\"";
-			echo "MM_toggleItem(document.";
-	        echo $this->form;
-	        echo "Form, '" . $ref . "', '";
-	        echo $this->form."cb" . $ref;
-	        echo "','$this->theme')";
-	        echo "\"";
-
-	        echo ">\n";
-	        if ($this->class == "odd") {
-	            $this->class = "even";
-	            $this->highlightOff = $this->evenColor;
-	            $change = "false";
-	        }
-	        else if ($this->class == "even" && $change != "false") {
-	            $this->class = "odd";
-	            $this->highlightOff = $this->oddColor;
-	        }
-		}
-	}
-
-    function checkboxRow($ref, $checkbox = "true") {
-        if ($checkbox == "true") {
-            echo "<td align=\"center\">";
-            echo "<a href=\"javascript:MM_toggleItem(document." . $this->form . "Form, '" . $ref . "', '" . $this->form . "cb" . $ref . "','$this->theme')\">";
-            #echo "<img name=\"" . $this->form . "cb" . $ref . "\" border=\"0\" src=\"$this->pathImg/$this->theme/checkbox_off_16.gif\" alt=\"\" vspace=\"3\">";
-			echo "<img ";
-	        echo " onclick=\"";
-			echo "MM_toggleItem(document.";
-	        echo $this->form;
-	        echo "Form, '" . $ref . "', '";
-	        echo $this->form."cb" . $ref;
-	        echo "','$this->theme')";
-	        echo "\"";
-			echo " name=\"" . $this->form . "cb" . $ref . "\" border=\"0\" src=\"$this->pathImg/$this->theme/checkbox_off_16.gif\" alt=\"\" vspace=\"3\">";
-            echo "</a>";
-            echo "</td>";
-        }
-        else {
-            echo "<td><img height=\"13\" width=\"13\" border=\"0\" src=\"$this->pathImg/$this->theme/spacer.gif\" alt=\"\" vspace=\"3\"></td>";
-        }
-
-
-	 /*    if ($checkbox == "true") {
-            echo "<td align=\"center\">";
-            echo "<a href=\"javascript:MM_toggleItem(document.";
-            echo $this->form;
-            echo "Form, '" . $ref . "', '";
-            echo $this->form."cb" . $ref;
-            echo "','$this->theme')\">";
-            echo "<img name=\"";
-            echo $this->form . "cb" . $ref;
-            echo "\" border=\"0\" src=\"$this->pathImg/$this->theme/checkbox_off_16.gif\" alt=\"\" vspace=\"3\">";
-            echo "</a></td>";
-        }
-        else {
-            echo "<td><img height=\"13\" width=\"13\" border=\"0\" src=\"$this->pathImg/$this->theme/spacer.gif\" alt=\"\" vspace=\"3\"></td>";
-        }*/
+    // If left is empty, use a Bootstrap card
+    if (trim($left) === "") {
+        echo '
+        <div class="admin-card">
+           
+                ' . $right . '
+          
+        </div>';
+    } else {
+        // Standard row layout
+        echo '<div class="row py-2 align-items-center ' . $bgClass . '">';
+        echo '<div class="col-4 fw-bold text-end pe-3">' . ($left) . ':</div>';
+        echo '<div class="col-8">' . $right . '</div>';
+        echo '</div>';
     }
 
-    function cellRow($content = null, $width = null, $nowrap = null) {
-        if ($nowrap == true) {
-            $nowrap = ' nowrap';
-        }
-
-        if ($width) {
-            echo '<td width="' . $width . '%"' . $nowrap . '>' . $content . '</td>';
-        }
-        else
-        {
-            echo '<td' . $nowrap . '>' . $content . '</td>';
-        }
+    // Alternate row background
+    if ($altern) {
+        $this->class = ($this->class == "bg-white") ? "bg-light" : "bg-white";
+    }
+}
+function formRow($label, $input, $alternate = false)
+{
+    if (empty($this->class)) {
+        $this->class = "bg-white";
     }
 
+    $bg = $this->class;
+
+    echo '
+    <div class="row py-2 ' . $bg . '">
+        <div class="col-12 fw-bold mb-1">'
+            . ($label) . '
+        </div>
+        <div class="col-12">
+            ' . $input . '
+        </div>
+    </div>';
+
+    if ($alternate) {
+        $this->class = ($this->class === "bg-white") ? "bg-light" : "bg-white";
+    }
+}
+
+    /**
+     * Open a clickable row
+     *
+     * @param int $ref Optional reference ID
+     * @access public
+     */
+    function openRow($ref = -1) {
+        $highlightStyle = "style='cursor:pointer;'";
+        echo '<div class="row py-2 ' . $this->class . '" ';
+
+        if ($ref == -1) {
+            echo "onmouseover=\"this.style.backgroundColor='" . $this->highlightOn . "'\" ";
+            echo "onmouseout=\"this.style.backgroundColor='" . $this->highlightOff . "'\"";
+        } else {
+            echo "onmouseover=\"this.style.backgroundColor='" . $this->highlightOn . "'\" ";
+            echo "onmouseout=\"this.style.backgroundColor='" . $this->highlightOff . "'\" ";
+            echo "onclick=\"MM_toggleItem(document." . $this->form . "Form, '" . $ref . "', '" . $this->form . "cb" . $ref . "','$this->theme')\"";
+        }
+
+        echo ">";
+        $this->class = ($this->class == "bg-white") ? "bg-light" : "bg-white";
+    }
+
+    /**
+     * Display a checkbox in a row
+     */
+    function checkboxRow($ref, $checkbox = true) {
+        echo '<div class="col-auto text-center">';
+        if ($checkbox) {
+            echo '<a href="javascript:MM_toggleItem(document.' . $this->form . 'Form, \'' . $ref . '\', \'' . $this->form . 'cb' . $ref . '\',\'' . $this->theme . '\')">';
+            echo '<img name="' . $this->form . 'cb' . $ref . '" border="0" src="' . $this->pathImg . '/' . $this->theme . '/checkbox_off_16.gif" alt="" class="my-1">';
+            echo '</a>';
+        } else {
+            echo '<img height="13" width="13" src="' . $this->pathImg . '/' . $this->theme . '/spacer.gif" alt="" class="my-1">';
+        }
+        echo '</div>';
+    }
+
+    /**
+     * Display a single cell (column)
+     */
+    function cellRow($content = null, $width = null, $nowrap = false) {
+        $style = $nowrap ? 'white-space: nowrap;' : '';
+        $style .= $width ? 'width:' . $width . '%;' : '';
+        echo '<div class="col" style="' . $style . '">' . $content . '</div>';
+    }
+
+    /**
+     * Close the opened row
+     */
     function closeRow() {
-        echo "\n</tr>\n";
+        echo '</div>'; // Close row
     }
 
+    /**
+     * Display a section title
+     */
     function contentTitle($title) {
-        echo "<tr><th colspan=\"2\">" . $title . "</th></tr>";
+        echo '<div class="row bg-primary text-white fw-bold py-2 rounded-2 m-1"><div class="col text-center">' . $title . '</div></div>';
     }
 
+    /**
+     * Close the content container
+     */
     function closeContent() {
-        echo "</table></div>";
+        echo '</div>'; // Close content container
     }
+
 
     function closeForm() {
         echo "</form>\n";

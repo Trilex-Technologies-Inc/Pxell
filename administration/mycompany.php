@@ -94,19 +94,70 @@ if ($error != '') {
 $block1->headingForm($strings['company_details']);
 $block1->openContent();
 $block1->contentTitle($strings['company_info']);
-$block1->contentRow($strings['name'], '<input size="44" value="' . $cn . '" style="width: 400px" name="cn" maxlength="100" type="TEXT">');
-$block1->contentRow($strings['address'], '<textarea rows="3" style="width: 400px; height: 50px;" name="add" cols="43">' . $add . '</textarea>');
-$block1->contentRow($strings['phone'], '<input size="32" value="' . $wp . '" style="width: 250px" name="wp" maxlength="32" type="TEXT">');
-$block1->contentRow($strings['url'], '<input size="44" value="' . $url . '" style="width: 400px" name="url" maxlength="2000" type="TEXT">');
-$block1->contentRow($strings['email'], '<input size="44" value="' . $email . '" style="width: 400px" name="email" maxlength="2000" type="TEXT">');
-$block1->contentRow($strings['comments'], '<textarea rows="3" style="width: 400px; height: 50px;" name="c" cols="43">' . $c . '</textarea>');
-$block1->contentRow($strings['logo'] . $blockPage->printHelp('mycompany_logo'), '<input size="44" style="width: 400px" name="upload" type="file">');
 
+// ---------- NAME ----------
+$block1->formRow(
+    $strings['name'],
+    '<input type="text" name="cn" value="' . htmlspecialchars($cn) . '" class="form-control" maxlength="100">'
+);
+
+// ---------- ADDRESS ----------
+$block1->formRow(
+    $strings['address'],
+    '<textarea name="add" class="form-control" rows="3">' . htmlspecialchars($add) . '</textarea>'
+);
+
+// ---------- PHONE ----------
+$block1->formRow(
+    $strings['phone'],
+    '<input type="text" name="wp" value="' . htmlspecialchars($wp) . '" class="form-control" maxlength="32">'
+);
+
+// ---------- URL ----------
+$block1->formRow(
+    $strings['url'],
+    '<input type="url" name="url" value="' . htmlspecialchars($url) . '" class="form-control" maxlength="2000">'
+);
+
+// ---------- EMAIL ----------
+$block1->formRow(
+    $strings['email'],
+    '<input type="email" name="email" value="' . htmlspecialchars($email) . '" class="form-control" maxlength="2000">'
+);
+
+// ---------- COMMENTS ----------
+$block1->formRow(
+    $strings['comments'],
+    '<textarea name="c" class="form-control" rows="3">' . htmlspecialchars($c) . '</textarea>'
+);
+
+// ---------- LOGO UPLOAD ----------
+$block1->formRow(
+    $strings['logo'] . $blockPage->printHelp('mycompany_logo'),
+    '<input type="file" name="upload" class="form-control">'
+);
+
+// ---------- EXISTING LOGO DISPLAY AND DELETE OPTION ----------
 if (file_exists('../logos_clients/1.' . $clientDetail->org_extension_logo[0])) {
-    $block1->contentRow('', '<img src="../logos_clients/1.' . $clientDetail->org_extension_logo[0] . '" border="0" alt="' . $clientDetail->org_name[0] . '"><input name="extensionOld" type="hidden" value="' . $clientDetail->org_extension_logo[0] . '"> <input name="logoDel" type="checkbox" value="on"> ' . $strings['delete']);
-} 
+    $block1->formRow(
+        '',
+        '<div class="mb-2">
+            <img src="../logos_clients/1.' . $clientDetail->org_extension_logo[0] . '" alt="' . htmlspecialchars($clientDetail->org_name[0]) . '" class="img-fluid mb-1">
+            <input type="hidden" name="extensionOld" value="' . htmlspecialchars($clientDetail->org_extension_logo[0]) . '">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="logoDel" value="on" id="logoDel">
+                <label class="form-check-label" for="logoDel">' . $strings['delete'] . '</label>
+            </div>
+        </div>'
+    );
+}
 
-$block1->contentRow('', '<input type="SUBMIT" value="' . $strings['save'] . '">');
+// ---------- SUBMIT BUTTON ----------
+$block1->formRow(
+    '',
+    '<input type="submit" value="' . $strings['save'] . '" class="btn btn-primary">'
+);
+
 $block1->closeContent();
 $block1->headingForm_close();
 $block1->closeForm();
