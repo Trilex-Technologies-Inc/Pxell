@@ -193,97 +193,107 @@ else {
 $block1->openContent();
 $block1->contentTitle($strings['details']);
 
-echo '
-  <tr class="odd">
-    <td valign="top" class="leftvalue">' . $strings['bookmark_category'] . ' :</td>
-    <td><select name="category">
-      <option value="0">-</option>';
+echo '<div class="mb-3">';
+echo '<label class="form-label">' . $strings['bookmark_category'] . ' :</label>';
+echo '<select name="category" class="form-select">';
+echo '<option value="0">-</option>';
 
 $tmpquery = 'ORDER BY boocat.name';
 $listCategories = new request();
 $listCategories->openBookmarksCategories($tmpquery);
 $comptListCategories = count($listCategories->boocat_id);
 
-for ($i = 0;$i < $comptListCategories;$i++) {
-    if ($listCategories->boocat_id[$i] == $bookmarkDetail->boo_category[0]) {
-        echo '<option value="' . $listCategories->boocat_id[$i] . '" selected>' . $listCategories->boocat_name[$i] . '</option>';
-    } else {
-        echo '<option value="' . $listCategories->boocat_id[$i] . '">' . $listCategories->boocat_name[$i] . '</option>';
-    } 
-} 
+for ($i = 0; $i < $comptListCategories; $i++) {
+    $selected = ($listCategories->boocat_id[$i] == $bookmarkDetail->boo_category[0]) ? 'selected' : '';
+    echo '<option value="' . $listCategories->boocat_id[$i] . '" ' . $selected . '>' . $listCategories->boocat_name[$i] . '</option>';
+}
+echo '</select>';
+echo '</div>';
 
-echo '</select>
-    </td>
-  </tr>
-  <tr class="odd">
-<td valign="top" class="leftvalue">' . $strings["bookmark_category_new"] . ' :</td>
-<td><input size="44" value="' . $category_new . '" style="width: 400px" name="category_new" type="TEXT"></td>
-</tr>
-<tr class="odd">
-<td valign="top" class="leftvalue">' . $strings["name"] . ' :</td>
-<td><input size="44" value="' . $name . '" style="width: 400px" name="name" type="TEXT"></td>
-</tr>
-<tr class="odd">
-<td valign="top" class="leftvalue">' . $strings["url"] . ' :</td>
-<td><input size="44" value="' . $url . '" style="width: 400px" name="url" type="TEXT"></td>
-</tr>
-<tr class="odd">
-<td valign="top" class="leftvalue">' . $strings["description"] . ' :</td>
-<td><textarea rows="10" style="width: 400px; height: 160px;" name="description" cols="47">' . $description . '</textarea></td>
-</tr>
-<tr class="odd">
-<td valign="top" class="leftvalue">' . $strings["shared"] . ' :</td>
-<td><input size="32" value="1" name="shared" type="checkbox" ' . $checkedShared . '></td>
-</tr>
-<tr class="odd">
-<td valign="top" class="leftvalue">' . $strings["home"] . ' :</td>
-<td><input size="32" value="1" name="home" type="checkbox" ' . $checkedHome . '></td>
-</tr>
-<tr class="odd">
-<td valign="top" class="leftvalue">' . $strings["comments"] . ' :</td>
-<td><input size="32" value="1" name="comments" type="checkbox" ' . $checkedComments . '></td>
-</tr>';
+/* --- New Category --- */
+echo '<div class="mb-3">';
+echo '<label class="form-label">' . $strings["bookmark_category_new"] . ' :</label>';
+echo '<input type="text" class="form-control" name="category_new" value="' . htmlspecialchars($category_new) . '" style="max-width:400px;">';
+echo '</div>';
 
+/* --- Name --- */
+echo '<div class="mb-3">';
+echo '<label class="form-label">' . $strings["name"] . ' :</label>';
+echo '<input type="text" class="form-control" name="name" value="' . htmlspecialchars($name) . '" style="max-width:400px;">';
+echo '</div>';
+
+/* --- URL --- */
+echo '<div class="mb-3">';
+echo '<label class="form-label">' . $strings["url"] . ' :</label>';
+echo '<input type="text" class="form-control" name="url" value="' . htmlspecialchars($url) . '" style="max-width:400px;">';
+echo '</div>';
+
+/* --- Description --- */
+echo '<div class="mb-3">';
+echo '<label class="form-label">' . $strings["description"] . ' :</label>';
+echo '<textarea class="form-control" name="description" rows="6" style="max-width:400px;">' . htmlspecialchars($description) . '</textarea>';
+echo '</div>';
+
+/* --- Shared --- */
+echo '<div class="form-check mb-2">';
+echo '<input class="form-check-input" type="checkbox" id="shared" name="shared" value="1" ' . $checkedShared . '>';
+echo '<label for="shared" class="form-check-label">' . $strings["shared"] . '</label>';
+echo '</div>';
+
+/* --- Home --- */
+echo '<div class="form-check mb-2">';
+echo '<input class="form-check-input" type="checkbox" id="home" name="home" value="1" ' . $checkedHome . '>';
+echo '<label for="home" class="form-check-label">' . $strings["home"] . '</label>';
+echo '</div>';
+
+/* --- Comments --- */
+echo '<div class="form-check mb-3">';
+echo '<input class="form-check-input" type="checkbox" id="comments" name="comments" value="1" ' . $checkedComments . '>';
+echo '<label for="comments" class="form-check-label">' . $strings["comments"] . '</label>';
+echo '</div>';
+
+/* --- Private / Members --- */
 if ($demoMode == true) {
     $tmpquery = "WHERE mem.id != '" . $_SESSION['idSession'] . "' AND mem.profil != '3' ORDER BY mem.login";
 } else {
     $tmpquery = "WHERE mem.id != '" . $_SESSION['idSession'] . "' AND mem.profil != '3' AND mem.id != '2' ORDER BY mem.login";
-} 
+}
 
 $listUsers = new request();
 $listUsers->openMembers($tmpquery);
 $comptListUsers = count($listUsers->mem_id);
 
 $oldCaptured = $bookmarkDetail->boo_users[0];
-
 if ($bookmarkDetail->boo_users[0] != "") {
     $listCaptured = explode('|', $bookmarkDetail->boo_users[0]);
     $comptListCaptured = count($listCaptured);
-} 
+}
 
 if ($comptListUsers != '0') {
-    echo '<tr class="odd"><td valign="top" class="leftvalue">' . $strings['private'] . ' :</td><td><select name="piecesNew[]" multiple size=10>'; 
-    // $oldCaptured = '';
-    for($i = 0; $i < $comptListUsers; $i++) {
-        $selected[$i] = '';
+    echo '<div class="mb-3">';
+    echo '<label class="form-label">' . $strings['private'] . ' :</label>';
+    echo '<select name="piecesNew[]" multiple size="10" class="form-select" style="max-width:400px;">';
 
-        for($j = 0; $j < $comptListCaptured; $j++) {
+    for ($i = 0; $i < $comptListUsers; $i++) {
+        $selected = '';
+        for ($j = 0; $j < $comptListCaptured; $j++) {
             if ($listUsers->mem_id[$i] == $listCaptured[$j]) {
-                $selected[$i] = 'selected'; 
-                // $oldCaptured .= $listCaptured[$j].':';
+                $selected = 'selected';
                 break;
-            } else {
-                $selected[$i] = '';
-            } 
-        } 
+            }
+        }
+        echo '<option value="' . $listUsers->mem_id[$i] . '" ' . $selected . '>' . $listUsers->mem_login[$i] . '</option>';
+    }
 
-        echo '<option value=' . $listUsers->mem_id[$i] . ' ' . $selected[$i] . '>' . $listUsers->mem_login[$i] . '</option>';
-    } 
+    echo '</select>';
+    echo '<input type="hidden" name="oldCaptured" value="' . htmlspecialchars($oldCaptured) . '">';
+    echo '</div>';
+}
 
-    echo '</select></td></tr><input type="hidden" name="oldCaptured" value="' . $oldCaptured . '">';
-} 
-
-echo '<tr class="odd"><td valign="top" class="leftvalue">&nbsp;</td><td><input type="SUBMIT" value="' . $strings['save'] . '"></td></tr>';
+/* --- Submit --- */
+echo '<div class="mt-3">';
+echo '<input type="submit" class="btn btn-primary" value="' . $strings['save'] . '">';
+echo '</div>';
 
 $block1->closeContent();
 $block1->headingForm_close();

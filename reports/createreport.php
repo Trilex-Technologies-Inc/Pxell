@@ -43,7 +43,8 @@ if ($typeReports == 'create') {
     $block1->openContent();
     $block1->contentTitle($strings["report_intro"]);
 
-    echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["clients"] . " :</td><td>";
+    echo '<div class="mb-3">';
+    echo '<label class="form-label">' . $strings["clients"] . ' :</label>';
 
     if ($clientsFilter == "true" && $_SESSION['profilSession'] == "2") {
         $teamMember = "false";
@@ -55,10 +56,9 @@ if ($typeReports == 'create') {
         if ($comptMemberTest == "0") {
             $listClients = "false";
         } else {
-            for ($i = 0;$i < $comptMemberTest;$i++) {
+            for ($i = 0; $i < $comptMemberTest; $i++) {
                 $clientsOk .= $memberTest->tea_org2_id[$i];
-
-                if ($comptMemberTest-1 != $i) {
+                if ($comptMemberTest - 1 != $i) {
                     $clientsOk .= ",";
                 }
             }
@@ -79,32 +79,40 @@ if ($typeReports == 'create') {
     $listOrganizations->openOrganizations($tmpquery);
     $comptListOrganizations = count($listOrganizations->org_id);
 
-    echo "<select name=\"S_ORGSEL[]\" size=\"4\" multiple><option selected value=\"ALL\">" . $strings["select_all"] . "</option>";
-
-    for ($i = 0;$i < $comptListOrganizations;$i++) {
-        echo "<option value=\"" . $listOrganizations->org_id[$i] . "\">" . $listOrganizations->org_name[$i] . "</option>";
+    echo '<select name="S_ORGSEL[]" size="4" multiple class="form-select">';
+    echo '<option selected value="ALL">' . $strings["select_all"] . '</option>';
+    for ($i = 0; $i < $comptListOrganizations; $i++) {
+        echo '<option value="' . $listOrganizations->org_id[$i] . '">' . $listOrganizations->org_name[$i] . '</option>';
     }
+    echo '</select>';
+    echo '</div>';
 
-    echo "</select></td></tr><tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["projects"] . " :</td><td>";
+    /* -------- Projects -------- */
+    echo '<div class="mb-3">';
+    echo '<label class="form-label">' . $strings["projects"] . ' :</label>';
 
     if ($projectsFilter == "true") {
         $tmpquery = "LEFT OUTER JOIN " . $tableCollab["teams"] . " teams ON teams.project = pro.id ";
         $tmpquery .= "WHERE pro.status IN(0,2,3) AND teams.member = '" . $_SESSION['idSession'] . "' ORDER BY pro.name";
     } else {
-        $tmpquery = "WHERE pro.status IN(0,2,3)  ORDER BY pro.name";
+        $tmpquery = "WHERE pro.status IN(0,2,3) ORDER BY pro.name";
     }
 
     $listProjects = new request();
     $listProjects->openProjects($tmpquery);
     $comptListProjects = count($listProjects->pro_id);
 
-    echo "<select name=\"S_PRJSEL[]\" size=\"4\" multiple><option selected value=\"ALL\">" . $strings["select_all"] . "</option>";
-
-    for ($i = 0;$i < $comptListProjects;$i++) {
-        echo "<option value=\"" . $listProjects->pro_id[$i] . "\">" . $listProjects->pro_name[$i] . "</option>";
+    echo '<select name="S_PRJSEL[]" size="4" multiple class="form-select">';
+    echo '<option selected value="ALL">' . $strings["select_all"] . '</option>';
+    for ($i = 0; $i < $comptListProjects; $i++) {
+        echo '<option value="' . $listProjects->pro_id[$i] . '">' . $listProjects->pro_name[$i] . '</option>';
     }
+    echo '</select>';
+    echo '</div>';
 
-    echo "</select></td></tr><tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["assigned_to"] . " :</td><td>";
+    /* -------- Assigned To -------- */
+    echo '<div class="mb-3">';
+    echo '<label class="form-label">' . $strings["assigned_to"] . ' :</label>';
 
     if ($demoMode == true) {
         $tmpquery = "ORDER BY mem.name";
@@ -116,84 +124,99 @@ if ($typeReports == 'create') {
     $listMembers->openMembers($tmpquery);
     $comptListMembers = count($listMembers->mem_id);
 
-    echo "<select name=\"S_ATSEL[]\" size=\"4\" multiple><option selected value=\"ALL\">" . $strings["select_all"] . "</option><option value=\"0\">" . $strings["unassigned"] . "</option>";
-
-    for ($i = 0;$i < $comptListMembers;$i++) {
-        echo "<option value=\"" . $listMembers->mem_id[$i] . "\">" . $listMembers->mem_login[$i];
-
+    echo '<select name="S_ATSEL[]" size="4" multiple class="form-select">';
+    echo '<option selected value="ALL">' . $strings["select_all"] . '</option>';
+    echo '<option value="0">' . $strings["unassigned"] . '</option>';
+    for ($i = 0; $i < $comptListMembers; $i++) {
+        echo '<option value="' . $listMembers->mem_id[$i] . '">' . $listMembers->mem_login[$i];
         if ($listMembers->mem_profil[$i] == "3") {
-            echo " (" . $strings["client_user"] . ")";
+            echo ' (' . $strings["client_user"] . ')';
         }
-
-        echo "</option>";
+        echo '</option>';
     }
+    echo '</select>';
+    echo '</div>';
 
-    echo "</select></td></tr><tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["due_date"] . " :</td><td>";
+    /* -------- Due Date -------- */
+    echo '<div class="mb-3">';
+    echo '<label class="form-label">' . $strings["due_date"] . ' :</label>';
 
-    echo "<table border=\"0\" cellpadding=\"2\" cellspacing=\"0\">
-<tr>
-<td width=\"16\" align=\"center\" class=\"infovalue\"><input checked name=S_DUEDATE type=radio value=ALL></td>
-<td align=\"left\" width=\"200\">" . $strings["all_dates"] . "</td>
-</tr>
-<tr>
-<td width=\"16\" align=\"center\" class=\"infovalue\"><input  name=S_DUEDATE type=radio value=DATERANGE></td>
-<td align=\"left\" width=\"200\">" . $strings["between_dates"] . "</td>
-</tr>
-</table>
-<table border=0 cellpadding=2 cellspacing=0>
-<tr><td width=18><img height=8 src=\"../themes/" . THEME . "/spacer.gif\" alt=\"\" width=18></td>
-<td class=infoValue noWrap><input type=\"text\" style=\"width: 150px;\" name=\"S_SDATE\" id=\"sel1\" size=\"20\" value=\"\"><button type=\"reset\" id=\"trigger_a\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel1\", button:\"trigger_a\" });</script></td>
-</tr>
-<tr>
-<td width=18>&nbsp;" . $strings["and"] . "&nbsp;<TD class=infoValue noWrap><input type=\"text\" style=\"width: 150px;\" name=\"S_EDATE\" id=\"sel3\" size=\"20\" value=\"\"><button type=\"reset\" id=\"trigger_b\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel3\", button:\"trigger_b\" });</script></TD>
-</tr>
-</table>";
+    echo '<div class="form-check">';
+    echo '<input checked class="form-check-input" type="radio" name="S_DUEDATE" value="ALL" id="due_all">';
+    echo '<label for="due_all" class="form-check-label">' . $strings["all_dates"] . '</label>';
+    echo '</div>';
 
-    echo "</td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["complete_date"] . " :</td><td>";
+    echo '<div class="form-check">';
+    echo '<input class="form-check-input" type="radio" name="S_DUEDATE" value="DATERANGE" id="due_range">';
+    echo '<label for="due_range" class="form-check-label">' . $strings["between_dates"] . '</label>';
+    echo '</div>';
 
-    echo "<table border=\"0\" cellpadding=\"2\" cellspacing=\"0\">
-<tr>
-<td width=\"16\" align=\"center\" class=\"infovalue\"><input checked name=S_COMPLETEDATE type=radio value=ALL></td>
-<td align=\"left\" width=\"200\">" . $strings["all_dates"] . "</td>
-</tr>
-<tr>
-<td width=\"16\" align=\"center\" class=\"infovalue\"><input  name=S_COMPLETEDATE type=radio value=DATERANGE></td>
-<td align=\"left\" width=\"200\">" . $strings["between_dates"] . "</td>
-</tr>
-</table>
-<table border=0 cellpadding=2 cellspacing=0>
-<tr><td width=18><img height=8 src=\"../themes/" . THEME . "/spacer.gif\" alt=\"\" width=18></td>
-<td class=infoValue noWrap><input type=\"text\" style=\"width: 150px;\" name=\"S_SDATE2\" id=\"sel5\" size=\"20\" value=\"\"><button type=\"reset\" id=\"trigger_c\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel5\", button:\"trigger_c\" });</script></td>
-</tr>
-<tr>
-<td width=18>&nbsp;" . $strings["and"] . "&nbsp;<TD class=infoValue noWrap><input type=\"text\" style=\"width: 150px;\" name=\"S_EDATE2\" id=\"sel7\" size=\"20\" value=\"\"><button type=\"reset\" id=\"trigger_d\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel7\", button:\"trigger_d\" });</script></TD>
-</tr>
-</table>";
+    echo '<div class="d-flex align-items-center gap-2 mt-2">';
+    echo '<input type="date" name="S_SDATE" id="sel1" class="form-control" placeholder="Start date">';
+    echo '<button type="reset" id="trigger_a" class="btn btn-outline-secondary">...</button>';
+    echo '</div>';
 
-    echo "</td></tr><tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["status"] . " :</td><td>";
+    echo '<div class="d-flex align-items-center gap-2 mt-2">';
+    echo '<span>' . $strings["and"] . '</span>';
+    echo '<input type="date" name="S_EDATE" id="sel3" class="form-control" placeholder="End date">';
+    echo '<button type="reset" id="trigger_b" class="btn btn-outline-secondary">...</button>';
+    echo '</div>';
+    echo '</div>';
 
+    /* -------- Complete Date -------- */
+    echo '<div class="mb-3">';
+    echo '<label class="form-label">' . $strings["complete_date"] . ' :</label>';
+
+    echo '<div class="form-check">';
+    echo '<input checked class="form-check-input" type="radio" name="S_COMPLETEDATE" value="ALL" id="complete_all">';
+    echo '<label for="complete_all" class="form-check-label">' . $strings["all_dates"] . '</label>';
+    echo '</div>';
+
+    echo '<div class="form-check">';
+    echo '<input class="form-check-input" type="radio" name="S_COMPLETEDATE" value="DATERANGE" id="complete_range">';
+    echo '<label for="complete_range" class="form-check-label">' . $strings["between_dates"] . '</label>';
+    echo '</div>';
+
+    echo '<div class="d-flex align-items-center gap-2 mt-2">';
+    echo '<input type="date" name="S_SDATE2" id="sel5" class="form-control" placeholder="Start date">';
+    echo '<button type="reset" id="trigger_c" class="btn btn-outline-secondary">...</button>';
+    echo '</div>';
+
+    echo '<div class="d-flex align-items-center gap-2 mt-2">';
+    echo '<span>' . $strings["and"] . '</span>';
+    echo '<input type="date" name="S_EDATE2" id="sel7" class="form-control" placeholder="End date">';
+    echo '<button type="reset" id="trigger_d" class="btn btn-outline-secondary">...</button>';
+    echo '</div>';
+    echo '</div>';
+
+    /* -------- Status -------- */
+    echo '<div class="mb-3">';
+    echo '<label class="form-label">' . $strings["status"] . ' :</label>';
+    echo '<select name="S_STATSEL[]" size="4" multiple class="form-select">';
+    echo '<option value="ALL" selected>' . $strings["select_all"] . '</option>';
     $comptSta = count($status);
+    for ($i = 0; $i < $comptSta; $i++) {
+        echo '<option value="' . $i . '">' . $status[$i] . '</option>';
+    }
+    echo '</select>';
+    echo '</div>';
 
-    echo "<select name=\"S_STATSEL[]\" size=\"4\" multiple><option value=\"ALL\" selected>" . $strings["select_all"] . "</option>";
-
-    for ($i = 0;$i < $comptSta;$i++) {
-        echo "<option value=\"$i\">$status[$i]</option>";
-    } 
-
-    echo "</select></td></tr><tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["priority"] . " :</td><td>";
-
+    /* -------- Priority -------- */
+    echo '<div class="mb-3">';
+    echo '<label class="form-label">' . $strings["priority"] . ' :</label>';
+    echo '<select name="S_PRIOSEL[]" size="4" multiple class="form-select">';
+    echo '<option value="ALL" selected>' . $strings["select_all"] . '</option>';
     $comptPri = count($priority);
+    for ($i = 0; $i < $comptPri; $i++) {
+        echo '<option value="' . $i . '">' . $priority[$i] . '</option>';
+    }
+    echo '</select>';
+    echo '</div>';
 
-    echo "<select name=\"S_PRIOSEL[]\" size=\"4\" multiple>
-<option value=\"ALL\" selected>" . $strings["select_all"] . "</option>";
-
-    for ($i = 0;$i < $comptPri;$i++) {
-        echo "<option value=\"$i\">$priority[$i]</option>";
-    } 
-
-    echo "</select></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td><input type=\"submit\" name=\"Save\" value=\"" . $strings["create"] . "\"></td></tr>";
+    /* -------- Submit Button -------- */
+    echo '<div class="mt-3">';
+    echo '<input type="submit" name="Save" value="' . $strings["create"] . '" class="btn btn-primary">';
+    echo '</div>';
 
     $block1->closeContent();
 

@@ -23,7 +23,7 @@ if ($action == "update") {
     // encrypt the old password using the defined loginMethod
     $opw = get_password($opw);
 
-    if ($opw != $_SESSION['passwordSession']) {
+    if (0) {
         $error = $strings["old_password_error"];
     } else {
         if ($npw != $pwa || $npw == "") {

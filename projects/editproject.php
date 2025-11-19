@@ -434,53 +434,67 @@ else {
 
 $block1->openContent();
 $block1->contentTitle($strings['details']);
-
-echo '<tr class="odd"><td valign="top" class="leftvalue">' . $strings['name'] . ' :</td><td><input size="44" value="';
-// case copy project
+echo '<div class="mb-3">';
+echo '<label class="form-label">' . $strings['name'] . ' :</label>';
+echo '<input class="form-control" value="';
 if ($cpy == 'true') {
     echo $strings['copy_of'];
 }
+echo $pn . '" name="pn" maxlength="100" type="text">';
+echo '</div>';
 
-echo "$pn\" style=\"width: 400px\" name=\"pn\" maxlength=\"100\" type=\"text\"></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings['priority'] . ' :</td><td><select name="pr">';
-
+echo '<div class="mb-3">';
+echo '<label class="form-label">' . $strings['priority'] . ' :</label>';
+echo '<select name="pr" class="form-select">';
 $comptPri = count($priority);
-
 for ($i = 0; $i < $comptPri; $i++) {
     if ($projectDetail->pro_priority[0] == $i) {
         echo '<option value="' . $i . '" selected>' . $priority[$i] . '</option>';
     } else {
-        echo '<option value="' . $i . '">' .$priority[$i] . '</option>';
+        echo '<option value="' . $i . '">' . $priority[$i] . '</option>';
     }
 }
+echo '</select>';
+echo '</div>';
 
-echo "</select></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings['description'] . " :</td><td><textarea rows=\"10\" style=\"width: 400px; height: 160px;\" name=\"d\" cols=\"47\">$d</textarea></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings['url_dev'] . " :</td><td><input size=\"44\" value=\"$url_dev\" style=\"width: 400px\" name=\"url_dev\" maxlength=\"100\" type=\"text\"></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings['url_prod'] . " :</td><td><input size=\"44\" value=\"$url_prod\" style=\"width: 400px\" name=\"url_prod\" maxlength=\"100\" type=\"text\"></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings['owner'] . " :</td><td><select name=\"pown\">";
+echo '<div class="mb-3">';
+echo '<label class="form-label">' . $strings['description'] . ' :</label>';
+echo '<textarea class="form-control" rows="10" style="height:160px;" name="d">' . $d . '</textarea>';
+echo '</div>';
+
+echo '<div class="mb-3">';
+echo '<label class="form-label">' . $strings['url_dev'] . ' :</label>';
+echo '<input class="form-control" value="' . $url_dev . '" name="url_dev" maxlength="100" type="text">';
+echo '</div>';
+
+echo '<div class="mb-3">';
+echo '<label class="form-label">' . $strings['url_prod'] . ' :</label>';
+echo '<input class="form-control" value="' . $url_prod . '" name="url_prod" maxlength="100" type="text">';
+echo '</div>';
+
+echo '<div class="mb-3">';
+echo '<label class="form-label">' . $strings['owner'] . ' :</label>';
+echo '<select name="pown" class="form-select">';
 
 if ($demoMode == true) {
     $tmpquery = "WHERE (mem.profil = '1' OR mem.profil = '0' OR mem.profil = '5') ORDER BY mem.name";
 } else {
     $tmpquery = "WHERE (mem.profil = '1' OR mem.profil = '0' OR mem.profil = '5') AND mem.id != '2' ORDER BY mem.name";
-} 
-
+}
 $assignOwner = new request();
-
 $assignOwner->openMembers($tmpquery);
 $comptAssignOwner = count($assignOwner->mem_id);
 
 for ($i = 0; $i < $comptAssignOwner; $i++) {
-    if ($projectDetail->pro_mem_id[0] == $assignOwner->mem_id[$i]) {
-        echo '<option value="' . $assignOwner->mem_id[$i] . '" selected>' . $assignOwner->mem_login[$i] . ' / ' . $assignOwner->mem_name[$i] . '</option>';
-    } else {
-        echo '<option value="' . $assignOwner->mem_id[$i] . '">' . $assignOwner->mem_login[$i] . ' / ' . $assignOwner->mem_name[$i] . '</option>';
-    }
-} 
+    $selected = ($projectDetail->pro_mem_id[0] == $assignOwner->mem_id[$i]) ? 'selected' : '';
+    echo '<option value="' . $assignOwner->mem_id[$i] . '" ' . $selected . '>' . $assignOwner->mem_login[$i] . ' / ' . $assignOwner->mem_name[$i] . '</option>';
+}
+echo '</select>';
+echo '</div>';
 
-echo '</select></td></tr>
-<tr class="odd"><td valign="top" class="leftvalue">' . $strings['organization'] . ' :</td><td><select name="clod">';
+echo '<div class="mb-3">';
+echo '<label class="form-label">' . $strings['organization'] . ' :</label>';
+echo '<select name="clod" class="form-select">';
 
 if ($clientsFilter == 'true' && $_SESSION['profilSession'] == '1') {
     $tmpquery = "WHERE org.owner = '" . $_SESSION['idSession'] . "' AND org.id != '1' ORDER BY org.name";
@@ -491,78 +505,58 @@ $listClients = new request();
 $listClients->openOrganizations($tmpquery);
 $comptListClients = count($listClients->org_id);
 
-if ($projectDetail->pro_org_id[0] == '1') {
-    echo '<option value="1" selected>' . $strings['none'] . '</option>';
-} else {
-    echo '<option value="1">' . $strings['none'] . '</option>';
-}
+echo '<option value="1"' . ($projectDetail->pro_org_id[0] == '1' ? ' selected' : '') . '>' . $strings['none'] . '</option>';
 
 for ($i = 0; $i < $comptListClients; $i++) {
-    if ($projectDetail->pro_org_id[0] == $listClients->org_id[$i]) {
-        echo '<option value="' . $listClients->org_id[$i] . '" selected>' . $listClients->org_name[$i] . '</option>';
-    } else {
-        echo '<option value="' . $listClients->org_id[$i] . '">' . $listClients->org_name[$i] . '</option>';
-    }
+    $selected = ($projectDetail->pro_org_id[0] == $listClients->org_id[$i]) ? 'selected' : '';
+    echo '<option value="' . $listClients->org_id[$i] . '" ' . $selected . '>' . $listClients->org_name[$i] . '</option>';
 }
+echo '</select>';
+echo '</div>';
 
-echo '</select></td></tr>
-<tr class="odd"><td valign="top" class="leftvalue">' . $strings['enable_phases'] . ' :</td><td>
-<select name="thisPhase">';
-
+echo '<div class="mb-3">';
+echo '<label class="form-label">' . $strings['enable_phases'] . ' :</label>';
+echo '<select name="thisPhase" class="form-select">';
 $compSets = count($phaseArraySets['sets']);
-
-if ($projectDetail->pro_phase_set[0] == '0') {
-    echo '<option value="0" selected>' . $strings['none'] . '</option>';
-} else {
-    echo '<option value="0">' . $strings['none'] . '</option>';
+echo '<option value="0"' . ($projectDetail->pro_phase_set[0] == '0' ? ' selected' : '') . '>' . $strings['none'] . '</option>';
+for ($i = 1; $i <= $compSets; $i++) {
+    $selected = ($projectDetail->pro_phase_set[0] == $i) ? 'selected' : '';
+    echo '<option value="' . $i . '" ' . $selected . '>' . $phaseArraySets['sets'][$i] . '</option>';
 }
+echo '</select>';
+echo '</div>';
 
-for($i = 1; $i <= $compSets; $i++) {
-    if ($projectDetail->pro_phase_set[0] == $i) {
-        echo '<option value="' . $i . '" selected>' . $phaseArraySets['sets'][$i] . '</option>';
-    } else {
-        echo '<option value="' . $i . '">' . $phaseArraySets['sets'][$i] . '</option>';
-    } 
-} 
-
-echo '</select></td></tr>
-<tr class="odd"><td valign="top" class="leftvalue">' . $strings['status'] . ' :</td><td><select name="st">';
-
+echo '<div class="mb-3">';
+echo '<label class="form-label">' . $strings['status'] . ' :</label>';
+echo '<select name="st" class="form-select">';
 $comptSta = count($status);
-
 for ($i = 0; $i < $comptSta; $i++) {
-    if ($projectDetail->pro_status[0] == $i) {
-        echo '<option value="' . $i . '" selected>' . $status[$i] . '</option>';
-    } else {
-        echo '<option value="' . $i . '">' . $status[$i] . '</option>';
-    } 
-} 
-
-echo '</select></td></tr>';
-
-echo '
-  <tr class="odd">
-    <td valign="top" class="leftvalue">' . $strings['type'] . ' :</td>
-    <td>
-      <select name="pt">';
-
-foreach ($projectType as $k => $v) {
-    if ($k == $projectDetail->pro_type[0]) {
-        echo '        <option value="' . $k . '" selected>' . $v . '</option>';
-    } else {
-        echo '        <option value="' . $k . '">' . $v . '</option>';
-    } 
+    $selected = ($projectDetail->pro_status[0] == $i) ? 'selected' : '';
+    echo '<option value="' . $i . '" ' . $selected . '>' . $status[$i] . '</option>';
 }
+echo '</select>';
+echo '</div>';
 
-echo '      </select>
-    </td>
-  </tr>';
+echo '<div class="mb-3">';
+echo '<label class="form-label">' . $strings['type'] . ' :</label>';
+echo '<select name="pt" class="form-select">';
+foreach ($projectType as $k => $v) {
+    $selected = ($k == $projectDetail->pro_type[0]) ? 'selected' : '';
+    echo '<option value="' . $k . '" ' . $selected . '>' . $v . '</option>';
+}
+echo '</select>';
+echo '</div>';
 
 if ($fileManagement == 'true') {
-    echo '<tr class="odd"><td valign="top" class="leftvalue">' . $strings['max_upload'] . ' :</td><td><input size="20" value="' . $projectDetail->pro_upload_max[0] . '" style="width: 150px" name="up" maxlength="100" type="TEXT"> ' . $byteUnits[0] . '</td></tr>';
-} 
+    echo '<div class="mb-3">';
+    echo '<label class="form-label">' . $strings['max_upload'] . ' :</label>';
+    echo '<input class="form-control w-auto d-inline-block" value="' . $projectDetail->pro_upload_max[0] . '" name="up" maxlength="100" type="text"> ' . $byteUnits[0];
+    echo '</div>';
+}
 
-echo '<tr class="odd"><td valign="top" class="leftvalue">&nbsp;</td><td><input type="SUBMIT" value="' . $strings['save'] . '"></td></tr>';
+echo '<div class="mt-3">';
+echo '<button type="submit" class="btn btn-primary">' . $strings['save'] . '</button>';
+echo '</div>';
 
 $block1->closeContent();
 $block1->headingForm_close();

@@ -54,18 +54,36 @@ $block1->headingForm($strings["search"]);
 $block1->openContent();
 $block1->contentTitle($strings["enter_keywords"]);
 
-echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">* " . $strings["search_for"] . " :</td><td><input value=\"\" type=\"text\" name=searchfor style=\"width: 200px;\" size=\"30\" maxlength=\"64\" onBlur=\"if(this.value==' '||(this.value.length==1)){alert('Improper search parameters!');this.value='';this.focus();}\">
-<select name=\"heading\">
-		<option selected value=\"ALL\">" . $strings["all_content"] . "</option>
-		<option value=\"notes\">" . $strings["notes"] . "</option>
-		<option value=\"organizations\">" . $strings["organizations"] . "</option>
-		<option value=\"projects\">" . $strings["projects"] . "</option>
-		<option value=\"tasks\">" . $strings["tasks"] . "</option>
-		<option value=\"discussions\">" . $strings["discussions"] . "</option>
-		<option value=\"members\">" . $strings["users"] . "</option>
-</select>
-</td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td><input type=\"submit\" name=\"Save\" value=\"" . $strings["search"] . "\"></td></tr>";
+echo '
+<div class="mb-3">
+    <label class="form-label fw-bold">
+        * ' . $strings["search_for"] . '
+    </label>
+
+    <input 
+        type="text"
+        name="searchfor"
+        class="form-control mb-2"
+        maxlength="64"
+        onblur="if(this.value.trim().length <= 1){alert(\'Improper search parameters!\'); this.value=\'\'; this.focus();}"
+    >
+
+    <select name="heading" class="form-select">
+        <option selected value="ALL">' . $strings["all_content"] . '</option>
+        <option value="notes">' . $strings["notes"] . '</option>
+        <option value="organizations">' . $strings["organizations"] . '</option>
+        <option value="projects">' . $strings["projects"] . '</option>
+        <option value="tasks">' . $strings["tasks"] . '</option>
+        <option value="discussions">' . $strings["discussions"] . '</option>
+        <option value="members">' . $strings["users"] . '</option>
+    </select>
+</div>
+
+<div class="mb-3">
+    <button type="submit" name="Save" class="btn btn-primary">
+        ' . $strings["search"] . '
+    </button>
+</div>';
 
 $block1->closeContent();
 $block1->headingForm_close();
