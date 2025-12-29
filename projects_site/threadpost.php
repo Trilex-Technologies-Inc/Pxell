@@ -50,20 +50,38 @@ require_once ("include_header.php");
 
 $idStatus = $detailTopic->top_status[0];
 
-echo "<form accept-charset=\"UNKNOWN\" method=\"POST\" action=\"../projects_site/threadpost.php?action=add\" name=\"post\" enctype=\"application/x-www-form-urlencoded\"><input name=\"id\" type=\"hidden\" value=\"$id\">";
-
-echo "<table cellspacing=\"0\" width=\"90%\" cellpadding=\"3\">
-<tr><th colspan=\"4\">" . $detailTopic->top_subject[0] . "</th></tr>
-<tr><th colspan=\"4\">" . $strings["information"] . "</th></tr>
-<tr><th>" . $strings["project"] . ":</th><td>" . $projectDetail->pro_name[0] . "</td><th>" . $strings["posts"] . ":</th><td>" . $detailTopic->top_posts[0] . "</td></tr>
-<tr><th>&nbsp;</th><td>&nbsp;</td><th>" . $strings["last_post"] . ":</th><td>" . createDate($detailTopic->top_last_post[0], $_SESSION['timezoneSession']) . "</td></tr>
-<tr><th>&nbsp;</th><td>&nbsp;</td><th>" . $strings["retired"] . ":</th><td>$statusTopicBis[$idStatus]</td></tr>
-<tr><th>" . $strings["owner"] . ":</th><td colspan=\"3\"><a href=\"mailto:" . $detailTopic->top_mem_email_work[0] . "\">" . $detailTopic->top_mem_login[0] . "</a></td></tr>
-<tr><td colspan=\"4\">&nbsp;</td></tr>
-<tr><th colspan=\"4\">" . $strings["enter_message"] . "</th></tr>
-<tr><th nowrap>*&nbsp;" . $strings["message"] . ":</th><td colspan=\"3\"><textarea cols=\"60\" name=\"messageField\" rows=\"6\"></textarea></td></tr>
-<tr><td class=\"FormLabel\">&nbsp;</td><td colspan=\"3\"><input name=\"submit\" type=\"submit\" value=\"" . $strings["save"] . "\"></td></tr>
-</form>";
+echo '<form accept-charset="UNKNOWN" method="POST" action="../projects_site/threadpost.php?action=add" name="post" enctype="application/x-www-form-urlencoded">
+<input name="id" type="hidden" value="' . $id . '">
+<div class="card mb-3">
+<div class="card-header">
+<h4>' . htmlspecialchars($detailTopic->top_subject[0]) . '</h4>
+</div>
+<div class="card-body">
+<h5>' . htmlspecialchars($strings["information"]) . '</h5>
+<dl class="row mb-3">
+<dt class="col-sm-3">' . htmlspecialchars($strings["project"]) . ':</dt>
+<dd class="col-sm-3">' . htmlspecialchars($projectDetail->pro_name[0]) . '</dd>
+<dt class="col-sm-3">' . htmlspecialchars($strings["posts"]) . ':</dt>
+<dd class="col-sm-3">' . htmlspecialchars($detailTopic->top_posts[0]) . '</dd>
+<dt class="col-sm-3">' . htmlspecialchars($strings["last_post"]) . ':</dt>
+<dd class="col-sm-3">' . htmlspecialchars(createDate($detailTopic->top_last_post[0], $_SESSION['timezoneSession'])) . '</dd>
+<dt class="col-sm-3">' . htmlspecialchars($strings["retired"]) . ':</dt>
+<dd class="col-sm-3">' . htmlspecialchars($statusTopicBis[$idStatus]) . '</dd>
+<dt class="col-sm-3">' . htmlspecialchars($strings["owner"]) . ':</dt>
+<dd class="col-sm-9"><a href="mailto:' . htmlspecialchars($detailTopic->top_mem_email_work[0]) . '">' . htmlspecialchars($detailTopic->top_mem_login[0]) . '</a></dd>
+</dl>
+<hr>
+<h5>' . htmlspecialchars($strings["enter_message"]) . '</h5>
+<div class="mb-3">
+<label for="messageField" class="form-label">* ' . htmlspecialchars($strings["message"]) . ':</label>
+<textarea class="form-control" id="messageField" name="messageField" rows="6" cols="60"></textarea>
+</div>
+<div class="mb-3">
+<button type="submit" name="submit" class="btn btn-primary">' . htmlspecialchars($strings["save"]) . '</button>
+</div>
+</div>
+</div>
+</form>';
 
 $tmpquery = "WHERE pos.topic = '" . $detailTopic->top_id[0] . "' ORDER BY pos.created DESC";
 $listPosts = new request();
@@ -72,21 +90,26 @@ $comptListPosts = count($listPosts->pos_id);
 
 if ($comptListPosts != "0") {
     for ($i = 0;$i < $comptListPosts;$i++) {
-        if (!($i % 2)) {
-            $class = "odd";
-        } else {
-            $class = "even";
-        } 
-        echo "<tr><td colspan=\"4\" class=\"$class\">&nbsp;</td></tr>
-<tr class=\"$class\"><th>" . $strings["posted_by"] . " :</th><td>" . $listPosts->pos_mem_name[$i] . "</td><td colspan=\"2\" align=\"right\"><a href=\"../projects_site/threadpost.php?id=$id&amp;action=delete&amp;post=" . $listPosts->pos_id[$i] . "\">" . $strings["delete_message"] . "</a></td></tr>
-<tr class=\"$class\"><th>" . $strings["email"] . " :</th><td colspan=\"3\"><a href=\"mailto:" . $listPosts->pos_mem_email_work[$i] . "\">" . $listPosts->pos_mem_email_work[$i] . "</a></td></tr>
-<tr class=\"$class\"><th nowrap>" . $strings["when"] . " :</th><td colspan=\"3\">" . createDate($listPosts->pos_created[$i], $_SESSION['timezoneSession']) . "</td></tr>
-<tr class=\"$class\"><th>" . $strings["message"] . " :</th><td colspan=\"3\">" . nl2br($listPosts->pos_message[$i]) . "</td></tr>";
+        echo '<div class="card mb-3">
+<div class="card-header d-flex justify-content-between align-items-center">
+<div><strong>' . htmlspecialchars($strings["posted_by"]) . ':</strong> ' . htmlspecialchars($listPosts->pos_mem_name[$i]) . '</div>
+<div><a href="../projects_site/threadpost.php?id=' . $id . '&amp;action=delete&amp;post=' . $listPosts->pos_id[$i] . '" class="btn btn-sm btn-outline-danger">' . htmlspecialchars($strings["delete_message"]) . '</a></div>
+</div>
+<div class="card-body">
+<dl class="row mb-2">
+<dt class="col-sm-2">' . htmlspecialchars($strings["email"]) . ':</dt>
+<dd class="col-sm-10"><a href="mailto:' . htmlspecialchars($listPosts->pos_mem_email_work[$i]) . '">' . htmlspecialchars($listPosts->pos_mem_email_work[$i]) . '</a></dd>
+<dt class="col-sm-2">' . htmlspecialchars($strings["when"]) . ':</dt>
+<dd class="col-sm-10">' . htmlspecialchars(createDate($listPosts->pos_created[$i], $_SESSION['timezoneSession'])) . '</dd>
+<dt class="col-sm-2">' . htmlspecialchars($strings["message"]) . ':</dt>
+<dd class="col-sm-10">' . nl2br(htmlspecialchars($listPosts->pos_message[$i])) . '</dd>
+</dl>
+</div>
+</div>';
     } 
 } else {
-    echo "<tr><td colspan=\"4\" class=\"ListOddRow\">" . $strings["no_items"] . "</td></tr>";
-} 
-echo "</table>";
+    echo '<div class="alert alert-info">' . htmlspecialchars($strings["no_items"]) . '</div>';
+}
 
 require_once ("include_footer.php");
 

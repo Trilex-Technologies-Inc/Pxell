@@ -83,16 +83,29 @@ if ($comptUserDetail == "0") {
 $titlePage = $strings["change_password"];
 require_once("include_header.php");
 
-echo "<form accept-charset=\"UNKNOWN\" method=\"POST\" action=\"../projects_site/changepassword.php?action=update\" name=\"changepassword\" enctype=\"application/x-www-form-urlencoded\">";
-
-echo "<table cellspacing=\"0\" width=\"90%\" border=\"0\" cellpadding=\"3\">
-<tr><th colspan=\"2\">" . $strings["change_password"] . "</th></tr>
-<tr><th>*&nbsp;" . $strings["old_password"] . " :</th><td><input style=\"width: 150px;\" type=\"password\" name=\"opw\" value=\"\"></td></tr>
-<tr><th>*&nbsp;" . $strings["new_password"] . " :</th><td><input style=\"width: 150px;\" type=\"password\" name=\"npw\" value=\"\"></td></tr>
-<tr><th>*&nbsp;" . $strings["confirm_password"] . " :</th><td><input style=\"width: 150px;\" type=\"password\" name=\"pwa\" value=\"\"></td></tr>
-<tr><th>&nbsp;</th><td colspan=\"2\"><input name=\"submit\" type=\"submit\" value=\"" . $strings["save"] . "\"><br><br>$error</td></tr>
-</table>
-</form>";
+echo '<form accept-charset="UNKNOWN" method="POST" action="../projects_site/changepassword.php?action=update" name="changepassword" enctype="application/x-www-form-urlencoded" class="row g-3">
+<div class="col-md-6">
+<h3>' . htmlspecialchars($strings["change_password"]) . '</h3>
+<div class="mb-3">
+<label for="opw" class="form-label">* ' . htmlspecialchars($strings["old_password"]) . ':</label>
+<input type="password" class="form-control" id="opw" name="opw" value="" style="max-width: 300px;">
+</div>
+<div class="mb-3">
+<label for="npw" class="form-label">* ' . htmlspecialchars($strings["new_password"]) . ':</label>
+<input type="password" class="form-control" id="npw" name="npw" value="" style="max-width: 300px;">
+</div>
+<div class="mb-3">
+<label for="pwa" class="form-label">* ' . htmlspecialchars($strings["confirm_password"]) . ':</label>
+<input type="password" class="form-control" id="pwa" name="pwa" value="" style="max-width: 300px;">
+</div>
+<div class="mb-3">
+<button type="submit" name="submit" class="btn btn-primary">' . htmlspecialchars($strings["save"]) . '</button>
+</div>';
+if ($error) {
+    echo '<div class="alert alert-danger">' . htmlspecialchars($error) . '</div>';
+}
+echo '</div>
+</form>';
 
 require_once("include_footer.php");
 

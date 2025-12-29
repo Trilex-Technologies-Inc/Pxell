@@ -32,28 +32,36 @@ $block1 = new block();
 
 $block1->headingForm($strings["team_task_details"]);
 
-echo "<table cellspacing=\"0\" cellpadding=\"3\">";
+echo '<dl class="row">';
 if ($taskDetail->tas_name[0] != "") {
-    echo "<tr><td>" . $strings["name"] . " :</td><td>" . $taskDetail->tas_name[0] . "</td></tr>";
+    echo '<dt class="col-sm-3">' . htmlspecialchars($strings["name"]) . ':</dt>
+<dd class="col-sm-9">' . htmlspecialchars($taskDetail->tas_name[0]) . '</dd>';
 } 
 if ($taskDetail->tas_description[0] != "") {
-    echo "<tr><td valign=\"top\">" . $strings["description"] . " :</td><td>" . nl2br($taskDetail->tas_description[0]) . "</td></tr>";
+    echo '<dt class="col-sm-3">' . htmlspecialchars($strings["description"]) . ':</dt>
+<dd class="col-sm-9">' . nl2br(htmlspecialchars($taskDetail->tas_description[0])) . '</dd>';
 } 
 $complValue = ($taskDetail->tas_completion[0] > 0) ? $taskDetail->tas_completion[0] . "0 %": $taskDetail->tas_completion[0] . " %";
-echo "<tr><td>" . $strings["completion"] . " :</td><td>" . $complValue . "</td></tr>";
+echo '<dt class="col-sm-3">' . htmlspecialchars($strings["completion"]) . ':</dt>
+<dd class="col-sm-9">' . htmlspecialchars($complValue) . '</dd>';
 if ($taskDetail->tas_assigned_to[0] != "0") {
-    echo "<tr><td>" . $strings["assigned_to"] . " :</td><td>" . $taskDetail->tas_mem_name[0] . "</td></tr>";
+    echo '<dt class="col-sm-3">' . htmlspecialchars($strings["assigned_to"]) . ':</dt>
+<dd class="col-sm-9">' . htmlspecialchars($taskDetail->tas_mem_name[0]) . '</dd>';
 } 
 if ($taskDetail->tas_comments[0] != "") {
-    echo "<tr><td>" . $strings["comments"] . " :</td><td>" . nl2br($taskDetail->tas_comments[0]) . "</td></tr>";
+    echo '<dt class="col-sm-3">' . htmlspecialchars($strings["comments"]) . ':</dt>
+<dd class="col-sm-9">' . nl2br(htmlspecialchars($taskDetail->tas_comments[0])) . '</dd>';
 } 
 if ($taskDetail->tas_start_date[0] != "") {
-    echo "<tr><td>" . $strings["start_date"] . " :</td><td>" . $taskDetail->tas_start_date[0] . "</td></tr>";
+    echo '<dt class="col-sm-3">' . htmlspecialchars($strings["start_date"]) . ':</dt>
+<dd class="col-sm-9">' . htmlspecialchars($taskDetail->tas_start_date[0]) . '</dd>';
 } 
 if ($taskDetail->tas_due_date[0] != "") {
-    echo "<tr><td>" . $strings["due_date"] . " :</td><td>" . $taskDetail->tas_due_date[0] . "</td></tr>";
+    echo '<dt class="col-sm-3">' . htmlspecialchars($strings["due_date"]) . ':</dt>
+<dd class="col-sm-9">' . htmlspecialchars($taskDetail->tas_due_date[0]) . '</dd>';
 } 
-echo "<tr><td>" . $strings["updates_task"] . " :</td><td>";
+echo '<dt class="col-sm-3">' . htmlspecialchars($strings["updates_task"]) . ':</dt>
+<dd class="col-sm-9">';
 $tmpquery = "WHERE upd.type='1' AND upd.item = '$id' ORDER BY upd.created DESC";
 $listUpdates = new request();
 $listUpdates->openUpdates($tmpquery);
@@ -62,15 +70,17 @@ $comptListUpdates = count($listUpdates->upd_id);
 if ($comptListUpdates != "0") {
     $j = 1;
     for ($i = 0;$i < $comptListUpdates;$i++) {
-        echo "<b>" . $j . ".</b> <i>" . createDate($listUpdates->upd_created[$i], $_SESSION['timezoneSession']) . "</i><br>" . nl2br($listUpdates->upd_comments[$i]);
+        echo '<strong>' . $j . '.</strong> <em>' . htmlspecialchars(createDate($listUpdates->upd_created[$i], $_SESSION['timezoneSession'])) . '</em><br>' . nl2br(htmlspecialchars($listUpdates->upd_comments[$i]));
         echo "<br>";
         $j++;
     } 
 } else {
-    echo $strings["no_items"];
+    echo htmlspecialchars($strings["no_items"]);
 } 
 
-echo "</td></tr> </table> <hr>";
+echo '</dd>
+</dl>
+<hr>';
 
 echo "<br><br>
 <a href=\"showallteamtasks.php\">" . $strings["show_all"] . "</a>";
