@@ -61,8 +61,10 @@ if ($databaseType == 'mysql') {
     $databaseTypeMore = 'MySql';
     $MY_DBH = openDatabase();
     $local_query = 'SELECT VERSION() as version';
-    $res = mysql_query($local_query, $MY_DBH);
-    $databaseVersion = mysql_result($res, 0, 'version');
+    $res = mysqli_query($MY_DBH, $local_query);
+    $row = mysqli_fetch_array($res);
+    $databaseVersion = $row['version'];
+    mysqli_free_result($res);
 } 
 
 $block1->contentRow('Database Type', $databaseTypeMore);
