@@ -22,7 +22,7 @@ class block {
         $this->evenColor = "#EFEFEF";
         $this->highlightOn = "#FFFEE7";
 
-        $this->class = "odd";
+        $this->class = "table-light";
         $this->highlightOff = $this->oddColor;
         $this->theme = THEME;
         $this->pathImg = "../themes";
@@ -36,76 +36,52 @@ class block {
      */
     function printHelp($item) {
         global $help, $strings;
-        return " [<a href=\"javascript:void(0);\" onmouseover=\"return overlib('" . addslashes($help[$item]) . "',SNAPX,550,BGCOLOR,'" . $this->bgColor . "',FGCOLOR,'" . $this->fgColor . "');\" onmouseout=\"return nd();\">" . $strings["help"] . "</a>]";
+        return ' <a href="#" class="text-decoration-none" data-bs-toggle="tooltip" title="' . (addslashes($help[$item])) . '">' . $strings["help"] . '</a>';
     }
 
     function note($content) {
-        echo "<p class=\"note\">" . $content . "</p>\n\n";
+        echo '<div class="alert alert-info">' . $content . '</div>';
     }
 
-
     //=== heading with embedded icon-palette ============
-    // NOTE: Must by closed by either heading_close() or closePaletteIcon()!!!
-    // if no icons exists, use headingForm
     function heading($title) {
-
-/*        if ($_COOKIE[$this->form] == "c") {
-            $style = "none";
-            $arrow = "closed";
-        }
-        else {
-            $style = "block";
-            $arrow = "open";
-        }*/
-
-        echo '<div class=blockHeader>';
-        echo '<table class="title">';
-        echo "<tr>";
-        echo "<td width=\"99%\">";
-		echo "&nbsp;".$title;
-		echo '</td><td width="1%">&nbsp;&nbsp;&nbsp;&nbsp;</td>';
-		echo "<td>";
-		//... here starts paletteIcon
+        echo '<div class="card-header p-2 bg-primary text-white d-flex justify-content-between align-items-center">';
+        echo '<h5 class="mb-0">' . ($title) . '</h5>';
+        echo '<div class="btn-group">';
     }
 
     function heading_close(){
-    	echo "</td></tr></table><div>";
-	}
+        echo '</div></div>';
+    }
 
-
-	function block_close() {
-    	echo "</div>";
-	}
-
+    function block_close() {
+        echo '</div>';
+    }
 
     //=== heading with embedded icon-palette ============
-    // NOTE: must by closed by "headingForm_close()"
     function headingForm($title) {
-        echo '<div class="blockHeader border rounded mb-3">';
-        echo '<div class="title  text-primary d-flex justify-content-between align-items-center px-3 py-2">';
-        echo '<div class="fw-bold">' . htmlspecialchars($title) . '</div>';
-        echo '<div class="ms-3">&nbsp;</div>'; // optional right space
+        echo '<div class="card mb-4">';
+        echo '<div class="card-header p-2 bg-primary text-white d-flex justify-content-between align-items-center">';
+        echo '<h5 class="mb-0">' . ($title) . '</h5>';
+        echo '<div class="ms-3">&nbsp;</div>';
         echo '</div>';
-        echo '<div class="blockForm bg-light p-3">';
+        echo '<div class="card-body">';
     }
 
     function headingForm_close() {
-        echo '</div>'; // close blockForm
-        echo '</div>'; // close blockHeader
+        echo '</div></div>';
     }
 
     function closeToggle() {
         echo "</div>\n\n";
     }
 
-	//=== open headingToggle with embedded icon-palette ================================
-	// NOTE: this must be closed either by headingToggle_close or by closePaletteIcon
+    //=== open headingToggle with embedded icon-palette ================================
     function headingToggle($title) {
-
         if ($_COOKIE[$this->form] == "c") {
             $style = "none";
             $arrow = "closed";
-            $blockStyle="Closed";
+            $blockStyle="";
         }
         else {
             $style = "block";
@@ -114,210 +90,135 @@ class block {
         }
         $this->toggle=true;
 
-        echo "<!-- blockHeaer -->\n";
-        echo '<div id="'.$this->form .'Head" class="blockHeader'.$blockStyle.'">';
-        echo "<table class=title>";
-        echo "<tr>";
-        echo "<td class=toggle width=\"99%\">";
-        echo "<a href=\"javascript:showHideModule('" . $this->form . "','$this->theme')\" onMouseOver=\"javascript:showHideModuleMouseOver('" . $this->form . "'); return true; \" onMouseOut=\"javascript:window.status=''; return true;\">";
-        echo "<img name=\"" . $this->form . "Toggle\" border=\"0\" src=\"$this->pathImg/$this->theme/module_toggle_" . $arrow . ".gif\" alt=\"\">";
-		echo  '&nbsp;'.$title;
-		echo "</a>";
-		echo '</td><td>&nbsp;&nbsp;&nbsp;&nbsp;</td>';
-		echo '<td class=heading_line_icons><nobr>';
-		// ... starting paletteIcon
+        echo '<div class="card mb-3">';
+        echo '<div class="card-header bg-primary text-white d-flex justify-content-between align-items-center" id="' . $this->form . 'Head" data-bs-toggle="collapse" data-bs-target="#' . $this->form . 'Body">';
+        echo '<h5 class="mb-0">';
+        echo '<a href="#" class="text-white text-decoration-none">';
+        echo '<i class="bi bi-chevron-' . ($arrow == 'open' ? 'down' : 'right') . ' me-2"></i>';
+        echo ($title);
+        echo '</a></h5>';
+        echo '<div class="btn-group">';
     }
 
-    //================================================================
-    // headingToggle_close() {
-	//================================================================
-	/*
-		NOTE:
-		- this function is called when an icon-palette is closed
-		- it is ALSO CALLED for headingForm (no toggles but icons)
-		- to distinguish between toggleBlocks and normal blocks $this->toggle is set in headingToggle();
-		- this is a hack and bad style
-	*/
     function headingToggle_close() {
-
-     	//--- toggle the content-block? ---
-		if ($this->toggle && $_COOKIE[$this->form] == 'c') {
-            $style = 'none';
+        if ($this->toggle && $_COOKIE[$this->form] == 'c') {
+            $style = 'collapse';
             $arrow = 'closed';
         } else {
-            $style = 'block';
+            $style = 'collapse show';
             $arrow = 'open';
         }
 
-        echo "</nobr></td>";
-	    echo "</tr>";
-		echo "</table>";
-		echo "</div>\n";
-		echo "<!-- formBody -->";
-	    echo '<div name="'.$this->form.'" id="'. $this->form . '" style="display:'. $style.'" class=formBody>';
+        echo '</div></div>';
+        echo '<div id="' . $this->form . 'Body" class="' . $style . '">';
+        echo '<div class="card-body">';
     }
 
     /**
      * Print error heading
-     *
-     * @param string $title Text printed in heading
-     * @access public
      */
     function headingError($title) {
-        echo "<h1 class=\"headingError\">" . $title . "</h1>\n";
+        echo '<h1 class="text-danger mb-4">' . $title . '</h1>';
     }
 
     /**
      * Print error message in table
-     *
-     * @param string $content Text printed in content error table
-     * @access public
      */
-   function contentError($content)
-{
-    echo '
-    <div class="alert alert-danger d-flex align-items-center" role="alert">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        <div>' . $content . '</div>
-    </div>';
-}
-
-
+    function contentError($content) {
+        echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">';
+        echo '<i class="bi bi-exclamation-triangle-fill me-2"></i>';
+        echo $content;
+        echo '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+        echo '</div>';
+    }
 
     function returnBorne($current) {
         global ${'borne'.$current};
-        if (${'borne'.$current} == "") {
-            $borneValue = "0";
-        } else {
-            $borneValue = ${'borne'.$current};
-        }
-        return $borneValue;
+        return ${'borne'.$current} ?: "0";
     }
 
     /**
      * Print page-per-page in bottom of list block
-     *
-     * @param string $current Borne number for concerned block
-     * @param string $total Total bornes number
-     * @param string $showall Link to page which display all records, with parameters
-     * @param string $parameters Optional parameters to transmit between pages
-     * @access public
      */
     function bornesFooter($current, $total, $showall, $parameters) {
         global $strings;
         if ($this->rowsLimit < $this->recordsTotal) {
-            echo "<table cellspacing=\"0\" width=\"100%\" border=\"0\" cellpadding=\"0\"><tr><td nowrap class=\"footerCell\">&#160;&#160;&#160;&#160;";
+            echo '<div class="d-flex justify-content-between align-items-center mt-3">';
+            echo '<div class="pagination">';
 
             $nbpages = ceil($this->recordsTotal / $this->rowsLimit);
             $j = "0";
-            for($i = 1;$i <= $nbpages;$i ++) {
+
+            echo '<ul class="pagination pagination-sm mb-0">';
+            for($i = 1; $i <= $nbpages; $i++) {
                 if ($this->borne == $j) {
-                    echo "<b>$i</b>&#160;";
+                    echo '<li class="page-item active"><span class="page-link">' . $i . '</span></li>';
                 } else {
-                    echo "<a href=\"$PHP_SELF?";
-                    for ($k = 1;$k <= $total;$k++) {
+                    echo '<li class="page-item">';
+                    echo '<a class="page-link" href="' . $PHP_SELF . '?';
+                    for ($k = 1; $k <= $total; $k++) {
                         global ${'borne'.$k};
                         if ($k != $current) {
-                            echo "&amp;borne$k=" . ${'borne'.$k};
+                            echo "&borne$k=" . ${'borne'.$k};
                         } else if ($k == $current) {
-                            echo "&amp;borne$k=$j";
+                            echo "&borne$k=$j";
                         }
                     }
-                    echo "&amp;$parameters#" . $this->form . "Anchor\">$i</a>&#160;";
+                    echo "&$parameters#" . $this->form . "Anchor\">$i</a></li>";
                 }
                 $j = $j + $this->rowsLimit;
             }
-            echo "</td><td nowrap align=\"right\" class=\"footerCell\">";
+            echo '</ul></div>';
+
             if ($showall != "") {
-                echo "<a href=\"$showall\">" . $strings["show_all"] . "</a>";
+                echo '<a href="' . $showall . '" class="btn btn-sm btn-outline-primary">' . $strings["show_all"] . '</a>';
             }
-            echo "&#160;&#160;&#160;&#160;&#160;</td></tr><tr><td height=\"5\" colspan=\"2\"><img width=\"1\" height=\"5\" border=\"0\" src=\"$this->pathImg/$this->theme/spacer.gif\" alt=\"\"></td></tr></table>";
+            echo '</div>';
         }
     }
 
-    //==== Print Message table (obsolete!) =====================
+    //==== Print Message table =====================
     function messageBox($msgLabel) {
-        echo "<div class=\"message\">".$msgLabel."</div>";
+        echo '<div class="alert alert-info">' . $msgLabel . '</div>';
     }
 
     /**
      * Open icons table
-     *
-     * @see block::closePaletteIcon()
-     * @see block::paletteIcon()
-     * @see block::paletteScript()
-     * @access public
      */
     function openPaletteIcon() {
-		#echo "<table class=\"icons\"><tr><td align=left width=\"1%\"><img height=\"26\" width=\"5\" src=\"$this->pathImg/$this->theme/spacer.gif\" alt=\"\"></td><td class=\"commandDesc\" align=\"left\" width=\"99%\"><div class=commandDesc id=\"" . $this->form . "tt\" class=\"rel\"><div id=\"" . $this->form . "tti\" class=\"abs\"><img height=\"1\" width=\"350\" src=\"$this->pathImg/$this->theme/spacer.gif\" alt=\"\"></div></div></td>\n";
-        echo '<table class="icons" align=right>';
-        echo '<tr>';
-		#echo "<td align=left width=\"1%\">";
-		#echo '<img height="26" width="5" src=\"$this->pathImg/$this->theme/spacer.gif\" alt=\"\">';
-		#echo '</td>';
-        #echo "<td class=\"commandDesc\" align=\"left\" width=\"99%\">";
-        echo "<td class=\"commandDesc\" align=\"left\">";
-        echo "<div style=\"white-space:nowrap;\" id=\"" . $this->form . "tt\" >&nbsp;&nbsp;";
-        echo "<div id=\"" . $this->form . "tti\">";
-        echo "<img height=\"1\" width=\"100%\" src=\"$this->pathImg/$this->theme/spacer.gif\" alt=\"\">";
-        echo "</div>";
-        echo "</div>";
-        echo "</td><td><nobr>";
-        //... starting
-
-	}
-
-    //==== Close icons table ====================================
-    // NOTE: calling headingToggle_close is a hack
-    function closePaletteIcon()  {
-     	echo "</nobr></td>";
-	    echo "</tr></table>";
-
-		$this->headingToggle_close();
+        echo '<div class="btn-group ms-auto">';
     }
 
+    //==== Close icons table ====================================
+    function closePaletteIcon()  {
+        echo '</div>';
+        $this->headingToggle_close();
+    }
 
     /**
      * Open icons script
-     *
-     * @see block::openPaletteScript()
-     * @access public
      */
     function openPaletteScript() {
-        echo "<script type=\"text/JavaScript\">
-<!--
+        echo "<script>
 document." . $this->form . "Form.buttons = new Array();\n";
     }
 
     /**
      * Close icons script
-     *
-     * @param integer $compt Total records
-     * @param array $values First row
-     * @see block::closePaletteScript()
-     * @access public
      */
     function closePaletteScript($compt, $values) {
         echo "MM_updateButtons(document." . $this->form . "Form, 0);document." . $this->form . "Form.checkboxes = new Array();";
-        for ($i = 0;$i < $compt;$i++) {
+        for ($i = 0; $i < $compt; $i++) {
             echo "document." . $this->form . "Form.checkboxes[document." . $this->form . "Form.checkboxes.length] = new MMCheckbox('$values[$i]',document." . $this->form . "Form,'" . $this->form . "cb$values[$i]');";
         }
         echo "document." . $this->form . "Form.tt = '" . $this->form . "tt';
-// -->
 </script>\n\n";
     }
 
     /**
      * Define sorting to apply on a list block
-     *
-     * @param string $sortingRef Row reference in sorting table
-     * @param string $sortingValue Row value in sorting table
-     * @param string $sortingDefault Default sorting value
-     * @param array $sortingFields Array with sorted fields on each column
-     * @access public
      */
-    function sorting($sortingRef, $sortingValue, $sortingDefault, $sortingFields)
-    {
+    function sorting($sortingRef, $sortingValue, $sortingDefault, $sortingFields) {
         if ($sortingRef != "") {
             $this->sortingRef = $sortingRef;
         }
@@ -343,15 +244,15 @@ document." . $this->form . "Form.buttons = new Array();\n";
             $explode = explode(" ", $this->sortingValue);
         }
 
-        for ($i = 0;$i < count($sortingFields);$i++) {
+        for ($i = 0; $i < count($sortingFields); $i++) {
             if ($sortingFields[$i] == $explode[0] && $explode[1] == "DESC") {
                 $sortingOrders[$i] = "ASC";
-                $sortingArrows[$i] = "&#160;<img border=\"0\" src=\"$this->pathImg/$this->theme/icon_sort_za.gif\" alt=\"\" width=\"11\" height=\"11\">";
-                $sortingStyles[$i] = "active";
+                $sortingArrows[$i] = ' <i class="bi bi-sort-down"></i>';
+                $sortingStyles[$i] = "bg-light";
             } else if ($sortingFields[$i] == $explode[0] && $explode[1] == "ASC") {
                 $sortingOrders[$i] = "DESC";
-                $sortingArrows[$i] = "&#160;<img border=\"0\" src=\"$this->pathImg/$this->theme/icon_sort_az.gif\" alt=\"\" width=\"11\" height=\"11\">";
-                $sortingStyles[$i] = "active";
+                $sortingArrows[$i] = ' <i class="bi bi-sort-up"></i>';
+                $sortingStyles[$i] = "bg-light";
             } else {
                 $sortingOrders[$i] = "ASC";
                 $sortingArrows[$i] = "";
@@ -374,38 +275,26 @@ document." . $this->form . "Form.buttons = new Array();\n";
 
     /**
      * Open a standard form
-     *
-     * @param string $address Action form value
-     * @see block::closeFormResults()
-     * @see block::closeForm()
-     * @access public
      */
     function openForm($address)  {
-        echo "<a name=\"" . $this->form . "Anchor\"></a>";
-        echo "<form accept-charset=\"UNKNOWN\" method=\"POST\" action=\"$address\" name=\"" . $this->form . "Form\" enctype=\"application/x-www-form-urlencoded\">\n\n";
+        echo '<a id="' . $this->form . 'Anchor"></a>';
+        echo '<form method="POST" action="' . $address . '" name="' . $this->form . 'Form">';
     }
 
     /**
      * Close a form used with a list block
-     *
-     * @access public
      */
     function closeFormResults(){
-        echo "<input name=\"sor_cible\" type=\"HIDDEN\" value=\"$this->sortingRef\"><input name=\"sor_champs\" type=\"HIDDEN\" value=\"\"><input name=\"sor_ordre\" type=\"HIDDEN\" value=\"\">";
-        echo "</form>";
+        echo '<input type="hidden" name="sor_cible" value="' . $this->sortingRef . '">';
+        echo '<input type="hidden" name="sor_champs" value="">';
+        echo '<input type="hidden" name="sor_ordre" value="">';
+        echo '</form>';
     }
 
     /**
      * Define column labels in a list block
-     *
-     * @param array $labels Array with labels strings
-     * @param boolean $published Show/hide a published column
-     * @param boolean $sorting Disable sorting
-     * @param array $sortingOff Array with label number (from $labels) and order (ASC/DESC)
-     * @access public
      */
-    function labels($labels, $published, $sorting = "true", $sortingOff = "")
-    {
+    function labels($labels, $published, $sorting = "true", $sortingOff = "") {
         global $labels, $sortingOrders, $sortingFields, $sortingArrows, $sortingStyles, $strings, $sitePublish;
 
         $sortingFields = $this->sortingFields;
@@ -419,75 +308,59 @@ document." . $this->form . "Form.buttons = new Array();\n";
             $comptLabels = count($labels);
         }
 
-        for ($i = 0;$i < $comptLabels;$i++) {
+        for ($i = 0; $i < $comptLabels; $i++) {
             if ($sorting == "true") {
-                echo "<th nowrap class=\"$sortingStyles[$i]\">";
-                echo "<a href=\"javascript:document." . $this->form . "Form.sor_cible.value='$this->sortingRef';document." . $this->form . "Form.sor_champs.value='$sortingFields[$i]';document." . $this->form . "Form.sor_ordre.value='$sortingOrders[$i]';document." . $this->form . "Form.submit();\" onMouseOver=\"javascript:window.status='" . $strings["sort_by"] . " " . addslashes($labels[$i]) . "'; return true;\" onMouseOut=\"javascript:window.status=''; return true\">";
+                echo '<th class="' . $sortingStyles[$i] . '">';
+                echo '<a href="javascript:document.' . $this->form . 'Form.sor_cible.value=\'' . $this->sortingRef . '\';document.' . $this->form . 'Form.sor_champs.value=\'' . $sortingFields[$i] . '\';document.' . $this->form . 'Form.sor_ordre.value=\'' . $sortingOrders[$i] . '\';document.' . $this->form . 'Form.submit();" class="text-decoration-none">';
                 echo trim($labels[$i]);
                 echo $sortingArrows[$i];
-                echo "</a></th>";
-            }
-            else {
+                echo '</a></th>';
+            } else {
                 if ($sortingOff[1] == "ASC") {
-                    $sortingArrow = "&#160;<img border=\"0\" src=\"$this->pathImg/$this->theme/icon_sort_az.gif\" alt=\"\" width=\"11\" height=\"11\">";
+                    $sortingArrow = ' <i class="bi bi-sort-up"></i>';
                 } else if ($sortingOff[1] == "DESC") {
-                    $sortingArrow = "&#160;<img border=\"0\" src=\"$this->pathImg/$this->theme/icon_sort_za.gif\" alt=\"\" width=\"11\" height=\"11\">";
+                    $sortingArrow = ' <i class="bi bi-sort-down"></i>';
                 }
                 if ($i == $sortingOff[0]) {
-                    echo "<th nowrap class=\"active\">" . $labels[$i] . "$sortingArrow";
+                    echo '<th class="bg-light">' . $labels[$i] . $sortingArrow . '</th>';
                 } else {
-                    echo "<th nowrap>" . $labels[$i];
+                    echo '<th>' . $labels[$i] . '</th>';
                 }
             }
         }
-
-        echo "</tr>\n";
+        echo '</tr>';
     }
 
     /**
      * Open results list
-     *
-     * @param boolean $checkbox Disable checkbox display
-     * @access public
      */
     function openResults($checkbox = "true") {
- 		echo "<table class=\"listing\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">";
-        echo "<tr>\n";
+        echo '<div class="table-responsive">';
+        echo '<table class="table table-hover table-striped">';
+        echo '<thead><tr>';
         if ($checkbox == "true") {
-            echo "<th width=\"1%\" align=\"center\">";
-            echo "<a href=\"javascript:MM_toggleSelectedItems(document." . $this->form . "Form,'$this->theme')\">";
-            echo "<img height=\"16\" width=\"16\" border=\"0\" src=\"$this->pathImg/$this->theme/checkbox_off_16.gif\" alt=\"\" >";
-            echo "</a></th>\n";
+            echo '<th scope="col" width="1%">';
+            echo '<div class="form-check">';
+            echo '<input class="form-check-input" type="checkbox" onclick="MM_toggleSelectedItems(document.' . $this->form . 'Form,\'' . $this->theme . '\')">';
+            echo '</div></th>';
         } else {
-            echo "<th width=\"1%\" align=\"center\">";
-            echo "<img height=\"13\" width=\"13\" border=\"0\" src=\"$this->pathImg/$this->theme/spacer.gif\" alt=\"\" vspace=\"3\">";
-            echo "</th>\n";
+            echo '<th scope="col" width="1%">&nbsp;</th>';
         }
     }
 
     function closeResults()  {
-        echo "</table>\n";
+        echo '</table></div>';
     }
 
     function noresults() {
         global $strings;
-		#echo "<table cellspacing=\"0\" border=\"0\" cellpadding=\"2\"><tr><td colspan=\"4\">" . $strings["no_items"] . "</td></tr></table><hr />";
-		echo "<div class=blockContent><div class=blockForm>";
-		echo $strings["no_items"];
-		echo "</div></div>";
-
+        echo '<div class="alert alert-warning">' . $strings["no_items"] . '</div>';
     }
 
     /**
      * Display an icon (html)
-     *
-     * @param integer $num Icon number
-     * @param string $type Icon name (used in graphic file name)
-     * @param string $text Text used in info-tip
-     * @see block::openPaletteIcon()
-     * @access public
      */
-    function paletteIcon($num, $type, $text)  {
+      function paletteIcon($num, $type, $text)  {
         echo "<a href=\"javascript:var b = MM_getButtonWithName(document." . $this->form . "Form, '" . $this->form . "$num'); if (b) b.click();\" onMouseOver=\"var over = MM_getButtonWithName(document." . $this->form . "Form, '" . $this->form . "$num'); if (over) over.over(); return true; \" onMouseOut=\"var out = MM_getButtonWithName(document." . $this->form . "Form, '" . $this->form . "$num'); if (out) out.out(); return true; \">";
         echo "<img width=\"$this->iconWidth\" height=\"$this->iconHeight\" border=\"0\" name=\"" . $this->form . "$num\" src=\"$this->pathImg/$this->theme/btn_" . $type . "_norm.gif\" alt=\"$text\">";
         echo "</a>";
@@ -501,15 +374,8 @@ document." . $this->form . "Form.buttons = new Array();\n";
 
     /**
      * Display an icon (JavaScript)
-     *
-     * @param integer $num Icon number
-     * @param string $type Icon name (used in graphic file name)
-     * @param string $options JavaScript options enableOnNoSelection, enableOnSingleSelection, enableOnMultipleSelection
-     * @param string $text Text used in roll-over layer
-     * @see block::openPaletteIcon()
-     * @access public
      */
-	 function paletteScript($num, $type, $link, $options, $text) {
+     function paletteScript($num, $type, $link, $options, $text) {
 	 	echo "document." . $this->form . "Form.buttons[document." . $this->form . "Form.buttons.length] = new MMCommandButton('" . $this->form . "$num',document." . $this->form . "Form,'" . $link . "','$this->pathImg/$this->theme/btn_" . $type . "_norm.gif','$this->pathImg/$this->theme/btn_" . $type . "_over.gif','$this->pathImg/$this->theme/btn_" . $type . "_down.gif','$this->pathImg/$this->theme/btn_" . $type . "_dim.gif',$options,'','" . "".$text."" . "',false,'');\n";
 
        	#echo "document." . $this->form . "Form.buttons[document." . $this->form . "Form.buttons.length] = ";
@@ -526,191 +392,159 @@ document." . $this->form . "Form.buttons = new Array();\n";
 
     /**
      * Start a div container to display sheet/form
-     *
-     * @access public
      */
     function openContent() {
-        echo '<div class=" border p-3 rounded bg-light">';
+        echo '<div class="card-body">';
     }
 
     /**
      * Display a row in sheet/form using Bootstrap classes
-     *
-     * @param string $left Text in left column
-     * @param string $right Text in right column
-     * @param boolean $altern Option to alternate background color
-     * @access public
      */
-   function contentRow($left, $right, $altern = false)
-{
-    if ($this->class == "") {
-        $this->class = "bg-white";
+    function contentRow($left, $right, $altern = false) {
+        if ($this->class == "") {
+            $this->class = "";
+        }
+
+        $bgClass = $altern ? "bg-light" : "";
+
+        if (trim($left) === "") {
+            echo '<div class="card mb-3 ' . $bgClass . '">';
+            echo '<div class="card-body">' . $right . '</div>';
+            echo '</div>';
+        } else {
+            echo '<div class="row mb-2 ' . $bgClass . '">';
+            echo '<div class="col-md-3 fw-bold">' . $left . ':</div>';
+            echo '<div class="col-md-9">' . $right . '</div>';
+            echo '</div>';
+        }
+
+        if ($altern) {
+            $this->class = ($this->class == "") ? "bg-light" : "";
+        }
     }
 
-    $bgClass = $this->class;
+    function formRow($label, $input, $alternate = false) {
+        $bg = $alternate ? "bg-light" : "";
 
-    // If left is empty, use a Bootstrap card
-    if (trim($left) === "") {
-        echo '
-        <div class="admin-card">
-           
-                ' . $right . '
-          
-        </div>';
-    } else {
-        // Standard row layout
-        echo '<div class="row py-2 align-items-center ' . $bgClass . '">';
-        echo '<div class="col-4 fw-bold text-end pe-3">' . ($left) . ':</div>';
-        echo '<div class="col-8">' . $right . '</div>';
-        echo '</div>';
+        echo '<div class="row mb-3 ' . $bg . '">';
+        echo '<div class="col-md-12">';
+        if ($label) {
+            echo '<label class="form-label fw-bold">' . $label . '</label>';
+        }
+        echo $input;
+        echo '</div></div>';
     }
-
-    // Alternate row background
-    if ($altern) {
-        $this->class = ($this->class == "bg-white") ? "bg-light" : "bg-white";
-    }
-}
-function formRow($label, $input, $alternate = false)
-{
-    if (empty($this->class)) {
-        $this->class = "bg-white";
-    }
-
-    $bg = $this->class;
-
-    echo '
-    <div class="row py-2 ' . $bg . '">
-        <div class="col-12 fw-bold mb-1">'
-            . ($label) . '
-        </div>
-        <div class="col-12">
-            ' . $input . '
-        </div>
-    </div>';
-
-    if ($alternate) {
-        $this->class = ($this->class === "bg-white") ? "bg-light" : "bg-white";
-    }
-}
 
     /**
      * Open a clickable row
-     *
-     * @param int $ref Optional reference ID
-     * @access public
      */
     function openRow($ref = -1) {
-        $highlightStyle = "style='cursor:pointer;'";
-        echo '<div class="row py-2 ' . $this->class . '" ';
+        $class = $this->class == "table-light" ? "" : "table-light";
+        echo '<tr class="' . $class . '" ';
 
-        if ($ref == -1) {
-            echo "onmouseover=\"this.style.backgroundColor='" . $this->highlightOn . "'\" ";
-            echo "onmouseout=\"this.style.backgroundColor='" . $this->highlightOff . "'\"";
-        } else {
-            echo "onmouseover=\"this.style.backgroundColor='" . $this->highlightOn . "'\" ";
-            echo "onmouseout=\"this.style.backgroundColor='" . $this->highlightOff . "'\" ";
-            echo "onclick=\"MM_toggleItem(document." . $this->form . "Form, '" . $ref . "', '" . $this->form . "cb" . $ref . "','$this->theme')\"";
+        if ($ref != -1) {
+            echo 'onclick="MM_toggleItem(document.' . $this->form . 'Form, \'' . $ref . '\', \'' . $this->form . 'cb' . $ref . '\',\'' . $this->theme . '\')" ';
         }
 
-        echo ">";
-        $this->class = ($this->class == "bg-white") ? "bg-light" : "bg-white";
+        echo 'style="cursor: pointer;">';
+
+        $this->class = ($this->class == "table-light") ? "" : "table-light";
     }
 
     /**
      * Display a checkbox in a row
      */
     function checkboxRow($ref, $checkbox = true) {
-        echo '<div class="col-auto text-center">';
+        echo '<td>';
         if ($checkbox) {
-            echo '<a href="javascript:MM_toggleItem(document.' . $this->form . 'Form, \'' . $ref . '\', \'' . $this->form . 'cb' . $ref . '\',\'' . $this->theme . '\')">';
-            echo '<img name="' . $this->form . 'cb' . $ref . '" border="0" src="' . $this->pathImg . '/' . $this->theme . '/checkbox_off_16.gif" alt="" class="my-1">';
-            echo '</a>';
-        } else {
-            echo '<img height="13" width="13" src="' . $this->pathImg . '/' . $this->theme . '/spacer.gif" alt="" class="my-1">';
+            echo '<div class="form-check">';
+            echo '<input class="form-check-input" type="checkbox" name="' . $this->form . 'cb' . $ref . '" id="' . $this->form . 'cb' . $ref . '">';
+            echo '</div>';
         }
-        echo '</div>';
+        echo '</td>';
     }
 
     /**
      * Display a single cell (column)
      */
     function cellRow($content = null, $width = null, $nowrap = false) {
-        $style = $nowrap ? 'white-space: nowrap;' : '';
-        $style .= $width ? 'width:' . $width . '%;' : '';
-        echo '<div class="col" style="' . $style . '">' . $content . '</div>';
+        $style = "";
+        if ($nowrap) $style .= "white-space: nowrap;";
+        if ($width) $style .= "width: " . $width . "%;";
+
+        echo '<td style="' . $style . '">' . $content . '</td>';
     }
 
     /**
      * Close the opened row
      */
     function closeRow() {
-        echo '</div>'; // Close row
+        echo '</tr>';
     }
 
     /**
      * Display a section title
      */
     function contentTitle($title) {
-        echo '<div class="row bg-primary text-white fw-bold py-2 rounded-2 m-1"><div class="col text-center">' . $title . '</div></div>';
+        echo '<div class="row"><div class="col-12">';
+        echo '<h5 class="mt-4 mb-3 border-bottom pb-2">' . $title . '</h5>';
+        echo '</div></div>';
     }
 
     /**
      * Close the content container
      */
     function closeContent() {
-        echo '</div>'; // Close content container
+        echo '</div>';
     }
-
 
     function closeForm() {
-        echo "</form>\n";
+        echo '</form>';
     }
 
-
-
-	//======================================================================
-	// sections (top navigation)
-	//======================================================================
+    //======================================================================
+    // sections (top navigation)
+    //======================================================================
     function openNavigation()  {
-        echo "<div id=\"navigation\">";
+        echo '<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">';
+        echo '<div class="container-fluid">';
+        echo '<div class="navbar-nav">';
     }
 
     function itemNavigation($url, $label) {
-        echo('<a href="'.$url.'">&nbsp;&nbsp;'.$label .'&nbsp;&nbsp;</a>');
+        echo '<a class="nav-link" href="' . $url . '">' . $label . '</a>';
     }
 
     function itemNavigationCurrent($url, $label) {
-        echo('<a class=current href="'.$url.'">&nbsp;&nbsp;'.$label .'&nbsp;&nbsp;</a>');
+        echo '<a class="nav-link active" aria-current="page" href="' . $url . '">' . $label . '</a>';
     }
-
 
     function closeNavigation() {
-        echo "</div>\n\n";
+        echo '</div></div></nav>';
     }
 
-    	//======================================================================
-	// breadcrumbs
-	//======================================================================
+    //======================================================================
+    // breadcrumbs
+    //======================================================================
     function openBreadcrumbs()  {
-        echo "<div id=\"breadcrumbs\">";
+        echo '<nav aria-label="breadcrumb" class="mb-4">';
+        echo '<ol class="breadcrumb">';
     }
 
     function itemBreadcrumbs($content) {
-        echo '<img src="../themes/'. THEME. '/brdcmb_carrat.gif" alt="" align="absmiddle"> '.$content;
+        echo '<li class="breadcrumb-item">' . $content . '</li>';
     }
 
-    function closeBreadcrumbs()     {
-        echo "</div>\n\n";
+    function closeBreadcrumbs() {
+        echo '</ol></nav>';
     }
 
-
-
-
-	//======================================================================
-	// account
-	//======================================================================
+    //======================================================================
+    // account
+    //======================================================================
     function openAccount()   {
-        echo "<p id=\"account\">";
+        echo '<div class="d-flex justify-content-end mb-3">';
+        echo '<div class="btn-group">';
     }
 
     function itemAccount($content) {
@@ -723,63 +557,46 @@ function formRow($label, $input, $alternate = false)
 
     function closeaccount() {
         $items = $this->accountTotal;
-        for ($i = 0;$i < $items;$i++) {
+        for ($i = 0; $i < $items; $i++) {
             echo $this->account[$i];
             if ($items-1 != $i) {
-                echo " ";
+                echo ' ';
             }
         }
-        echo "</p>\n\n";
+        echo '</div></div>';
     }
 }
 
 //--- define standard instance to simulate static class in php4 ---
-$template=new block();
+$template = new block();
 
 //======================================================================
 // links
 //======================================================================
-// todo (added by pixtur 2004-11-11):
-// - throw exception if unknown link-type
-// - in the long term:
-//	- add different icon-types
-//	- LINK_INSIDE as default
-//  - replace all string-usage with properly defined constances in library.php
-//  - this function makes no sense. Splitting into different functions would make the code more readable
-function buildLink($url, $label, $type=LINK_INSIDE) {
+function buildLink($url, $label, $type = LINK_INSIDE) {
+    switch($type) {
+        case LINK_INSIDE:
+            return '<a href="' . $url . '" class="link-primary text-decoration-none">' . $label . '</a>';
 
-	//---link inside as default ---
-	switch($type) {
-	case LINK_INSIDE:	//formerly 'in'
-		return('<a href="' . $url . '">' . $label . '</a>');
+        case LINK_STRIKE:
+            return '<a href="' . $url . '" class="link-secondary text-decoration-line-through">' . $label . '</a>';
 
-    case LINK_STRIKE:	//formerly 'in_strike'
-        return('<a href="' . $url . '" class="instrike">' . $label . '</a>');
+        case LINK_BLANK:
+        case LINK_OUT:
+            return '<a href="' . $url . '" target="_blank" class="link-primary text-decoration-none">' . $label . '</a>';
 
-    case LINK_BLANK:	//'in_blank'
-		return('<a href="' . $url . '" target="_blank">' . $label . '</a>');
+        case LINK_ICON:
+            return '<a href="' . $url . '" class="btn btn-sm btn-outline-primary">' . $label . '</a>';
 
-    case LINK_OUT:			//'out'
-        return('<a href="' . $url . '" target="_blank">' . $label . '</a>');
+        case LINK_POWERED:
+            return 'Powered by <a href="' . $url . '" target="_blank" class="link-primary">' . $label . '</a>';
 
-    case LINK_ICON:		//'icone'
-        return('<a href="' . $url . '"><img src="../interface/icones/' . $label . '" border="0" alt=""></a>');
+        case LINK_MAIL:
+            return '<a href="mailto:' . $url . '" class="link-primary text-decoration-none"><i class="bi bi-envelope me-1"></i>' . $label . '</a>';
 
-    case LINK_POWERED:		//'powered'
-        return('Powered by <a href="' . $url . '" target="_blank">' . $label . '</a>');
-
-    case LINK_MAIL:		//'mail'
-		$buf='<img src="../themes/deepblue/gfx_icons/link_mail.gif">';
-		$buf.='<a href="mailto:' . $url . '">' . $label . '</a>';
-
-        return($buf);
-
-	//??? is there a way to throw an exception
-    default:
-		return ('UNDEFINED LINK-TYPE: <a href="'. $url .'">'. $label .'</a>');
+        default:
+            return '<a href="' . $url . '" class="link-primary">' . $label . '</a>';
     }
 }
-
-
 
 ?>
