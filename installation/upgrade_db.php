@@ -139,7 +139,7 @@ STAMP;
 }
 
 // update to 2.6.0 beta 2
-if (version_compare($version, '2.6.0b2', '<')) {
+if (version_compare($version, '2.1B', '<')) {
 $SQL[] = <<<STAMP
     ALTER TABLE `{$tablePrefix}sorting` ADD (
         calendar_view $db_varchar155[$databaseType],

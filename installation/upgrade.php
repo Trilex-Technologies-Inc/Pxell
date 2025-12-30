@@ -22,7 +22,7 @@ require_once('../includes/error_handler.php');
 require_once('../languages/lang_en.php');
 require_once('../languages/help_en.php');
 
-$versionNew = '2.6.0b2';
+$versionNew = '2.1B';
 
 define("INSTALL", true);
 
