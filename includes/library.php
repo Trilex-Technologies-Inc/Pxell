@@ -458,20 +458,25 @@ function autoLinks($data) {
 
     $lines = explode("\n", $data);
 
-    while (list($key, $line) = each($lines)) {
-        $line = eregi_replace("([ \t]|^)www\.", " http://www.", $line);
-        $line = eregi_replace("([ \t]|^)ftp\.", " ftp://ftp.", $line);
-        $line = eregi_replace("(http://[^ )\r\n]+)", "<a href=\"\\1\" target=\"_blank\">\\1</a>", $line);
-        $line = eregi_replace("(https://[^ )\r\n]+)", "<a href=\"\\1\" target=\"_blank\">\\1</a>", $line);
-        $line = eregi_replace("(ftp://[^ )\r\n]+)", "<a href=\"\\1\" target=\"_blank\">\\1</a>", $line);
-        $line = eregi_replace("([-a-z0-9_]+(\.[_a-z0-9-]+)*@([a-z0-9-]+(\.[a-z0-9-]+)+))", "<a href=\"mailto:\\1\">\\1</a>", $line);
+    foreach ($lines as $key => $line) {
+        // make plain www. and ftp. into full URLs
+        $line = preg_replace('/(^|[ \t])www\./i', ' http://www.', $line);
+        $line = preg_replace('/(^|[ \t])ftp\./i', ' ftp://ftp.', $line);
+
+        // link http, https and ftp URLs
+        $line = preg_replace('/(http:\/\/[^ )\r\n]+)/i', '<a href="\\1" target="_blank">\\1</a>', $line);
+        $line = preg_replace('/(https:\/\/[^ )\r\n]+)/i', '<a href="\\1" target="_blank">\\1</a>', $line);
+        $line = preg_replace('/(ftp:\/\/[^ )\r\n]+)/i', '<a href="\\1" target="_blank">\\1</a>', $line);
+
+        // link email addresses
+        $line = preg_replace('/([-a-z0-9_]+(\.[_a-z0-9-]+)*@([a-z0-9-]+(\.[a-z0-9-]+)+))/i', '<a href="mailto:\\1">\\1</a>', $line);
 
         if (empty($newText)) {
             $newText = $line;
         } else {
             $newText .= "\n$line";
-        } 
-    } 
+        }
+    }
 }
 
 /**

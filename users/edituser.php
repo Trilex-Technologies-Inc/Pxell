@@ -31,7 +31,7 @@ if ($id != "") {
             require_once("../includes/htpasswd.class.php");
             $Htpasswd = new Htpasswd;
         }
-        if (!ereg("^[A-Za-z0-9]+$", $un)) {
+        if (!preg_match('/^[A-Za-z0-9]+$/', $un)) {
             $error = $strings["alpha_only"];
         } else {
             // test if login already exists
@@ -158,7 +158,7 @@ if ($id == "") {
     $checked2 = "checked";
     // case add user
     if ($action == "add") {
-        if (!ereg("^[A-Za-z0-9]+$", $un)) {
+        if (!preg_match('/^[A-Za-z0-9]+$/', $un)) {
             $error = $strings["alpha_only"];
         } else {
             // test if login already exists

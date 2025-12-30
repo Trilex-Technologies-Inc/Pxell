@@ -232,11 +232,11 @@ class Htpasswd {
                 if (empty($Mytemp[$count])) {
                     break;
                 } 
-                if (ereg("^(\n|\W)(.?)", $Mytemp[$count])) {
+                if (preg_match("/^(\n|\W)(.?)/", $Mytemp[$count])) {
                     break;
                 } 
 
-                if (!(ereg(":", $Mytemp[$count]))) {
+                if (!preg_match("/:/", $Mytemp[$count])) {
                     $user = $Mytemp[$count];
                     $errno = ($count + 1);
                     $this->error("FATAL invalid user [$user] on line [$errno] in [$filename]", 1);

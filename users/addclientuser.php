@@ -30,7 +30,7 @@ $comptClientDetail = count($clientDetail->org_id);
 // case add client user
 // test if login already exists
 if ($action == "add") {
-    if (!ereg("^[A-Za-z0-9]+$", $un)) {
+    if (!preg_match('/^[A-Za-z0-9]+$/', $un)) {
         $error = $strings["alpha_only"];
     } else {
         $tmpquery = "WHERE mem.login = '$un'";

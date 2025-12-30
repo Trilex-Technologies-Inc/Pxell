@@ -33,7 +33,7 @@ $userDetail->openMembers($tmpquery);
 $comptUserDetail = count($userDetail->mem_id);
 // case update client user
 if ($action == "update") {
-    if (!ereg("^[A-Za-z0-9]+$", $un)) {
+    if (!preg_match('/^[A-Za-z0-9]+$/', $un)) {
         $error = $strings["alpha_only"];
     } else {
         // test if login already exists
