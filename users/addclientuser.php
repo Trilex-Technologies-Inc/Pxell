@@ -128,7 +128,7 @@ $block1->contentRow($strings["comments"], "<textarea style=\"width: 400px; heigh
 $block1->contentTitle($strings["enter_password"]);
 $block1->contentRow($strings["password"], "<input size=\"24\" style=\"width: 250px;\" maxlength=\"16\" type=\"password\" name=\"pw\" value=\"\">");
 $block1->contentRow($strings["confirm_password"], "<input size=\"24\" style=\"width: 250px;\" maxlength=\"16\" type=\"password\" name=\"pwa\" value=\"\">");
-$block1->contentRow("", "<input type=\"submit\" name=\"Save\" value=\"" . $strings["save"] . "\">");
+$block1->contentRow("", "<input type=\"submit\" name=\"Save\" value=\"" . $strings["save"] . "\" class=\"btn btn-primary\">");
 
 $block1->closeContent();
 $block1->headingForm_close();

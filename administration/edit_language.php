@@ -201,7 +201,7 @@ $block1->contentTitle( text( "add_new_label" ) );
 
 echo "<TR><TD ALIGN='center'>";
 echo text('Label').": <input name='newlabel' type='text'> ";
-echo "<input type='submit' value='".text('add_label')."'>";
+echo "<input type='submit' value='".text('add_label')."' class='btn btn-primary'>";
 
 echo "</TD></TR>";
 
@@ -271,7 +271,7 @@ $block1->closeResults();
 
 $block1->openContent();
 echo "<TR><TD ALIGN='right'>";
-echo text("click_to_save") . ": <input type='submit' value='".text('save_translation')."'>";
+echo text("click_to_save") . ": <input type='submit' value='".text('save_translation')."' class='btn btn-primary'>";
 echo "</TD></TR>";
 $block1->closeContent();
 

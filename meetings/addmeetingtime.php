@@ -144,7 +144,7 @@ if ($ld == '') {
 } 
 
 $block1->contentRow($strings['date'], "<input type=\"text\" style=\"width: 150px;\" name=\"ld\" id=\"sel1\" 
-size=\"20\" value=\"$ld\"><button type=\"reset\" id=\"trigger_a\">...</button>
+size=\"20\" value=\"$ld\"><button type=\"reset\" id=\"trigger_a\" class=\"btn btn-outline-secondary\">...</button>
 <script type=\"text/javascript\">Calendar.setup({ inputField:\"sel1\", button:\"trigger_a\" });</script>");
 
 echo "

@@ -147,7 +147,7 @@ $block1->contentTitle($strings["change_password_user"]);
 
 echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["password"] . " :</td><td><input size=\"24\" style=\"width: 250px;\" maxlength=\"16\" type=\"password\" name=\"pw\" value=\"\"></td></tr>
 <tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["confirm_password"] . " :</td><td><input size=\"24\" style=\"width: 250px;\" maxlength=\"16\" type=\"password\" name=\"pwa\" value=\"\"></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td><input type=\"submit\" name=\"Save\" value=\"" . $strings["save"] . "\"></td></tr>";
+<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td><input type=\"submit\" name=\"Save\" value=\"" . $strings["save"] . "\" class=\"btn btn-primary\"></td></tr>";
 
 $block1->closeContent();
 $block1->headingForm_close();

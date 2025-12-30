@@ -278,7 +278,7 @@ $block1->contentRow("<input type=\"radio\" name=\"perm\" value=\"1\" $checked1>"
 $block1->contentRow("<input type=\"radio\" name=\"perm\" value=\"2\" $checked2>", "<b>" . $strings["user_permissions"] . "</b>");
 $block1->contentRow("<input type=\"radio\" name=\"perm\" value=\"4\" $checked4>", "<b>" . $strings["disabled_permissions"] . "</b>");
 $block1->contentRow("<input type=\"radio\" name=\"perm\" value=\"5\" $checked5>", "<b>" . $strings["project_manager_administrator_permissions"] . "</b>");
-$block1->contentRow("", "<input type=\"submit\" name=\"Save\" value=\"" . $strings["save"] . "\">");
+$block1->contentRow("", "<input type=\"submit\" name=\"Save\" value=\"" . $strings["save"] . "\" class=\"btn btn-primary\">");
 
 $block1->closeContent();
 $block1->headingForm_close();

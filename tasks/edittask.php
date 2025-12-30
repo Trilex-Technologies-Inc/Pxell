@@ -657,12 +657,12 @@ if ($cd == "") {
     $cd = "--";
 } 
 
-$block1->contentRow($strings["start_date"], "<input type=\"text\" style=\"width: 150px;\" name=\"sd\" id=\"sel1\" size=\"20\" value=\"$sd\"><button type=\"reset\" id=\"trigger_a\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel1\", button:\"trigger_a\" });</script>");
+$block1->contentRow($strings["start_date"], "<input type=\"text\" style=\"width: 150px;\" name=\"sd\" id=\"sel1\" size=\"20\" value=\"$sd\"><button type=\"reset\" id=\"trigger_a\" class=\"btn btn-outline-secondary\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel1\", button:\"trigger_a\" });</script>");
 
-$block1->contentRow($strings["due_date"], "<input type=\"text\" style=\"width: 150px;\" name=\"dd\" id=\"sel3\" size=\"20\" value=\"$dd\" $ddDisabled><button type=\"reset\" id=\"trigger_b\" $triggerBDisabled>...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel3\", button:\"trigger_b\" });</script>");
+$block1->contentRow($strings["due_date"], "<input type=\"text\" style=\"width: 150px;\" name=\"dd\" id=\"sel3\" size=\"20\" value=\"$dd\" $ddDisabled><button type=\"reset\" id=\"trigger_b\" $triggerBDisabled class=\"btn btn-outline-secondary\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel3\", button:\"trigger_b\" });</script>");
 
 if ($id != "") {
-    $block1->contentRow($strings["complete_date"], "<input type=\"text\" style=\"width: 150px;\" name=\"cd\" id=\"sel5\" size=\"20\" value=\"$cd\" $cdDisabled><button type=\"reset\" id=\"trigger_c\" $triggerCDisabled>...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel5\", button:\"trigger_c\" });</script>");
+    $block1->contentRow($strings["complete_date"], "<input type=\"text\" style=\"width: 150px;\" name=\"cd\" id=\"sel5\" size=\"20\" value=\"$cd\" $cdDisabled><button type=\"reset\" id=\"trigger_c\" $triggerCDisabled class=\"btn btn-outline-secondary\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel5\", button:\"trigger_c\" });</script>");
 } 
 // <tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">".$strings["actual_time"]." :</td><td>$atm&nbsp;".$strings["hours"]."</td></tr>
 echo "

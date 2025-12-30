@@ -143,7 +143,7 @@ if ($ld == '') {
 
 $block1->contentRow($strings['date'], "
   <input type='text' style='width: 150px;' name='ld' id='sel1' size='20' 
-  value='" . $meetingTimeDetail->mti_date[0] . "'><button type='reset' id=\"trigger_a\">...</button>
+  value='" . $meetingTimeDetail->mti_date[0] . "'><button type='reset' id=\"trigger_a\" class=\"btn btn-outline-secondary\">...</button>
 <script type=\"text/javascript\">Calendar.setup({ inputField:\"sel1\", button:\"trigger_a\" });</script>");
 
 echo "
@@ -157,7 +157,7 @@ echo "
 </tr>
 <tr class='odd'>
   <td valign='top' class='leftvalue'>&nbsp;</td>
-  <td><input type='SUBMIT' value='" . $strings["update"] . "'><input type='button' name='cancel' value='" . $strings['cancel'] . "' onClick='history.back();'></td>
+  <td><input type='SUBMIT' value='" . $strings["update"] . "' class='btn btn-primary'><input type='button' name='cancel' value='" . $strings['cancel'] . "' class='btn btn-secondary' onClick='history.back();'></td>
 </tr>";
 
 $block1->closeContent();

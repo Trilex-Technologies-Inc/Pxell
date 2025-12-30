@@ -146,7 +146,7 @@ if ($_GET['step'] == '2') {
     $block1->form = 'database';
     $block1->openForm('../installation/upgrade.php?action=database&amp;step=3');
     $block1->closeContent();
-    echo '<center><input type="submit" name="submit" value="STEP 3 >>"></center>';
+    echo '<center><input type="submit" name="submit" value="STEP 3 >>" class="btn btn-primary"></center>';
     $block1->closeForm();
 } 
 else if ($_GET['step'] == '3') {
@@ -169,7 +169,7 @@ else if ($_GET['step'] == '3') {
         $block1->form = 'settings';
         $block1->openForm('../installation/upgrade.php?action=settings&amp;step=4');
         $block1->closeContent();
-        echo '<center><input type="submit" name="submit" value="STEP 4 >>"></center>';
+        echo '<center><input type="submit" name="submit" value="STEP 4 >>" class="btn btn-primary"></center>';
         $block1->closeForm();
     } else {
         $block1->closeContent();
@@ -196,7 +196,7 @@ else {
     $block1->form = 'license';
     $block1->openForm('../installation/upgrade.php?step=2');
     $block1->closeContent();
-    echo '<center><input type="submit" name="submit" value="STEP 2 >>"></center>';
+    echo '<center><input type="submit" name="submit" value="STEP 2 >>" class="btn btn-primary"></center>';
     $block1->closeForm();
 } 
 $block1->headingForm_close();
