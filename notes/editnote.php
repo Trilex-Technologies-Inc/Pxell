@@ -3,9 +3,9 @@
 
 /**
  * $Id: editnote.php,v 1.5 2004/12/15 12:25:19 pixtur Exp $
- * 
+ *
  * Copyright (c) 2003 by the NetOffice developers
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -24,10 +24,10 @@ if ($id != "" && $action != "add") {
     if ($noteDetail->note_owner[0] != $_SESSION['idSession']) {
         header("Location: ../notes/listnotes.php?project=$project&msg=noteOwner");
         exit;
-    } 
+    }
 } else {
     $tmpquery = "WHERE pro.id = '$project'";
-} 
+}
 
 $projectDetail = new request();
 $projectDetail->openProjects($tmpquery);
@@ -41,7 +41,7 @@ if ($comptMemberTest == "0") {
     $teamMember = "false";
 } else {
     $teamMember = "true";
-} 
+}
 // case update note entry
 if ($id != "") {
     // case update note entry
@@ -53,13 +53,13 @@ if ($id != "") {
         connectSql("$tmpquery5");
         header("Location: ../notes/viewnote.php?id=$id&msg=$msg");
         exit;
-    } 
+    }
     // set value in form
     $dd = $noteDetail->note_date[0];
     $subject = $noteDetail->note_subject[0];
     $description = $noteDetail->note_description[0];
     $topic = $noteDetail->note_topic[0];
-} 
+}
 // case add note entry
 if ($id == "") {
     // case add note entry
@@ -74,8 +74,8 @@ if ($id == "") {
         unset($lastId);
         header("Location: ../notes/viewnote.php?id=$num&msg=add");
         exit;
-    } 
-} 
+    }
+}
 
 
 
@@ -85,11 +85,11 @@ $breadcrumbs[]=buildLink("../projects/viewproject.php?id=" . $projectDetail->pro
 $breadcrumbs[]=buildLink("../notes/listnotes.php?project=" . $projectDetail->pro_id[0], $strings["notes"], LINK_INSIDE);
 if ($id == "") {
     $breadcrumbs[]=$strings["add_note"];
-} 
+}
 if ($id != "") {
     $breadcrumbs[]=buildLink("../notes/viewnote.php?id=" . $noteDetail->note_id[0], $noteDetail->note_subject[0], LINK_INSIDE);
     $breadcrumbs[]=$strings["edit_note"];
-} 
+}
 
 
 
@@ -101,62 +101,116 @@ $block1 = new block();
 if ($id == "") {
     $block1->form = "etD";
     $block1->openForm("../notes/editnote.php?project=$project&amp;id=$id&amp;action=add#" . $block1->form . "Anchor");
-} 
+}
 if ($id != "") {
     $block1->form = "etD";
     $block1->openForm("../notes/editnote.php?project=$project&amp;id=$id&amp;action=update#" . $block1->form . "Anchor");
-} 
-if ($error != "") {
-    $block1->headingError($strings["errors"]);
-    $block1->contentError($error);
-} 
-if ($id == "") {
-    $block1->headingForm($strings["add_note"]);
-} 
-else {
-    $block1->headingForm($strings["edit_note"] . " : " . $noteDetail->note_subject[0]);
-} 
+}
+?>
+    <div class="container mt-4">
+        <a name="etDAnchor"></a>
 
-$block1->openContent();
-$block1->contentTitle($strings["details"]);
+        <?php if ($error != ""): ?>
+            <div class="alert alert-danger">
+                <?php echo $error; ?>
+            </div>
+        <?php endif; ?>
 
-echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["project"] . " :</td><td><select name=\"projectMenu\">";
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <?php if ($id == ""): ?>
+                        <?php echo $strings["add_note"]; ?>
+                    <?php else: ?>
+                        <?php echo $strings["edit_note"] . " : " . htmlspecialchars($noteDetail->note_subject[0]); ?>
+                    <?php endif; ?>
+                </h5>
+            </div>
 
-$tmpquery = "WHERE tea.member = '" . $_SESSION['idSession'] . "' ORDER BY pro.name";
-$listProjects = new request();
-$listProjects->openTeams($tmpquery);
-$comptListProjects = count($listProjects->tea_id);
+            <form method="POST" action="../notes/editnote.php?project=<?php echo $project; ?>&amp;id=<?php echo $id; ?>&amp;action=<?php echo ($id == "") ? 'add' : 'update'; ?>" name="etDForm" id="etDForm">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-3 text-muted"><?php echo $strings["details"]; ?></h6>
 
-for ($i = 0;$i < $comptListProjects;$i++) {
-    if ($listProjects->tea_pro_id[$i] == $noteDetail->note_project[0] || $project == $listProjects->tea_pro_id[$i]) {
-        echo "<option value=\"" . $listProjects->tea_pro_id[$i] . "\" selected>" . $listProjects->tea_pro_name[$i] . "</option>";
-    } else {
-        echo "<option value=\"" . $listProjects->tea_pro_id[$i] . "\">" . $listProjects->tea_pro_name[$i] . "</option>";
-    } 
-} 
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label"><?php echo $strings["project"]; ?> :</label>
+                        <div class="col-sm-9">
+                            <select name="projectMenu" class="form-select">
+                                <?php
+                                $tmpquery = "WHERE tea.member = '" . $_SESSION['idSession'] . "' ORDER BY pro.name";
+                                $listProjects = new request();
+                                $listProjects->openTeams($tmpquery);
+                                $comptListProjects = count($listProjects->tea_id);
 
-echo "</select></td></tr>";
+                                for ($i = 0;$i < $comptListProjects;$i++) {
+                                    $selected = ($listProjects->tea_pro_id[$i] == $noteDetail->note_project[0] || $project == $listProjects->tea_pro_id[$i]) ? 'selected' : '';
+                                    echo "<option value=\"" . $listProjects->tea_pro_id[$i] . "\" $selected>" . htmlspecialchars($listProjects->tea_pro_name[$i]) . "</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
 
-$block1->contentRow($strings["date"], "<input type=\"text\" style=\"width: 150px;\" name=\"dd\" id=\"sel3\" size=\"20\" value=\"$dd\"><button type=\"reset\" id=\"trigger_b\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel3\", button:\"trigger_b\" });</script>");
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label"><?php echo $strings["date"]; ?> :</label>
+                        <div class="col-sm-9">
+                            <div class="input-group">
+                                <input type="date" class="form-control" name="dd" id="sel3" value="<?php echo htmlspecialchars($dd); ?>">
+                                <button type="button" id="trigger_b" class="btn btn-outline-secondary">...</button>
+                            </div>
+                        </div>
+                    </div>
 
-$comptTopic = count($topicNote);
+                    <?php
+                    $comptTopic = count($topicNote);
+                    if ($comptTopic != "0"):
+                        ?>
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label"><?php echo $strings["topic"]; ?> :</label>
+                            <div class="col-sm-9">
+                                <select name="topic" class="form-select">
+                                    <option value=""><?php echo $strings["choice"]; ?></option>
+                                    <?php
+                                    for ($i = 1;$i <= $comptTopic;$i++) {
+                                        $selected = ($topic == $i) ? 'selected' : '';
+                                        echo "<option value=\"$i\" $selected>" . htmlspecialchars($topicNote[$i]) . "</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+                    <?php endif; ?>
 
-if ($comptTopic != "0") {
-    echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["topic"] . " :</td><td><select name=\"topic\"><option value=\"\">" . $strings["choice"] . "</option>";
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label"><?php echo $strings["subject"]; ?> :</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="subject" value="<?php echo htmlspecialchars($subject); ?>" maxlength="100" autofocus>
+                        </div>
+                    </div>
 
-    for ($i = 1;$i <= $comptTopic;$i++) {
-        if ($topic == $i) {
-            echo "<option value=\"$i\" selected>$topicNote[$i]</option>";
-        } else {
-            echo "<option value=\"$i\">$topicNote[$i]</option>";
-        } 
-    } 
-    echo "</select></td></tr>";
-} 
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label"><?php echo $strings["description"]; ?> :</label>
+                        <div class="col-sm-9">
+                            <textarea class="form-control" name="description" rows="6"><?php echo htmlspecialchars($description); ?></textarea>
+                        </div>
+                    </div>
 
-$block1->contentRow($strings["subject"], "<input size=\"44\" value=\"$subject\" style=\"width: 400px\" name=\"subject\" maxlength=\"100\" type=\"TEXT\">");
-$block1->contentRow($strings["description"], "<textarea rows=\"10\" style=\"width: 400px; height: 160px;\" name=\"description\" cols=\"47\">$description</textarea>");
-$block1->contentRow("", "<input type=\"SUBMIT\" value=\"" . $strings["save"] . "\">");
+                    <div class="row mb-3">
+                        <div class="col-sm-9 offset-sm-3">
+                            <button type="submit" class="btn btn-primary"><?php echo $strings["save"]; ?></button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Auto-focus on subject field
+        document.addEventListener('DOMContentLoaded', function() {
+            document.etDForm.subject.focus();
+        });
+    </script>
+<?php
 $block1->closeContent();
 $block1->headingForm_close();
 $block1->closeForm();

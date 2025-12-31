@@ -3,9 +3,9 @@
 
 /**
  * $Id: addmeetingtime.php,v 1.5 2005/05/27 21:39:26 madbear Exp $
- * 
+ *
  * Copyright (c) 2004 by the NetOffice developers
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -17,11 +17,11 @@ require_once("../includes/library.php");
 
 if ($meeting != "") {
     $cheatCode = "true";
-} 
+}
 
 if ($meeting != "" && $cheatCode == "true") {
     $id = $meeting;
-} 
+}
 
 // Meeting Detail
 $tmpquery = "WHERE mee.id = '$id'";
@@ -44,12 +44,12 @@ if ($comptMemberTest == "0") {
     $teamMember = "false";
 } else {
     $teamMember = "true";
-} 
+}
 
 if ($teamMember == "false" && $projectsFilter == "true") {
     header("Location:../general/permissiondenied.php");
     exit;
-} 
+}
 
 //--- header ---
 $breadcrumbs[]=buildLink("../projects/listprojects.php?", $strings["projects"], LINK_INSIDE);
@@ -63,17 +63,17 @@ require_once("../themes/" . THEME . "/header.php");
 // Check field values
 if ($_GET['action'] == 'add') {
     $msgLabel .= ''; // init
-     
+
     // make sure we have the required information
     if (!empty($hr)) {
         if (!is_numeric($hr)) {
             // we need this to be numeric
             $msgLabel = '<b>' . $strings['attention'] . '</b> : ' . $strings['worked_hours'] . ' ' . $strings['error_numerical'];
-        } 
+        }
     } else {
         // we need this to be numeric
         $msgLabel = '<b>' . $strings['attention'] . '</b> : ' . $strings['worked_hours'] . ' ' . $strings['error_required'];
-    } 
+    }
 
     // insert meeting time in database
     if (empty($msgLabel)) {
@@ -82,11 +82,11 @@ if ($_GET['action'] == 'add') {
         connectSql($tmpquery1);
         $ld = null;
         $hr = null;
-        $comm = null; 
+        $comm = null;
         // successful insert
         $msgLabel = '<b>' . $strings['success'] . '</b> : ' . $strings['hours_updated'];
-    } 
-} 
+    }
+}
 
 $tmpquery1 = "SELECT sum(hours) FROM " . $tableCollab['meetings_time'];
 
@@ -95,144 +95,200 @@ $blockPage->bornesNumber = "1";
 // get actual time for meeting
 $meetingActualTime = new request();
 $actualTime = $meetingActualTime->getMeetingTime($id);
+?>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><?php echo $strings["add_meeting_time"] . " : " . htmlspecialchars($meetingDetail->mee_name[0]); ?></h5>
+                    </div>
 
-$block1 = new block();
+                    <?php if (!empty($msgLabel)): ?>
+                        <div class="card-body">
+                            <div class="alert <?php echo strpos($msgLabel, $strings['success']) !== false ? 'alert-success' : 'alert-danger'; ?>">
+                                <?php echo $msgLabel; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
 
-$block1->form = "saM";
-$block1->openForm("../meetings/addmeetingtime.php?id=$id&amp;project=" . $projectDetail->pro_name[0] . "&amp;action=add#" . $block1->form . "Anchor");
+                    <form method="POST" action="../meetings/addmeetingtime.php?id=<?php echo $id; ?>&amp;project=<?php echo htmlspecialchars($projectDetail->pro_name[0]); ?>&amp;action=add" name="saMForm" id="saMForm" class="needs-validation" novalidate>
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-3 text-muted"><?php echo $strings["info"]; ?></h6>
 
-$block1->headingForm($strings["add_meeting_time"] . " : " . $meetingDetail->mee_name[0]);
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold"><?php echo $strings["project"]; ?> :</label>
+                                    <div class="form-control-plaintext"><?php echo htmlspecialchars($projectDetail->pro_name[0]); ?></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold"><?php echo $strings["actual_time"]; ?> :</label>
+                                    <div class="form-control-plaintext"><?php echo $actualTime; ?> <?php echo $strings["hours"]; ?></div>
+                                </div>
+                            </div>
 
-$block1->openContent();
-$block1->contentTitle($strings["info"]);
-$block1->contentRow($strings["project"], $projectDetail->pro_name[0]);
-$block1->contentRow($strings["meetings"], $meetingDetail->mee_name[0]);
-$block1->contentRow($strings["me_agenda"], nl2br($meetingDetail->mee_agenda[0]));
-$block1->contentRow($strings["actual_time"], $actualTime . " " . $strings["hours"]);
-$block1->contentTitle($strings["add_meeting_time"]);
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <label class="form-label fw-bold"><?php echo $strings["meetings"]; ?> :</label>
+                                    <div class="form-control-plaintext"><?php echo htmlspecialchars($meetingDetail->mee_name[0]); ?></div>
+                                </div>
+                            </div>
 
-$tmpquery = "WHERE tea.project = '" . $projectDetail->pro_id[0] . "' ORDER BY mem.name";
+                            <?php if (!empty($meetingDetail->mee_agenda[0])): ?>
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold"><?php echo $strings["me_agenda"]; ?> :</label>
+                                        <div class="form-control-plaintext border rounded p-2 bg-light">
+                                            <?php echo nl2br(htmlspecialchars($meetingDetail->mee_agenda[0])); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
 
-$projmem = new request();
-$projmem->openTeams($tmpquery);
-$comptProjmem = count($projmem->tea_mem_id);
+                            <hr class="my-4">
 
-echo "
-<tr class='odd'>
-  <td valign='top' class='leftvalue'>" . $strings['owner'] . " :</td>
-  <td><select name='owner'>";
-// get project team listing for owner select lists, default to logged user
-for ($i = 0;$i < $comptProjmem;$i++) {
-    $clientUser = '';
+                            <h6 class="card-subtitle mb-3 text-muted"><?php echo $strings["add_meeting_time"]; ?></h6>
 
-    if ($projmem->tea_mem_profil[$i] == '3') {
-        $clientUser = ' (' . $strings['client_user'] . ')';
-    } 
-    if ($_SESSION['nameSession'] == $projmem->tea_mem_name[$i]) {
-        echo "<option value='" . $projmem->tea_mem_id[$i] . "' selected>" . $projmem->tea_mem_name[$i] . "$clientUser</option>";
-    } else {
-        echo "<option value='" . $projmem->tea_mem_id[$i] . "'>" . $projmem->tea_mem_name[$i] . "$clientUser</option>";
-    } 
-} 
+                            <div class="row mb-3">
+                                <label class="col-sm-3 col-form-label"><?php echo $strings['owner']; ?> :</label>
+                                <div class="col-sm-9">
+                                    <select name='owner' class='form-select'>
+                                        <?php
+                                        $tmpquery = "WHERE tea.project = '" . $projectDetail->pro_id[0] . "' ORDER BY mem.name";
+                                        $projmem = new request();
+                                        $projmem->openTeams($tmpquery);
+                                        $comptProjmem = count($projmem->tea_mem_id);
 
-echo '
-  </select></td>
-</tr>';
+                                        for ($i = 0;$i < $comptProjmem;$i++) {
+                                            $clientUser = '';
+                                            if ($projmem->tea_mem_profil[$i] == '3') {
+                                                $clientUser = ' (' . $strings['client_user'] . ')';
+                                            }
+                                            $selected = ($_SESSION['nameSession'] == $projmem->tea_mem_name[$i]) ? 'selected' : '';
+                                            echo "<option value='" . $projmem->tea_mem_id[$i] . "' $selected>" .
+                                                htmlspecialchars($projmem->tea_mem_name[$i]) . "$clientUser</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
 
-if ($ld == '') {
-    $ld = $date;
-} 
+                            <div class="row mb-3">
+                                <label class="col-sm-3 col-form-label"><?php echo $strings['date']; ?> :</label>
+                                <div class="col-sm-9">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" name="ld" id="sel1" value="<?php echo htmlspecialchars(empty($ld) ? $date : $ld); ?>">
+                                        <button type="button" id="trigger_a" class="btn btn-outline-secondary">...</button>
+                                    </div>
+                                    <script type="text/javascript">Calendar.setup({ inputField:"sel1", button:"trigger_a" });</script>
+                                </div>
+                            </div>
 
-$block1->contentRow($strings['date'], "<input type=\"text\" style=\"width: 150px;\" name=\"ld\" id=\"sel1\" 
-size=\"20\" value=\"$ld\"><button type=\"reset\" id=\"trigger_a\" class=\"btn btn-outline-secondary\">...</button>
-<script type=\"text/javascript\">Calendar.setup({ inputField:\"sel1\", button:\"trigger_a\" });</script>");
+                            <div class="row mb-3">
+                                <label class="col-sm-3 col-form-label"><?php echo $strings["worked_hours"]; ?> :</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="hr" value="<?php echo htmlspecialchars($hr); ?>" maxlength="6" required>
+                                    <div class="invalid-feedback"><?php echo $strings['worked_hours'] . ' ' . $strings['error_required']; ?></div>
+                                </div>
+                            </div>
 
-echo "
-<tr class='odd'>
-  <td valign='top' class='leftvalue'>" . $strings["worked_hours"] . " :</td>
-  <td><input size='20' value='$hr' style='width: 150px;' name='hr' maxlength='6' type='text'></td>
-</tr>
-<tr class='odd'>
-  <td valign='top' class='leftvalue'>" . $strings["comments"] . " :</td>
-  <td><textarea rows='10' style='width: 400px; height: 150px;' name='comm' cols='47'>$comm</textarea></td>
-</tr>
-<tr class='odd'>
-  <td valign='top' class='leftvalue'>&nbsp;</td>
-  <td><input type='SUBMIT' value='" . $strings["save"] . "'></td>
-</tr>";
+                            <div class="row mb-3">
+                                <label class="col-sm-3 col-form-label"><?php echo $strings["comments"]; ?> :</label>
+                                <div class="col-sm-9">
+                                    <textarea class="form-control" name="comm" rows="4"><?php echo htmlspecialchars($comm); ?></textarea>
+                                </div>
+                            </div>
 
-$block1->closeContent();
-$block1->closeForm();
-// This will display time log detail for the current meeting
-$block2 = new block();
+                            <div class="row mb-3">
+                                <div class="col-sm-9 offset-sm-3">
+                                    <button type="submit" class="btn btn-primary"><?php echo $strings["save"]; ?></button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
-$block2->form = "ahT";
-$block2->openForm("../meetings/addmeetingtime.php?id=$id#" . $block2->form . "Anchor");
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><?php echo $strings["meeting_time"] . ' : ' . $strings["details"]; ?></h5>
+                    </div>
+                    <div class="card-body">
+                        <?php
+                        $tmpquery = "WHERE mti.meeting = '$id' ORDER BY mti.date DESC";
+                        $listMeetingTimes = new request();
+                        $listMeetingTimes->openMeetingTime($tmpquery, 0, 10);
+                        $comptListMeetingTimes = count($listMeetingTimes->mti_id);
 
-$block2->heading($strings["meeting_time"] . ' : ' . $strings["details"]);
+                        if ($comptListMeetingTimes != "0"):
+                            ?>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th><?php echo $strings["owner"]; ?></th>
+                                        <th><?php echo $strings["date"]; ?></th>
+                                        <th><?php echo ucfirst($strings["hours"]); ?></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php for ($i = 0;$i < $comptListMeetingTimes;$i++): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($listMeetingTimes->mti_mem_name[$i]); ?></td>
+                                            <td><?php echo htmlspecialchars($listMeetingTimes->mti_date[$i]); ?></td>
+                                            <td><?php echo htmlspecialchars($listMeetingTimes->mti_hours[$i]); ?></td>
+                                        </tr>
+                                    <?php endfor; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <?php if ($comptListMeetingTimes >= 10): ?>
+                            <div class="text-center mt-2">
+                                <a href="../meetings/viewmeeting.php?id=<?php echo $id; ?>" class="btn btn-sm btn-outline-primary">
+                                    <?php echo $strings["view_all"]; ?>
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                        <?php else: ?>
+                            <div class="text-center py-4">
+                                <p class="text-muted"><?php echo $strings["no_results"]; ?></p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-$block2->openPaletteIcon();
-$block2->paletteIcon(0, "remove", $strings["delete"]);
-$block2->paletteIcon(1, "edit", $strings["edit"]);
-$block2->closePaletteIcon();
+    <script>
+        // Bootstrap 5 form validation
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                var form = document.getElementById('saMForm');
+                if (form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                }
+            }, false);
+        })();
 
-$block2->borne = $blockPage->returnBorne("1");
-$block2->rowsLimit = "20";
-
-$block2->sorting('meetings_time', $sortingUser->sor_meetings_time[0], 'mti.date ASC', $sortingFields = array(0 => 'mem.name', 1 => 'mti.date', 2 => 'mti.hours', 3 => 'mti.created', 4 => 'mti.modified', 5 => 'mti.comments'));
-
-$tmpquery = "WHERE mti.meeting = '$id' ORDER BY $block2->sortingValue";
-
-$block2->recordsTotal = compt($initrequest["meetings_time"] . " " . $tmpquery);
-
-$listMeetingTimes = new request();
-
-$listMeetingTimes->openMeetingTime($tmpquery, $block2->borne, $block2->rowsLimit);
-$comptListMeetingTimes = count($listMeetingTimes->mti_id);
-
-if ($comptListMeetingTimes != "0") {
-    $block2->openResults();
-
-    $block2->labels($labels = array(0 => $strings["owner"], 1 => $strings["date"], 2 => ucfirst($strings["hours"]), 3 => $strings["created"], 4 => $strings["modified"], 5 => $strings['comment']), "true"); 
-    // display logged hours for project
-    for ($i = 0;$i < $comptListMeetingTimes;$i++) {
-        // only PM, PMA, and OWNERS can modify/delete
-        if (($_SESSION['profilSession'] == 1) or ($_SESSION['profilSession'] == 5) or
-                ($_SESSION['idSession'] == $listMeetingTimes->mti_owner[$i])) {
-            $block2->openRow($listMeetingTimes->mti_id[$i]);
-            $block2->checkboxRow($listMeetingTimes->mti_id[$i], 'true');
-            $block2->cellRow($listMeetingTimes->mti_mem_name[$i]);
-            $block2->cellRow($listMeetingTimes->mti_date[$i]);
-            $block2->cellRow($listMeetingTimes->mti_hours[$i]);
-            $block2->cellRow($listMeetingTimes->mti_created[$i]);
-            $block2->cellRow($listMeetingTimes->mti_modified[$i]); 
-            // truncate large comments to keep the display clean
-            $comments = $listMeetingTimes->mti_comments[$i];
-            $lenComm = 40;
-            if (strLen($comments) > $lenComm) {
-                $comments = substr($listMeetingTimes->mti_comments[$i], 0, $lenComm) . ' ...';
-            } 
-
-            $block2->cellRow($comments);
-            $block2->closeRow();
-        } 
-    } 
-
-    $block2->closeResults();
-    $block2->bornesFooter("1", $blockPage->bornesNumber, "", "id=$id");
-} else {
-    $block2->noresults();
-} 
-
-$block2->closeContent();
-$block2->headingForm_close();
-$block2->closeFormResults();
-
-$block2->openPaletteScript();
-$block2->paletteScript(0, "remove", "../meetings/deletemeetingtime.php?meeting=$id", "false,true,true", $strings["delete"]);
-$block2->paletteScript(1, "edit", "../meetings/editmeetingtime.php?meeting=$id", "false,true,false", $strings["edit"]);
-$block2->closePaletteScript($comptListMeetingTimes, $listMeetingTimes->mti_id);
-
+        // Validate hours input
+        document.querySelector('input[name="hr"]').addEventListener('input', function(e) {
+            var value = e.target.value;
+            if (value && !/^\d*\.?\d*$/.test(value)) {
+                e.target.setCustomValidity('<?php echo $strings['worked_hours'] . ' ' . $strings['error_numerical']; ?>');
+            } else {
+                e.target.setCustomValidity('');
+            }
+        });
+    </script>
+<?php
 require_once("../themes/" . THEME . "/footer.php");
-
 ?>

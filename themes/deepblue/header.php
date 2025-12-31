@@ -1,8 +1,7 @@
 <?php
 // $Revision: 1.14 $
-/**
- * header.php — Bootstrap sidebar version (PHP 5 compatible)
- */
+
+
 
 echo $setDoctype . "\n";
 echo $setCopyright . "\n";
