@@ -299,7 +299,7 @@ CREATE TABLE {$myprefix}organizations (
   comments $db_text[$databaseType],
   created $db_varchar16[$databaseType],
   extension_logo $db_char3[$databaseType],
-  owner $db_mediumint[$databaseType],
+  owner $db_varchar155[$databaseType],
   PRIMARY KEY (id)
 )
 
