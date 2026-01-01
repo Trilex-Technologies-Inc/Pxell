@@ -243,45 +243,7 @@ $block1->form = "filedetails";
         </form>
     </div>
 
-    <script>
-        // Bootstrap 5 form validation
-        (function() {
-            'use strict';
-            window.addEventListener('load', function() {
-                var forms = document.getElementsByClassName('needs-validation');
-                var validation = Array.prototype.filter.call(forms, function(form) {
-                    form.addEventListener('submit', function(event) {
-                        if (form.checkValidity() === false) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                        }
-                        form.classList.add('was-validated');
-                    }, false);
-                });
-            }, false);
-        })();
 
-        // File size validation
-        document.querySelector('input[type="file"]').addEventListener('change', function(e) {
-            var maxSize = <?php echo $projectDetail->pro_upload_max[0]; ?>;
-            var file = e.target.files[0];
-
-            if (file && file.size > maxSize) {
-                alert('<?php echo $strings["exceed_size"]; ?> (<?php echo $projectDetail->pro_upload_max[0] / 1024; ?> <?php echo $byteUnits[1]; ?>)');
-                e.target.value = '';
-            }
-
-            // PHP file validation
-            <?php if ($allowPhp == "false"): ?>
-            var fileName = file.name.toLowerCase();
-            var ext = fileName.split('.').pop();
-            if (ext === 'php' || ext === 'php3' || ext === 'phtml') {
-                alert('<?php echo $strings["no_php"]; ?>');
-                e.target.value = '';
-            }
-            <?php endif; ?>
-        });
-    </script>
 <?php
 $block1->closeForm();
 require_once("../themes/" . THEME . "/footer.php");

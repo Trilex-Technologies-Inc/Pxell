@@ -3,9 +3,9 @@
 
 /**
  * $Id: editmeeting.php,v 1.6 2005/01/06 09:27:32 luiswang Exp $
- * 
+ *
  * Copyright (c) 2004 by the NetOffice developers
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -30,7 +30,7 @@ if ($id != "" && $action != "update" && $action != "add") {
 } else {
     $tmpquery = "WHERE pro.id = '$project'";
     $comptAttendantDetail = "0" ;
-} 
+}
 
 $projectDetail = new request();
 $projectDetail->openProjects($tmpquery);
@@ -44,12 +44,12 @@ if ($comptMemberTest == "0") {
     $teamMember = "false";
 } else {
     $teamMember = "true";
-} 
+}
 
 if ($teamMember == "false" && $_SESSION['profilSession'] != "5") {
     header("Location: ../meetings/listmeetings.php?project=$project&msg=meetingOwner");
     exit;
-} 
+}
 if ($stm != "" && $etm != "" && $stm > $etm) {
     $etm = $stm;
 }
@@ -69,7 +69,7 @@ if ($id != "") {
         if ($cpy == "true") {
             if ($pub == "") {
                 $pub = "1";
-            } 
+            }
             // Insert Meeting details
             $tmpquery1 = "INSERT INTO " . $tableCollab["meetings"] . "(project,name,agenda,location,minutes,chairman,recorder,status,priority,date,start_time,end_time,reminder,reminder_time1,reminder_time2,created,published) VALUES('$project','$mn','$ma','$ml','$mm','$mc','$mr','$st','$pr','$md','$stm','$etm','0','0','0','$dateheure','$pub')";
             connectSql("$tmpquery1");
@@ -156,20 +156,20 @@ if ($id != "") {
                 // send meeting assignment mail if notifications = true
                 if ($notifications == "true") {
                     require_once("../meetings/noti_meetingassignment.php");
-                } 
-            } 
+                }
+            }
             // create meeting sub-folder if filemanagement = true
             if ($fileManagement == "true") {
                 createDir("files/$project/meetings");
                 createDir("files/$project/meetings/$num");
-            } 
+            }
             header("Location: ../meetings/viewmeeting.php?id=$num&msg=addMeeting");
             exit;
-        // case update meeting
+            // case update meeting
         } else {
             if ($pub == "") {
                 $pub = "1";
-            } 
+            }
             $tmpquery5 = "UPDATE " . $tableCollab["meetings"] . " SET name='$mn',agenda='$ma',location='$ml',minutes='$mm',chairman='$mc',recorder='$mr',status='$st',priority='$pr',date='$md',start_time='$stm',end_time='$etm',modified='$dateheure',published='$pub' WHERE id = '$id'";
 
             // if project different from past value, set project number in meetings table
@@ -190,10 +190,10 @@ if ($id != "") {
                         if ($v != '.' && $v != '..') {
                             copy("../files/$old_project/meetings/$id/" . $v, "../files/$project/meetings/$id/" . $v);
                             @unlink("../files/$old_project/meetings/$id/" . $v);
-                        } 
-                    } 
-                } 
-            } 
+                        }
+                    }
+                }
+            }
             // if attendants different from past value, insert into assignment
             // add new assigned_to in team members (only if doesn't already exist)
             $new_attendants_count = 0;
@@ -274,7 +274,7 @@ if ($id != "") {
                 // send meeting assignment mail if notifications = true
                 if ($notifications == "true") {
                     require_once("../meetings/noti_meetingassignment.php");
-                } 
+                }
             } else {
                 $msg = "update";
                 connectSql("$tmpquery5");
@@ -285,27 +285,27 @@ if ($id != "") {
                 if ($comptATSEL != "0" && $st != $old_st) {
                     if ($notifications == "true") {
                         require_once("../meetings/noti_statusmeetingchange.php");
-                    } 
-                } 
+                    }
+                }
                 // send priority meeting change mail if notifications = true
                 if ($comptATSEL != "0" && $pr != $old_pr) {
                     if ($notifications == "true") {
                         require_once("../meetings/noti_prioritymeetingchange.php");
-                    } 
-                } 
+                    }
+                }
                 // send location meeting change mail if notifications = true
                 if ($comptATSEL != "0" && $ml != $old_location) {
                     if ($notifications == "true") {
                         require_once("../meetings/noti_locationmeetingchange.php");
-                    } 
-                } 
+                    }
+                }
                 // send date/time meeting change mail if notifications = true
                 if ($comptATSEL != "0" && ($md != $old_date || $stm != $old_start_time || $etm != $old_end_time)) {
                     if ($notifications == "true") {
                         require_once("../meetings/noti_timemeetingchange.php");
-                    } 
-                } 
-            } 
+                    }
+                }
+            }
 
             if ($ml != $old_location) {
                 $cUp .= "\n[location:$ml]";
@@ -333,8 +333,8 @@ if ($id != "") {
             }
             header("Location: ../meetings/viewmeeting.php?id=$id&msg=$msg");
             exit;
-        } 
-    } 
+        }
+    }
 
     // set value in form
     $mn = $meetingDetail->mee_name[0];
@@ -350,8 +350,8 @@ if ($id != "") {
 
     if ($pub == "0") {
         $checkedPub = "checked";
-    } 
-} 
+    }
+}
 // case add meeting
 if ($id == "") {
     // case add meeting
@@ -366,7 +366,7 @@ if ($id == "") {
 
         if ($pub == "") {
             $pub = "1";
-        } 
+        }
         $tmpquery1 = "INSERT INTO " . $tableCollab["meetings"] . "(project,name,agenda,location,minutes,chairman,recorder,status,priority,date,start_time,end_time,reminder,reminder_time1,reminder_time2,created,published) VALUES('$project','$mn','$ma','$ml','$mm','$mc','$mr','$st','$pr','$md','$stm','$etm','0','0','0','$dateheure','$pub')";
         connectSql("$tmpquery1");
         $tmpquery = $tableCollab["meetings"];
@@ -452,24 +452,24 @@ if ($id == "") {
             // send meeting assignment mail if notifications = true
             if ($notifications == "true") {
                 require_once("../meetings/noti_meetingassignment.php");
-            } 
-        } 
+            }
+        }
         // create meeting sub-folder if filemanagement = true
         if ($fileManagement == "true") {
             createDir("files/$project/meetings");
             createDir("files/$project/meetings/$num");
-        } 
+        }
         header("Location: ../meetings/viewmeeting.php?id=$num&msg=addMeeting");
         exit;
-    } 
+    }
     // set default values
     $meetingDetail->mee_priority[0] = $projectDetail->pro_priority[0];
     $meetingDetail->mee_status[0] = "2";
-} 
+}
 
 if ($projectDetail->pro_org_id[0] == "1") {
     $projectDetail->pro_org_name[0] = $strings["none"];
-} 
+}
 
 //--- header ----------------------------------------------------------------------------------
 $breadcrumbs[]=buildLink('../projects/listprojects.php', $strings['projects'], LINK_INSIDE);
@@ -477,288 +477,337 @@ $breadcrumbs[]=buildLink("../projects/viewproject.php?id=" . $projectDetail->pro
 $breadcrumbs[]=buildLink("../meetings/listmeetings.php?project=" . $projectDetail->pro_id[0], $strings["meetings"], LINK_INSIDE);
 if ($id == "") {
     $breadcrumbs[]=$strings["add_meeting"];
-} 
+}
 if ($id != "") {
     $breadcrumbs[]=buildLink("../meetings/viewmeeting.php?id=" . $meetingDetail->mee_id[0], $meetingDetail->mee_name[0], LINK_INSIDE);
     $breadcrumbs[]=$strings["edit_meeting"];
-} 
+}
 
 $pageSection='meetings';
 $bodyCommand = "onload=\"document.emDForm.compl.value = document.emDForm.completion.selectedIndex;document.emDForm.tn.focus();\"";
 require_once('../themes/' . THEME . '/header.php');
 
 //--- content ---------------------------------------------------------------------------------
-$block1 = new block();
+?>
+    <div class="container-fluid">
+        <?php if ($error != ""): ?>
+            <div class="alert alert-danger">
+                <?php echo $error; ?>
+            </div>
+        <?php endif; ?>
 
-if ($id == "") {
-    $block1->form = "emD";
-    $block1->openForm("../meetings/editmeeting.php?project=$project&amp;action=add#" . $block1->form . "Anchor");
-} 
-if ($id != "") {
-    $block1->form = "emD";
-    $block1->openForm("../meetings/editmeeting.php?project=$project&amp;id=$id&amp;action=update&amp;cpy=$cpy#" . $block1->form . "Anchor");
-    echo "<input type=\"hidden\" name=\"old_pr\" value=\"" . $meetingDetail->mee_priority[0] . "\">";
-    echo "<input type=\"hidden\" name=\"old_st\" value=\"" . $meetingDetail->mee_status[0] . "\">";
-    echo "<input type=\"hidden\" name=\"old_project\" value=\"" . $meetingDetail->mee_project[0] . "\">";
-    echo "<input type=\"hidden\" name=\"old_org_id\" value=\"" . $$projectDetail->pro_org_id[0] . "\">";
-    echo "<input type=\"hidden\" name=\"old_location\" value=\"" . $meetingDetail->mee_location[0] . "\">";
-    echo "<input type=\"hidden\" name=\"old_date\" value=\"" . $meetingDetail->mee_date[0] . "\">";
-    echo "<input type=\"hidden\" name=\"old_start_time\" value=\"" . $meetingDetail->mee_start_time[0] . "\">";
-    echo "<input type=\"hidden\" name=\"old_end_time\" value=\"" . $meetingDetail->mee_end_time[0] . "\">";
-
-    $att_mem_id_list = "";
-    for ($i = 0; $i < $comptAttendantDetail; $i++) {
-        if ($att_mem_id_list != "") {
-            $att_mem_id_list .= ", ";
-        }
-        $att_mem_id_list .= $attendantDetail->att_mem_id[$i];
-    }
-    echo "<input type=\"hidden\" name=\"old_attendants\" value=\"" . $att_mem_id_list . "\">";
-} 
-
-if ($error != "") {
-    $block1->headingError($strings["errors"]);
-    $block1->contentError($error);
-} 
-
-if ($id == "") {
-    $block1->headingForm($strings["add_meeting"]);
-} 
-if ($id != "") {
-    if ($cpy == "true") {
-        $block1->headingForm($strings["copy_meeting"] . " : " . $meetingDetail->mee_name[0]);
-    } else {
-        $block1->headingForm($strings["edit_meeting"] . " : " . $meetingDetail->mee_name[0]);
-    } 
-} 
-
-$block1->openContent();
-$block1->contentTitle($strings["info"]);
-
-echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["project"] . " :</td><td><select name=\"project\">";
-
-if ($projectsFilter == "true") {
-    $tmpquery = "LEFT OUTER JOIN " . $tableCollab["teams"] . " teams ON teams.project = pro.id ";
-    $tmpquery .= "WHERE teams.member = '" . $_SESSION['idSession'] . "'";
-} else {
-    $tmpquery = "";
-} 
-$listProjects = new request();
-$listProjects->openProjects($tmpquery);
-$comptListProjects = count($listProjects->pro_id);
-
-for ($i = 0;$i < $comptListProjects;$i++) {
-    if ($listProjects->pro_id[$i] == $projectDetail->pro_id[0]) {
-        echo "<option value=\"" . $listProjects->pro_id[$i] . "\" selected>" . $listProjects->pro_name[$i] . "</option>";
-    } else {
-        echo "<option value=\"" . $listProjects->pro_id[$i] . "\">" . $listProjects->pro_name[$i] . "</option>";
-    } 
-} 
-echo "</select></td></tr>";
-echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["organization"] . " :</td><td>" . $projectDetail->pro_org_name[0] . "</td></tr>";
-
-$block1->contentTitle($strings["details"]);
-
-echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["name"] . " :</td><td><input size=\"44\" value=\"";
-
-if ($cpy == "true") {
-    echo $strings["copy_of"];
-} 
-
-echo "$mn\" style=\"width: 400px\" name=\"mn\" maxlength=\"100\" type=\"TEXT\"></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["me_agenda"] . " :</td><td><textarea rows=\"4\" style=\"width: 400px; height: 64px;\" name=\"ma\" cols=\"47\">$ma</textarea></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["me_location"] . " :</td><td><textarea rows=\"2\" style=\"width: 400px; height: 32px;\" name=\"ml\" cols=\"47\">$ml</textarea></td></tr>";
-
-$tmpquery = "WHERE tea.project = '$project' AND mem.profil != '3'";
-$listTeam = new request();
-$listTeam->openTeams($tmpquery);
-$comptListTeam = count($listTeam->tea_id);
-
-if ($projectDetail->pro_org_id[0] != "1") {
-    $tmpquery = "WHERE mem.organization = '" . $projectDetail->pro_org_id[0] . "' AND mem.profil = '3'";
-    $listClientMem = new request();
-    $listClientMem->openMembers($tmpquery);
-    $comptListClientMem = count($listClientMem->mem_id);
-}
-else {
-    $comptListClientMem = "0" ;
-}
-
-$comptListSum = $comptListTeam + $comptListClientMem;
-
-if ($comptListSum != "0") {
-    echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["me_chairman"] . " :</td><td><select name=\"S_CSEL[]\">";
-
-    for ($i = 0; $i < $comptListTeam; $i++) {
-        echo "<option value=\"" . $listTeam->tea_mem_id[$i] . "\"";
-
-        if ($id != "") {
-            if ($listTeam->tea_mem_id[$i] == $mc) {
-                echo " selected";
+        <?php
+        if ($id == "") {
+            $formAction = "../meetings/editmeeting.php?project=$project&amp;action=add";
+            $pageTitle = $strings["add_meeting"];
+        } else {
+            $formAction = "../meetings/editmeeting.php?project=$project&amp;id=$id&amp;action=update&amp;cpy=$cpy";
+            if ($cpy == "true") {
+                $pageTitle = $strings["copy_meeting"] . " : " . $meetingDetail->mee_name[0];
+            } else {
+                $pageTitle = $strings["edit_meeting"] . " : " . $meetingDetail->mee_name[0];
             }
         }
-        else {
-            if ($listTeam->tea_mem_id[$i] == $_SESSION['idSession']) {
-                echo " selected";
-            }
-        }
+        ?>
 
-        echo ">" . $listTeam->tea_mem_login[$i] . " / " . $listTeam->tea_mem_name[$i] . "</option>";
-    }
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4><?php echo $pageTitle; ?></h4>
+            </div>
+            <div class="card-body">
+                <form action="<?php echo $formAction; ?>" method="post" id="emDForm">
+                    <?php if ($id != ""): ?>
+                        <input type="hidden" name="old_pr" value="<?php echo $meetingDetail->mee_priority[0]; ?>">
+                        <input type="hidden" name="old_st" value="<?php echo $meetingDetail->mee_status[0]; ?>">
+                        <input type="hidden" name="old_project" value="<?php echo $meetingDetail->mee_project[0]; ?>">
+                        <input type="hidden" name="old_org_id" value="<?php echo $projectDetail->pro_org_id[0]; ?>">
+                        <input type="hidden" name="old_location" value="<?php echo $meetingDetail->mee_location[0]; ?>">
+                        <input type="hidden" name="old_date" value="<?php echo $meetingDetail->mee_date[0]; ?>">
+                        <input type="hidden" name="old_start_time" value="<?php echo $meetingDetail->mee_start_time[0]; ?>">
+                        <input type="hidden" name="old_end_time" value="<?php echo $meetingDetail->mee_end_time[0]; ?>">
 
-    for ($i = 0; $i < $comptListClientMem; $i++) {
-        echo "<option value=\"" . $listClientMem->mem_id[$i] . "\">" . $listClientMem->mem_name[$i] . " (" . $strings["client_user"] . ")</option>";
-    }
+                        <?php
+                        $att_mem_id_list = "";
+                        for ($i = 0; $i < $comptAttendantDetail; $i++) {
+                            if ($att_mem_id_list != "") {
+                                $att_mem_id_list .= ", ";
+                            }
+                            $att_mem_id_list .= $attendantDetail->att_mem_id[$i];
+                        }
+                        ?>
+                        <input type="hidden" name="old_attendants" value="<?php echo $att_mem_id_list; ?>">
+                    <?php endif; ?>
 
-    echo "</select></td></tr>";
-}
+                    <h5><?php echo $strings["info"]; ?></h5>
+                    <div class="mb-3">
+                        <label class="form-label"><?php echo $strings["project"]; ?> :</label>
+                        <select name="project" class="form-select">
+                            <?php
+                            if ($projectsFilter == "true") {
+                                $tmpquery = "LEFT OUTER JOIN " . $tableCollab["teams"] . " teams ON teams.project = pro.id ";
+                                $tmpquery .= "WHERE teams.member = '" . $_SESSION['idSession'] . "'";
+                            } else {
+                                $tmpquery = "";
+                            }
+                            $listProjects = new request();
+                            $listProjects->openProjects($tmpquery);
+                            $comptListProjects = count($listProjects->pro_id);
 
-echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["status"] . " :</td><td><select name=\"st\">";
+                            for ($i = 0;$i < $comptListProjects;$i++) {
+                                $selected = ($listProjects->pro_id[$i] == $projectDetail->pro_id[0]) ? 'selected' : '';
+                                echo "<option value=\"" . $listProjects->pro_id[$i] . "\" $selected>" . $listProjects->pro_name[$i] . "</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
 
-$comptSta = count($status);
+                    <div class="mb-3">
+                        <label class="form-label"><?php echo $strings["organization"]; ?> :</label>
+                        <p class="form-control-plaintext"><?php echo $projectDetail->pro_org_name[0]; ?></p>
+                    </div>
 
-for ($i = 0;$i < $comptSta;$i++) {
-    if ($meetingDetail->mee_status[0] == $i) {
-        echo "<option value=\"$i\" selected>$status[$i]</option>";
-    } else {
-        echo "<option value=\"$i\">$status[$i]</option>";
-    } 
-} 
+                    <h5 class="mt-4"><?php echo $strings["details"]; ?></h5>
 
-echo "</select></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["priority"] . " :</td><td><select name=\"pr\">";
+                    <div class="mb-3">
+                        <label class="form-label"><?php echo $strings["name"]; ?> :</label>
+                        <input type="text" class="form-control" name="mn" value="<?php
+                        if ($cpy == "true") {
+                            echo $strings["copy_of"] . " ";
+                        }
+                        echo htmlspecialchars($mn);
+                        ?>" maxlength="100">
+                    </div>
 
-$comptPri = count($priority);
+                    <div class="mb-3">
+                        <label class="form-label"><?php echo $strings["me_agenda"]; ?> :</label>
+                        <textarea class="form-control" name="ma" rows="4"><?php echo htmlspecialchars($ma); ?></textarea>
+                    </div>
 
-for ($i = 0;$i < $comptPri;$i++) {
-    if ($meetingDetail->mee_priority[0] == $i) {
-        echo "<option value=\"$i\" selected>$priority[$i]</option>";
-    } else {
-        echo "<option value=\"$i\">$priority[$i]</option>";
-    } 
-} 
+                    <div class="mb-3">
+                        <label class="form-label"><?php echo $strings["me_location"]; ?> :</label>
+                        <textarea class="form-control" name="ml" rows="2"><?php echo htmlspecialchars($ml); ?></textarea>
+                    </div>
 
-echo "</select></td></tr>";
+                    <?php
+                    $tmpquery = "WHERE tea.project = '$project' AND mem.profil != '3'";
+                    $listTeam = new request();
+                    $listTeam->openTeams($tmpquery);
+                    $comptListTeam = count($listTeam->tea_id);
 
-if ($md == "") {
-    $md = $date;
-} 
+                    if ($projectDetail->pro_org_id[0] != "1") {
+                        $tmpquery = "WHERE mem.organization = '" . $projectDetail->pro_org_id[0] . "' AND mem.profil = '3'";
+                        $listClientMem = new request();
+                        $listClientMem->openMembers($tmpquery);
+                        $comptListClientMem = count($listClientMem->mem_id);
+                    } else {
+                        $comptListClientMem = "0";
+                    }
 
-$block1->contentRow($strings["date"], "<input type=\"text\" style=\"width: 150px;\" name=\"md\" id=\"sel1\" size=\"20\" value=\"$md\"><button type=\"reset\" id=\"trigger_a\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel1\", button:\"trigger_a\" });</script>");
+                    $comptListSum = $comptListTeam + $comptListClientMem;
 
-echo "
-  <tr class=\"odd\">
-    <td valign=\"top\" class=\"leftvalue\">" . $strings["start_time"] . " :</td>
-    <td><select name=\"stm\">";
-foreach ($timestampArray as $key => $value) {
-    if ($key == $stm) {
-        echo "<option value=\"$key\" selected>$value</option>";
-    } else {
-        echo "<option value=\"$key\">$value</option>";
-    }
-}
-echo "</select></td></tr>";
+                    if ($comptListSum != "0"):
+                        ?>
+                        <div class="mb-3">
+                            <label class="form-label"><?php echo $strings["me_chairman"]; ?> :</label>
+                            <select name="S_CSEL[]" class="form-select">
+                                <?php for ($i = 0; $i < $comptListTeam; $i++): ?>
+                                    <option value="<?php echo $listTeam->tea_mem_id[$i]; ?>"
+                                        <?php
+                                        if ($id != "") {
+                                            if ($listTeam->tea_mem_id[$i] == $mc) {
+                                                echo " selected";
+                                            }
+                                        } else {
+                                            if ($listTeam->tea_mem_id[$i] == $_SESSION['idSession']) {
+                                                echo " selected";
+                                            }
+                                        }
+                                        ?>>
+                                        <?php echo $listTeam->tea_mem_login[$i] . " / " . $listTeam->tea_mem_name[$i]; ?>
+                                    </option>
+                                <?php endfor; ?>
 
-echo "
-  <tr class=\"odd\">
-    <td valign=\"top\" class=\"leftvalue\">" . $strings["end_time"] . " :</td>
-    <td><select name=\"etm\">";
-foreach ($timestampArray as $key => $value) {
-    if ($key == $etm) {
-        echo "<option value=\"$key\" selected>$value</option>";
-    } else {
-        echo "<option value=\"$key\">$value</option>";
-    }
-}
-echo "</select></td></tr>";
+                                <?php for ($i = 0; $i < $comptListClientMem; $i++): ?>
+                                    <option value="<?php echo $listClientMem->mem_id[$i]; ?>">
+                                        <?php echo $listClientMem->mem_name[$i] . " (" . $strings["client_user"] . ")"; ?>
+                                    </option>
+                                <?php endfor; ?>
+                            </select>
+                        </div>
+                    <?php endif; ?>
 
-echo "
-  <tr class=\"odd\">
-    <td valign=\"top\" class=\"leftvalue\">" . $strings["published"] . " :</td>
-    <td><input size=\"32\" value=\"0\" name=\"pub\" type=\"checkbox\" $checkedPub></td>
-  </tr>";
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><?php echo $strings["status"]; ?> :</label>
+                            <select name="st" class="form-select">
+                                <?php
+                                $comptSta = count($status);
+                                for ($i = 0;$i < $comptSta;$i++):
+                                    ?>
+                                    <option value="<?php echo $i; ?>" <?php if ($meetingDetail->mee_status[0] == $i) echo "selected"; ?>>
+                                        <?php echo $status[$i]; ?>
+                                    </option>
+                                <?php endfor; ?>
+                            </select>
+                        </div>
 
-if ($comptListSum != "0") {
-    $block1->contentTitle($strings["attendants"]);
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><?php echo $strings["priority"]; ?> :</label>
+                            <select name="pr" class="form-select">
+                                <?php
+                                $comptPri = count($priority);
+                                for ($i = 0;$i < $comptPri;$i++):
+                                    ?>
+                                    <option value="<?php echo $i; ?>" <?php if ($meetingDetail->mee_priority[0] == $i) echo "selected"; ?>>
+                                        <?php echo $priority[$i]; ?>
+                                    </option>
+                                <?php endfor; ?>
+                            </select>
+                        </div>
+                    </div>
 
-    echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\"></td><td>";
+                    <div class="mb-3">
+                        <label class="form-label"><?php echo $strings["date"]; ?> :</label>
+                        <div class="input-group">
+                            <input type="date" class="form-control" name="md" id="sel1" value="<?php
+                            if ($md == "") {
+                                $md = $date;
+                            }
+                            echo $md;
+                            ?>">
+                            <button type="button" id="trigger_a" class="btn btn-outline-secondary">...</button>
+                        </div>
 
-    $selectSize = $comptListSum + 2;
-    if ($comptAttendantDetail == "0") {
-        echo "<select name=\"S_ATSEL[]\" size=\"" . $selectSize . "\" multiple><option selected value=\"ALL\">" . $strings["select_all"] . "</option><option value=\"NOCLIENTS\">" . $strings["select_all_but_clients"] . "</option>";
-    }
-    else {
-        echo "<select name=\"S_ATSEL[]\" size=\"" . $selectSize . "\" multiple><option value=\"ALL\">" . $strings["select_all"] . "</option><option value=\"NOCLIENTS\">" . $strings["select_all_but_clients"] . "</option>";
-    }
+                    </div>
 
-    for ($i = 0; $i < $comptListTeam; $i++) {
-        echo "<option ";
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><?php echo $strings["start_time"]; ?> :</label>
+                            <select name="stm" class="form-select">
+                                <?php foreach ($timestampArray as $key => $value): ?>
+                                    <option value="<?php echo $key; ?>" <?php if ($key == $stm) echo "selected"; ?>>
+                                        <?php echo $value; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
 
-        for ($j = 0; $j < $comptAttendantDetail; $j++) {
-            if ($attendantDetail->att_mem_id[$j] == $listTeam->tea_mem_id[$i]) {
-                echo "selected ";
-                break;
-            }
-        }
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><?php echo $strings["end_time"]; ?> :</label>
+                            <select name="etm" class="form-select">
+                                <?php foreach ($timestampArray as $key => $value): ?>
+                                    <option value="<?php echo $key; ?>" <?php if ($key == $etm) echo "selected"; ?>>
+                                        <?php echo $value; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
 
-        echo "value=\"" . $listTeam->tea_mem_id[$i] . "\">" . $listTeam->tea_mem_login[$i] . " / " . $listTeam->tea_mem_name[$i] . "</option>";
-    }
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="pub" value="0" <?php echo $checkedPub; ?>>
+                            <label class="form-check-label"><?php echo $strings["published"]; ?></label>
+                        </div>
+                    </div>
 
-    for ($i = 0; $i < $comptListClientMem; $i++) {
-        echo "<option ";
+                    <?php if ($comptListSum != "0"): ?>
+                        <h5 class="mt-4"><?php echo $strings["attendants"]; ?></h5>
 
-        for ($j = 0; $j < $comptAttendantDetail; $j++) {
-            if ($attendantDetail->att_mem_id[$j] == $listClientMem->mem_id[$i]) {
-                echo "selected ";
-                break;
-            }
-        }
+                        <div class="mb-3">
+                            <label class="form-label"><?php echo $strings["select_attendants"]; ?> :</label>
+                            <?php
+                            $selectSize = $comptListSum + 2;
+                            if ($selectSize > 10) $selectSize = 10;
+                            ?>
+                            <select name="S_ATSEL[]" class="form-select" size="<?php echo $selectSize; ?>" multiple>
+                                <?php if ($comptAttendantDetail == "0"): ?>
+                                    <option selected value="ALL"><?php echo $strings["select_all"]; ?></option>
+                                <?php else: ?>
+                                    <option value="ALL"><?php echo $strings["select_all"]; ?></option>
+                                <?php endif; ?>
+                                <option value="NOCLIENTS"><?php echo $strings["select_all_but_clients"]; ?></option>
 
-        echo "value=\"" . $listClientMem->mem_id[$i] . "\">" . $listClientMem->mem_login[$i] . " / " .$listClientMem->mem_name[$i] . " (" . $strings["client_user"] . ")</option>";
-    }
+                                <?php for ($i = 0; $i < $comptListTeam; $i++): ?>
+                                    <option value="<?php echo $listTeam->tea_mem_id[$i]; ?>"
+                                        <?php
+                                        for ($j = 0; $j < $comptAttendantDetail; $j++) {
+                                            if ($attendantDetail->att_mem_id[$j] == $listTeam->tea_mem_id[$i]) {
+                                                echo " selected";
+                                                break;
+                                            }
+                                        }
+                                        ?>>
+                                        <?php echo $listTeam->tea_mem_login[$i] . " / " . $listTeam->tea_mem_name[$i]; ?>
+                                    </option>
+                                <?php endfor; ?>
 
-    echo "</select></td></tr>";
-}
+                                <?php for ($i = 0; $i < $comptListClientMem; $i++): ?>
+                                    <option value="<?php echo $listClientMem->mem_id[$i]; ?>"
+                                        <?php
+                                        for ($j = 0; $j < $comptAttendantDetail; $j++) {
+                                            if ($attendantDetail->att_mem_id[$j] == $listClientMem->mem_id[$i]) {
+                                                echo " selected";
+                                                break;
+                                            }
+                                        }
+                                        ?>>
+                                        <?php echo $listClientMem->mem_login[$i] . " / " . $listClientMem->mem_name[$i] . " (" . $strings["client_user"] . ")"; ?>
+                                    </option>
+                                <?php endfor; ?>
+                            </select>
+                            <small class="text-muted"><?php echo $strings["hold_ctrl_to_select_multiple"]; ?></small>
+                        </div>
+                    <?php endif; ?>
 
-if ( ($id != "") && ($cpy != "true") ) {
-    $block1->contentTitle($strings["me_minutes"]);
+                    <?php if (($id != "") && ($cpy != "true")): ?>
+                        <h5 class="mt-4"><?php echo $strings["me_minutes"]; ?></h5>
 
-    echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\"></td><td><textarea rows=\"24\" style=\"width: 600px; height: 384;\" name=\"mm\" cols=\"70\">$mm</textarea></td></tr>";
+                        <div class="mb-3">
+                            <textarea class="form-control" name="mm" rows="12"><?php echo htmlspecialchars($mm); ?></textarea>
+                        </div>
 
-    if ($comptListSum != "0") {
-        echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["me_recorder"] . " :</td><td><select name=\"S_RSEL[]\">";
+                        <?php if ($comptListSum != "0"): ?>
+                            <div class="mb-3">
+                                <label class="form-label"><?php echo $strings["me_recorder"]; ?> :</label>
+                                <select name="S_RSEL[]" class="form-select">
+                                    <?php for ($i = 0; $i < $comptListTeam; $i++): ?>
+                                        <option value="<?php echo $listTeam->tea_mem_id[$i]; ?>"
+                                            <?php
+                                            if ($id != "") {
+                                                if ($listTeam->tea_mem_id[$i] == $mr) {
+                                                    echo " selected";
+                                                }
+                                            } else {
+                                                if ($listTeam->tea_mem_id[$i] == $_SESSION['idSession']) {
+                                                    echo " selected";
+                                                }
+                                            }
+                                            ?>>
+                                            <?php echo $listTeam->tea_mem_login[$i] . " / " . $listTeam->tea_mem_name[$i]; ?>
+                                        </option>
+                                    <?php endfor; ?>
 
-        for ($i = 0; $i < $comptListTeam; $i++) {
-            echo "<option value=\"" . $listTeam->tea_mem_id[$i] . "\"";
-            if ($id != "") {
-                if ($listTeam->tea_mem_id[$i] == $mr) {
-                    echo " selected";
-                }
-            }
-            else {
-                if ($listTeam->tea_mem_id[$i] == $_SESSION['idSession']) {
-                    echo " selected";
-                }
-            }
-            echo ">" . $listTeam->tea_mem_login[$i] . " / " . $listTeam->tea_mem_name[$i] . "</option>";
-        }
+                                    <?php for ($i = 0; $i < $comptListClientMem; $i++): ?>
+                                        <option value="<?php echo $listClientMem->mem_id[$i]; ?>">
+                                            <?php echo $listClientMem->mem_login[$i] . " / " . $listClientMem->mem_name[$i] . " (" . $strings["client_user"] . ")"; ?>
+                                        </option>
+                                    <?php endfor; ?>
+                                </select>
+                            </div>
+                        <?php endif; ?>
+                    <?php endif; ?>
 
-        for ($i = 0; $i < $comptListClientMem; $i++) {
-            echo "<option value=\"" . $listClientMem->mem_id[$i] . "\">" . $listClientMem->mem_login[$i] . " / " . $listClientMem->mem_name[$i] . " (" . $strings["client_user"] . ")</option>";
-        }
+                    <div class="mb-3">
+                        <button type="submit" class="btn btn-primary">
+                            <?php echo $strings["save"]; ?>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
-        echo "</select></td></tr>";
-    }
-}
-
-echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td><input type=\"SUBMIT\" value=\"" . $strings["save"] . "\"></td></tr>";
-
-$block1->closeContent();
-if ($id != "") {
-	$block1->headingForm_close();
-}
-$block1->closeForm();
-
+<?php
 require_once("../themes/" . THEME . "/footer.php");
-
 ?>

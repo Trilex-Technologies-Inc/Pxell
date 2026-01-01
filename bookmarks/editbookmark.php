@@ -323,29 +323,7 @@ require_once('../themes/' . THEME . '/header.php');
         </div>
     </div>
 
-    <script>
-        // Bootstrap 5 form validation
-        (function() {
-            'use strict';
-            window.addEventListener('load', function() {
-                var form = document.getElementById('booForm');
-                if (form) {
-                    form.addEventListener('submit', function(event) {
-                        if (form.checkValidity() === false) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                        }
-                        form.classList.add('was-validated');
-                    }, false);
-                }
-            }, false);
-        })();
 
-        // Auto-focus on name field
-        document.addEventListener('DOMContentLoaded', function() {
-            document.booForm.name.focus();
-        });
-    </script>
 <?php
 require_once('../themes/' . THEME . '/footer.php');
 

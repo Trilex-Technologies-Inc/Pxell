@@ -81,7 +81,7 @@ $block1->openForm("../topics/addtopic.php?project=" . $projectDetail->pro_id[0] 
 if ($error != "") {
     $block1->headingError($strings["errors"]);
     $block1->contentError($error);
-} 
+}
 
 $block1->headingForm($strings["add_discussion"]);
 
@@ -94,10 +94,17 @@ $block1->contentRow($strings["owner"], buildLink("../users/viewuser.php?id=" . $
 
 $block1->contentTitle($strings["details"]);
 
-$block1->contentRow($strings["topic"], "<input size=\"44\" value=\"$ttt\" style=\"width: 400px\" name=\"ttt\" maxlength=\"64\" type=\"TEXT\">");
-$block1->contentRow($strings["message"], "<textarea rows=\"10\" style=\"width: 400px; height: 160px;\" name=\"tpm\" cols=\"47\">$tpm</textarea>");
-$block1->contentRow($strings["published"], "<input size=\"32\" value=\"0\" name=\"pub\" type=\"checkbox\">");
-$block1->contentRow("", "<input type=\"SUBMIT\" value=\"" . $strings["save"] . "\">");
+// Topic input with Bootstrap classes
+$block1->contentRow($strings["topic"], "<input class=\"form-control\" size=\"44\" value=\"$ttt\" style=\"width: 400px\" name=\"ttt\" maxlength=\"64\" type=\"TEXT\">");
+
+// Message textarea with Bootstrap classes
+$block1->contentRow($strings["message"], "<textarea class=\"form-control\" rows=\"10\" style=\"width: 400px; height: 160px;\" name=\"tpm\" cols=\"47\">$tpm</textarea>");
+
+// Checkbox with Bootstrap form-check classes
+$block1->contentRow($strings["published"], "<div class=\"form-check\"><input class=\"form-check-input\" size=\"32\" value=\"0\" name=\"pub\" type=\"checkbox\"></div>");
+
+// Submit button with Bootstrap classes
+$block1->contentRow("", "<input class=\"btn btn-primary\" type=\"SUBMIT\" value=\"" . $strings["save"] . "\">");
 
 $block1->closeContent();
 $block1->headingForm_close();

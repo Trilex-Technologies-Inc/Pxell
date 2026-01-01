@@ -116,45 +116,84 @@ $breadcrumbs[]=$strings["add_file"];
 
 require_once("../themes/" . THEME . "/header.php");
 
+
 //--- content ---------------------------------------------------------------------------------
 $block1 = new block();
+?>
+    <div class="container mt-4">
+        <?php if ($error != ''): ?>
+            <div class="alert alert-danger">
+                <?php echo $error; ?>
+            </div>
+        <?php endif; ?>
 
-$block1->form = "filedetails";
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><?php echo $strings['add_file']; ?></h5>
+            </div>
 
-echo "<a name=\"filedetailsAnchor\"></a>";
+            <form method="POST" action="../meetings/addfile.php?action=add&amp;project=<?php echo $project; ?>&amp;meeting=<?php echo $meeting; ?>" name="filedetailsForm" enctype="multipart/form-data" class="needs-validation" novalidate>
+                <input type="hidden" name="MAX_FILE_SIZE" value="100000000">
+                <input type="hidden" name="maxCustom" value="<?php echo $projectDetail->pro_upload_max[0]; ?>">
 
-echo "<form accept-charset=\"UNKNOWN\" method=\"POST\" action=\"../meetings/addfile.php?action=add&amp;project=$project&amp;meeting=$meeting\" name=\"filedetailsForm\" enctype=\"multipart/form-data\"><input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"100000000\"><input type=\"hidden\" name=\"maxCustom\" value=\"" . $projectDetail->pro_upload_max[0] . "\">";
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-3 text-muted"><?php echo $strings['details']; ?></h6>
 
-if ($error != "") {
-    $block1->headingError($strings["errors"]);
-    $block1->contentError($error);
-} 
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label"><?php echo $strings['status']; ?> :</label>
+                        <div class="col-sm-9">
+                            <select name="statusField" class="form-select">
+                                <?php
+                                $comptSta = count($statusFile);
+                                for ($i = 0; $i < $comptSta; $i++):
+                                    $selected = ($i == "2") ? 'selected' : '';
+                                    ?>
+                                    <option value="<?php echo $i; ?>" <?php echo $selected; ?>>
+                                        <?php echo $statusFile[$i]; ?>
+                                    </option>
+                                <?php endfor; ?>
+                            </select>
+                        </div>
+                    </div>
 
-$block1->headingForm($strings["add_file"]);
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">
+                            <span class="text-danger">*</span> <?php echo $strings['upload']; ?> :
+                        </label>
+                        <div class="col-sm-9">
+                            <input type="file" class="form-control" name="upload" required>
+                            <div class="invalid-feedback">
+                                <?php echo $strings['please_select_a_file']; ?>
+                            </div>
+                        </div>
+                    </div>
 
-$block1->openContent();
-$block1->contentTitle($strings["details"]);
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label"><?php echo $strings['comments']; ?> :</label>
+                        <div class="col-sm-9">
+                            <textarea class="form-control" name="c" rows="3"><?php echo htmlspecialchars($c); ?></textarea>
+                        </div>
+                    </div>
 
-echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["status"] . " :</td><td><select name=\"statusField\">";
-$comptSta = count($statusFile);
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label"><?php echo $strings['vc_version']; ?> :</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="versionFile" value="0.0">
+                        </div>
+                    </div>
 
-for ($i = 0;$i < $comptSta;$i++) {
-    if ($i == "2") {
-        echo "<option value=\"$i\" selected>$statusFile[$i]</option>";
-    } else {
-        echo "<option value=\"$i\">$statusFile[$i]</option>";
-    } 
-} 
-echo"</select></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">* " . $strings["upload"] . " :</td><td><input size=\"44\" style=\"width: 400px\" name=\"upload\" type=\"FILE\"></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["comments"] . " :</td><td><textarea rows=\"3\" style=\"width: 400px; height: 50px;\" name=\"c\" cols=\"43\">$c</textarea></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["vc_version"] . " :</td><td><input size=\"44\" style=\"width: 400px\" name=\"versionFile\" type=\"text\" value=\"0.0\"></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td><input type=\"SUBMIT\" value=\"" . $strings["save"] . "\"></td></tr>";
+                    <div class="row mb-3">
+                        <div class="col-sm-9 offset-sm-3">
+                            <button type="submit" class="btn btn-primary">
+                                <?php echo $strings['save']; ?>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 
-$block1->closeContent();
-$block1->headingForm_close();
-$block1->closeForm();
-
+<?php
 require_once("../themes/" . THEME . "/footer.php");
-
 ?>
