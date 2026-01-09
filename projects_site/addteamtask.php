@@ -51,32 +51,39 @@ $bouton[2] = "over";
 $titlePage = $strings["add_task"];
 require_once ("include_header.php");
 
-echo "<form accept-charset=\"UNKNOWN\" method=\"POST\" action=\"../projects_site/addteamtask.php?project=" . $_SESSION['projectSession'] . "&amp;action=add#etDAnchor\" name=\"etDForm\" enctype=\"application/x-www-form-urlencoded\">";
-
-echo "<table cellpadding=\"3\" cellspacing=\"0\" border=\"0\">
-<tr><th colspan=\"2\">" . $strings["add_task"] . "</th></tr>
-<tr><th>*&nbsp;" . $strings["name"] . " :</th><td><input size=\"44\" value=\"$tn\" style=\"width: 400px\" name=\"tn\" maxlength=\"100\" type=\"TEXT\"></td></tr>
-<tr><th>" . $strings["description"] . " :</th><td><textarea rows=\"10\" style=\"width: 400px; height: 160px;\" name=\"d\" cols=\"47\">$d</textarea></td></tr>
-
-<input type=\"hidden\" name=\"owner\" value=\"" . $projectDetail->pro_owner[0] . "\">
-<input type=\"hidden\" name=\"at\" value=\"0\">
-<input type=\"hidden\" name=\"st\" value=\"2\">
-<input type=\"hidden\" name=\"completion\" value=\"0\">
-<input type=\"hidden\" value=\"1\" name=\"pub\">
-<input type=\"hidden\" value=\"1\" name=\"miles\">
-<tr><th>" . $strings["priority"] . " :</th><td><select name=\"pr\">";
+echo '<form accept-charset="UNKNOWN" method="POST" action="../projects_site/addteamtask.php?project=' . $_SESSION['projectSession'] . '&amp;action=add#etDAnchor" name="etDForm" enctype="application/x-www-form-urlencoded" class="row g-3">
+<div class="col-md-8">
+<h3>' . htmlspecialchars($strings["add_task"]) . '</h3>
+<input type="hidden" name="owner" value="' . $projectDetail->pro_owner[0] . '">
+<input type="hidden" name="at" value="0">
+<input type="hidden" name="st" value="2">
+<input type="hidden" name="completion" value="0">
+<input type="hidden" value="1" name="pub">
+<input type="hidden" value="1" name="miles">
+<div class="mb-3">
+<label for="tn" class="form-label">* ' . htmlspecialchars($strings["name"]) . ':</label>
+<input type="text" class="form-control" id="tn" name="tn" value="' . htmlspecialchars($tn) . '" maxlength="100" required>
+</div>
+<div class="mb-3">
+<label for="d" class="form-label">' . htmlspecialchars($strings["description"]) . ':</label>
+<textarea class="form-control" id="d" name="d" rows="6">' . htmlspecialchars($d) . '</textarea>
+</div>
+<div class="mb-3">
+<label for="pr" class="form-label">' . htmlspecialchars($strings["priority"]) . ':</label>
+<select class="form-select" name="pr" id="pr">';
 
 $comptPri = count($priority);
 
 for ($i = 0;$i < $comptPri;$i++) {
     if ($taskDetail->tas_priority[0] == $i) {
-        echo "<option value=\"$i\" selected>$priority[$i]</option>";
+        echo '<option value="' . $i . '" selected>' . htmlspecialchars($priority[$i]) . '</option>';
     } else {
-        echo "<option value=\"$i\">$priority[$i]</option>";
+        echo '<option value="' . $i . '">' . htmlspecialchars($priority[$i]) . '</option>';
     } 
-} 
+}
 
-echo "</select></td></tr>";
+echo '</select>
+</div>';
 
 if ($sd == "") {
     $sd = $date;
@@ -85,15 +92,32 @@ if ($dd == "") {
     $dd = "--";
 } 
 
-echo "<tr><th>" . $strings["start_date"] . " :</th><td><input type=\"text\" style=\"width: 150px;\" name=\"sd\" id=\"sel1\" size=\"20\" value=\"$sd\"><button type=\"reset\" id=\"trigger_a\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel1\", button:\"trigger_a\" });</script></td></tr>
-
-<tr><th>" . $strings["due_date"] . " :</th><td><input type=\"text\" style=\"width: 150px;\" name=\"dd\" id=\"sel3\" size=\"20\" value=\"$dd\"><button type=\"reset\" id=\"trigger_b\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel3\", button:\"trigger_b\" });</script></td></tr>
-
-<tr><th>" . $strings["comments"] . " :</th><td><textarea rows=\"10\" style=\"width: 400px; height: 160px;\" name=\"c\" cols=\"47\">$c</textarea></td></tr>
-<tr><th>&nbsp;</th><td><input type=\"SUBMIT\" value=\"" . $strings["save"] . "\"></td></tr>
-</table>
+echo '<div class="mb-3">
+<label for="sel1" class="form-label">' . htmlspecialchars($strings["start_date"]) . ':</label>
+<div class="input-group">
+<input type="text" class="form-control" id="sel1" name="sd" size="20" value="' . htmlspecialchars($sd) . '" style="max-width: 200px;">
+<button type="button" class="btn btn-outline-secondary" id="trigger_a">...</button>
+</div>
+<script type="text/javascript">Calendar.setup({ inputField:"sel1", button:"trigger_a" });</script>
+</div>
+<div class="mb-3">
+<label for="sel3" class="form-label">' . htmlspecialchars($strings["due_date"]) . ':</label>
+<div class="input-group">
+<input type="text" class="form-control" id="sel3" name="dd" size="20" value="' . htmlspecialchars($dd) . '" style="max-width: 200px;">
+<button type="button" class="btn btn-outline-secondary" id="trigger_b">...</button>
+</div>
+<script type="text/javascript">Calendar.setup({ inputField:"sel3", button:"trigger_b" });</script>
+</div>
+<div class="mb-3">
+<label for="c" class="form-label">' . htmlspecialchars($strings["comments"]) . ':</label>
+<textarea class="form-control" id="c" name="c" rows="6">' . htmlspecialchars($c) . '</textarea>
+</div>
+<div class="mb-3">
+<button type="submit" class="btn btn-primary">' . htmlspecialchars($strings["save"]) . '</button>
+</div>
+</div>
 </form>
-<p class=\"note\">" . $strings["client_add_task_note"] . "</p>";
+<p class="alert alert-info">' . htmlspecialchars($strings["client_add_task_note"]) . '</p>';
 
 require_once ("include_footer.php");
 

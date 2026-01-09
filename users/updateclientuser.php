@@ -33,7 +33,7 @@ $userDetail->openMembers($tmpquery);
 $comptUserDetail = count($userDetail->mem_id);
 // case update client user
 if ($action == "update") {
-    if (!ereg("^[A-Za-z0-9]+$", $un)) {
+    if (!preg_match('/^[A-Za-z0-9]+$/', $un)) {
         $error = $strings["alpha_only"];
     } else {
         // test if login already exists
@@ -147,7 +147,7 @@ $block1->contentTitle($strings["change_password_user"]);
 
 echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["password"] . " :</td><td><input size=\"24\" style=\"width: 250px;\" maxlength=\"16\" type=\"password\" name=\"pw\" value=\"\"></td></tr>
 <tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["confirm_password"] . " :</td><td><input size=\"24\" style=\"width: 250px;\" maxlength=\"16\" type=\"password\" name=\"pwa\" value=\"\"></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td><input type=\"submit\" name=\"Save\" value=\"" . $strings["save"] . "\"></td></tr>";
+<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td><input type=\"submit\" name=\"Save\" value=\"" . $strings["save"] . "\" class=\"btn btn-primary\"></td></tr>";
 
 $block1->closeContent();
 $block1->headingForm_close();

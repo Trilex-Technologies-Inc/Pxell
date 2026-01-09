@@ -347,7 +347,7 @@ $block2->openContent();
 $block2->contentTitle($strings["report_save"]);
 
 echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["report_name"] . " :</td><td><input type=\"text\" name=\"S_SAVENAME\" value=\"\" style=\"width: 200px;\" maxlength=\"64\"></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td><input type=\"submit\" name=\"" . $strings["save"] . "\" value=\"" . $strings["save"] . "\">
+<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td><input type=\"submit\" name=\"" . $strings["save"] . "\" value=\"" . $strings["save"] . "\" class=\"btn btn-primary\">
 <input type=hidden name=S_ORGSEL value=\"$S_ORGSEL\">
 <input type=hidden name=S_PRJSEL value=\"$S_PRJSEL\">
 <input type=hidden name=S_ATSEL value=\"$S_ATSEL\">

@@ -74,7 +74,7 @@ function drawtop($listing, $dir = '')
     global $rgb_top, $rgb_sub, $theme, $modulehref, $moduledir, $color;
     $elements = count($listing);
     $color = ($color == $rgb_top) ? $rgb_sub : $rgb_top;
-    if (ereg("/", $dir)) {
+    if (preg_match('/\//', $dir)) {
         $dirlist = split("/", $dir);
         $dirs = count($dirlist);
         for ($i = 0; $i < $dirs-2; $i++) {
@@ -207,13 +207,13 @@ if (!isset($cvsrep) || $cvsrep == '') $cvsrep = urlencode($conf['defaultcvsrep']
 $cvsrep = urldecode($cvsrep);
 
 $dir = urldecode($dir);
-if (eregi("\/\.\.", $dir) || ($dir == "..") || eregi("\.\.\/", $dir)) $dir = "";
+if (preg_match('/\/\.\./i', $dir) || ($dir == "..") || preg_match('/\.\.\//i', $dir)) $dir = "";
 $path = $conf['cvsrep'][$cvsrep] . $dir;
 
 if (isset($file)) {
     $file = urldecode($file);
     // $file = escapeshellarg($file);
-    if (eregi("\/\.\.", $file) || ($file == "..") || eregi("\.\.\/", $file)) $file = "";
+    if (preg_match('/\/\.\./i', $file) || ($file == "..") || preg_match('/\.\.\//i', $file)) $file = "";
 } 
 
 

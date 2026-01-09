@@ -3,9 +3,9 @@
 
 /**
  * $Id: edituser.php,v 1.7 2004/12/15 19:43:40 madbear Exp $
- * 
+ *
  * Copyright (c) 2003 by the NetOffice developers
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -18,7 +18,7 @@ require_once("../includes/library.php");
 if ($_SESSION['profilSession'] != "0") {
     header("Location: ../general/permissiondenied.php");
     exit;
-} 
+}
 // case update user
 if ($id != "") {
     if ($id == "1" && $_SESSION['idSession'] == "1") {
@@ -31,7 +31,7 @@ if ($id != "") {
             require_once("../includes/htpasswd.class.php");
             $Htpasswd = new Htpasswd;
         }
-        if (!ereg("^[A-Za-z0-9]+$", $un)) {
+        if (!preg_match('/^[A-Za-z0-9]+$/', $un)) {
             $error = $strings["alpha_only"];
         } else {
             // test if login already exists
@@ -66,10 +66,10 @@ if ($id != "") {
                             for ($i = 0;$i < $comptListProjects;$i++) {
                                 $Htpasswd->initialize("../files/" . $listProjects->tea_pro_id[$i] . "/.htpasswd");
                                 $Htpasswd->renameUser($unOld, $un);
-                            } 
-                        } 
-                    } 
-                } 
+                            }
+                        }
+                    }
+                }
                 // test if new password set
                 if ($pw != "") {
                     // test if 2 passwords match
@@ -84,15 +84,15 @@ if ($id != "") {
                                 $listProjects = new request();
                                 $listProjects->openTeams($tmpquery);
                                 $comptListProjects = count($listProjects->tea_id);
-                            } 
+                            }
 
                             if ($comptListProjects != "0") {
                                 for ($i = 0;$i < $comptListProjects;$i++) {
                                     $Htpasswd->initialize("../files/" . $listProjects->tea_pro_id[$i] . "/.htpasswd");
                                     $Htpasswd->changePass($un, $pw);
-                                } 
-                            } 
-                        } 
+                                }
+                            }
+                        }
                         $tmpquery = "UPDATE " . $tableCollab["members"] . " SET password='$pw' WHERE id = '$id'";
                         connectSql("$tmpquery");
                         // if mantis bug tracker enabled
@@ -100,23 +100,23 @@ if ($id != "") {
                             // Call mantis function for user changes..!!!
                             $f_access_level = $team_user_level; // Developer
                             require_once ("../mantis/user_update.php");
-                        } 
+                        }
 
                         header("Location: ../users/listusers.php?msg=update");
                         exit;
-                    } 
+                    }
                 } else {
                     // if mantis bug tracker enabled
                     if ($enableMantis == "true") {
                         // Call mantis function for user changes..!!!
                         $f_access_level = $team_user_level; // Developer
                         require_once ("../mantis/user_update.php");
-                    } 
+                    }
                     header("Location: ../users/listusers.php?msg=update");
                     exit;
-                } 
-            } 
-        } 
+                }
+            }
+        }
     }
     $tmpquery = "WHERE mem.id = '$id'";
     $detailUser = new request();
@@ -126,7 +126,7 @@ if ($id != "") {
     if ($comptDetailUser == "0") {
         header("Location: ../users/listusers.php?msg=blankUser");
         exit;
-    } 
+    }
     // set values in form
     $un = $detailUser->mem_login[0];
     $fn = $detailUser->mem_name[0];
@@ -142,23 +142,23 @@ if ($id != "") {
     // set radio button with permissions value
     if ($perm == "1") {
         $checked1 = "checked";
-    } 
+    }
     if ($perm == "2") {
         $checked2 = "checked";
-    } 
+    }
     if ($perm == "4") {
         $checked4 = "checked";
-    } 
+    }
     if ($perm == "5") {
         $checked5 = "checked";
-    } 
-} 
+    }
+}
 // case add user
 if ($id == "") {
     $checked2 = "checked";
     // case add user
     if ($action == "add") {
-        if (!ereg("^[A-Za-z0-9]+$", $un)) {
+        if (!preg_match('/^[A-Za-z0-9]+$/', $un)) {
             $error = $strings["alpha_only"];
         } else {
             // test if login already exists
@@ -242,44 +242,164 @@ if ($id == "") {
 if ($id != "") {
     $block1->headingForm($strings["edit_user"] . " : " . $detailUser->mem_login[0]);
 }
-
+function checked_if($value, $default = '') {
+    return isset($value) ? $value : $default;
+}
 $block1->openContent();
+?>
+    <div class="container mt-4">
+        <?php if ($error != ""): ?>
+            <div class="alert alert-danger">
+                <?php echo $error; ?>
+            </div>
+        <?php endif; ?>
 
-if ($id == "") {
-    $block1->contentTitle($strings["enter_user_details"]);
-}
-if ($id != "") {
-    $block1->contentTitle($strings["edit_user_details"]);
-}
+        <div class="card">
+            <div class="card-body">
+                <?php if ($id == ""): ?>
+                    <h5 class="card-title"><?php echo $strings["enter_user_details"]; ?></h5>
+                <?php else: ?>
+                    <h5 class="card-title"><?php echo $strings["edit_user_details"]; ?></h5>
+                <?php endif; ?>
 
-$block1->contentRow($strings["user_name"], "<input size=\"24\" style=\"width: 250px;\" maxlength=\"16\" type=\"text\" name=\"un\" value=\"$un\"><input type=\"hidden\" name=\"unOld\" value=\"$un\">");
-$block1->contentRow($strings["full_name"], "<input size=\"24\" style=\"width: 250px;\" maxlength=\"64\" type=\"text\" name=\"fn\" value=\"$fn\">");
-$block1->contentRow($strings["title"], "<input size=\"24\" style=\"width: 250px;\" maxlength=\"128\" type=\"text\" name=\"tit\" value=\"$tit\">");
-$block1->contentRow($strings["email"], "<input size=\"24\" style=\"width: 250px;\" maxlength=\"128\" type=\"text\" name=\"em\" value=\"$em\">");
-$block1->contentRow($strings["work_phone"], "<input size=\"14\" style=\"width: 150px;\" maxlength=\"32\" type=\"text\" name=\"wp\" value=\"$wp\">");
-$block1->contentRow($strings["home_phone"], "<input size=\"14\" style=\"width: 150px;\" maxlength=\"32\" type=\"text\" name=\"hp\" value=\"$hp\">");
-$block1->contentRow($strings["mobile_phone"], "<input size=\"14\" style=\"width: 150px;\" maxlength=\"32\" type=\"text\" name=\"mp\" value=\"$mp\">");
-$block1->contentRow($strings["fax"], "<input size=\"14\" style=\"width: 150px;\" maxlength=\"32\" type=\"text\" name=\"fax\" value=\"$fax\">");
-$block1->contentRow($strings["comments"], "<textarea style=\"width: 350px; height: 60px;\" name=\"c\" cols=\"45\" rows=\"5\">$c</textarea>");
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label"><?php echo $strings["user_name"]; ?> :</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="un" value="<?php echo htmlspecialchars($un); ?>" maxlength="16" autofocus>
+                        <input type="hidden" name="unOld" value="<?php echo htmlspecialchars($un); ?>">
 
-if ($id == "") {
-    $block1->contentTitle($strings["enter_password"]);
-}
-if ($id != "") {
-    $block1->contentTitle($strings["change_password_user"]);
-}
+                    </div>
+                </div>
 
-$block1->contentRow($strings["password"], "<input size=\"24\" style=\"width: 250px;\" maxlength=\"15\" type=\"password\" name=\"pw\" value=\"\">");
-$block1->contentRow($strings["confirm_password"], "<input size=\"24\" style=\"width: 250px;\" maxlength=\"16\" type=\"password\" name=\"pwa\" value=\"\">");
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label"><?php echo $strings["full_name"]; ?> :</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="fn" value="<?php echo htmlspecialchars($fn); ?>" maxlength="64">
+                    </div>
+                </div>
 
-$block1->contentTitle($strings["select_permissions"]);
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label"><?php echo $strings["title"]; ?> :</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="tit" value="<?php echo htmlspecialchars($tit); ?>" maxlength="128">
+                    </div>
+                </div>
 
-$block1->contentRow("<input type=\"radio\" name=\"perm\" value=\"1\" $checked1>", "<b>" . $strings["project_manager_permissions"] . "</b>");
-$block1->contentRow("<input type=\"radio\" name=\"perm\" value=\"2\" $checked2>", "<b>" . $strings["user_permissions"] . "</b>");
-$block1->contentRow("<input type=\"radio\" name=\"perm\" value=\"4\" $checked4>", "<b>" . $strings["disabled_permissions"] . "</b>");
-$block1->contentRow("<input type=\"radio\" name=\"perm\" value=\"5\" $checked5>", "<b>" . $strings["project_manager_administrator_permissions"] . "</b>");
-$block1->contentRow("", "<input type=\"submit\" name=\"Save\" value=\"" . $strings["save"] . "\">");
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label"><?php echo $strings["email"]; ?> :</label>
+                    <div class="col-sm-9">
+                        <input type="email" class="form-control" name="em" value="<?php echo htmlspecialchars($em); ?>" maxlength="128">
+                    </div>
+                </div>
 
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label"><?php echo $strings["work_phone"]; ?> :</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="wp" value="<?php echo htmlspecialchars($wp); ?>" maxlength="32">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label"><?php echo $strings["home_phone"]; ?> :</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="hp" value="<?php echo htmlspecialchars($hp); ?>" maxlength="32">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label"><?php echo $strings["mobile_phone"]; ?> :</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="mp" value="<?php echo htmlspecialchars($mp); ?>" maxlength="32">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label"><?php echo $strings["fax"]; ?> :</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="fax" value="<?php echo htmlspecialchars($fax); ?>" maxlength="32">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label"><?php echo $strings["comments"]; ?> :</label>
+                    <div class="col-sm-9">
+                        <textarea class="form-control" name="c" rows="4"><?php echo htmlspecialchars($c); ?></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <?php if ($id == ""): ?>
+                    <h5 class="card-title"><?php echo $strings["enter_password"]; ?></h5>
+                <?php else: ?>
+                    <h5 class="card-title"><?php echo $strings["change_password_user"]; ?></h5>
+                    <p class="text-muted"><?php echo $strings["leave_blank_password"]; ?></p>
+                <?php endif; ?>
+
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label"><?php echo $strings["password"]; ?> :</label>
+                    <div class="col-sm-9">
+                        <input type="password" class="form-control" name="pw" value="" maxlength="15">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label"><?php echo $strings["confirm_password"]; ?> :</label>
+                    <div class="col-sm-9">
+                        <input type="password" class="form-control" name="pwa" value="" maxlength="16">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title"><?php echo $strings["select_permissions"]; ?></h5>
+
+                <div class="row mb-3">
+                    <div class="col-sm-9 offset-sm-3">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="perm" value="1" id="perm1" <?php echo (isset($checked1) && !is_null($checked1)) ? $checked1 : '';
+                            ?>>
+                            <label class="form-check-label" for="perm1">
+                                <strong><?php echo $strings["project_manager_permissions"]; ?></strong>
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="perm" value="2" id="perm2" <?php echo checked_if($checked2); ?>>
+                            <label class="form-check-label" for="perm2">
+                                <strong><?php echo $strings["user_permissions"]; ?></strong>
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="perm" value="4" id="perm4" <?php echo checked_if($checked4); ?>>
+                            <label class="form-check-label" for="perm4">
+                                <strong><?php echo $strings["disabled_permissions"]; ?></strong>
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="perm" value="5" id="perm5" <?php echo checked_if($checked5); ?>>
+                            <label class="form-check-label" for="perm5">
+                                <strong><?php echo $strings["project_manager_administrator_permissions"]; ?></strong>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-sm-9 offset-sm-3">
+                        <button type="submit" class="btn btn-primary"><?php echo $strings["save"]; ?></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php
 $block1->closeContent();
 $block1->headingForm_close();
 $block1->closeForm();

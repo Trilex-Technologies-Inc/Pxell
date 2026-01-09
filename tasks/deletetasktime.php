@@ -91,13 +91,21 @@ for ($i = 0;$i < $comptListTaskTime;$i++) {
      . $listTaskTime->tim_id[$i] . "</td><td> : " . $strings['worked_hours']
      . " = " . $listTaskTime->tim_hours[$i] . ", " . $listTaskTime->tim_comments[$i]
      . "</td></tr>";
-} 
+}
 
 echo "
-<tr class='odd'>
-  <td valign='top' class='leftvalue'>&nbsp;</td>
-  <td><input type='submit' name='delete' value='" . $strings['delete'] . "'> 
-    <input type='button' name='cancel' value='" . $strings['cancel'] . "' onClick='history.back();'></td></tr>";
+<div class='mt-3 d-flex gap-2'>
+    <button type='submit' name='delete' class='btn btn-danger'>
+        {$strings['delete']}
+    </button>
+
+    <button type='button'
+            name='cancel'
+            class='btn btn-secondary'
+            onclick='history.back();'>
+        {$strings['cancel']}
+    </button>
+</div>";
 
 $block1->closeContent();
 $block1->headingForm_close();

@@ -25,13 +25,13 @@ class browsecvs {
         $rlog = $conf['bin']['rlog'];
         $revinfo = `$rlog -r$rev $f 2>&1`;
         $rev2 = $revinfo;
-        if (ereg("lines: (.+)", $rev2, $regs)) {
+        if (preg_match('/lines: (.+)/', $rev2, $regs)) {
             $temp = explode(" ", str_replace("\n", " ", $regs[1]));
             $lines = $temp[0] . " " . $temp[1];
         } 
         unset($temp);
         unset($regs);
-        if (!ereg("\ndescription:\n([^\n]*\n)?-+\nrevision ([^\n ]*)\n" . "date: ([0-9/]+ [0-9:]+); +author: ([^;]*);[^\n]*\n(.*)\n=+\n",
+        if (!preg_match("/\ndescription:\n([^\n]*\n)?-+\nrevision ([^\n ]*)\n" . "date: ([0-9\/]+ [0-9:]+); +author: ([^;]*);[^\n]*\n(.*)\n=+\n/",
                 $revinfo, $regs))
             return null;
         return array("rev" => $regs[2],
@@ -82,15 +82,15 @@ class browsecvs {
         exec("$rlog $f,v", $log);
         $info = null; 
         // retrieve head info
-        for ($i = 0; $i < count($log) && !ereg("^-+$", $log[$i]); $i++) {
-            if (ereg("^([^:]+): *(.*)$", $log[$i], $regs)) {
-                $key = ereg_replace(" ", "_", strtoupper($regs[1]));
+        for ($i = 0; $i < count($log) && !preg_match('/^-+$/', $log[$i]); $i++) {
+            if (preg_match('/^([^:]+): *(.*)$/', $log[$i], $regs)) {
+                $key = preg_replace("/ /", "_", strtoupper($regs[1]));
                 switch ($regs[1]) {
                     case 'head':
                     case 'branch': $info['branch'] = $regs[2];
                         break;
                     case 'symbolic names':
-                        while (ereg("^\t([^:]*): (.*)$", $log[++$i], $regs)) {
+                        while (preg_match("/^\t([^:]*): (.*)$/", $log[++$i], $regs)) {
                             $info['tagsr'][$regs[1]] = $regs[2];
                             if (! is_array($info['tagsr'][$regs[2]]))
                                 $info['tagsr'][$regs[2]] = array();
@@ -99,8 +99,8 @@ class browsecvs {
                         $i--;
                         break;
                     case 'description':
-                        while (++$i < count($log) && !ereg("^-+$", $log[$i]))
-                        $info[$key] .= ereg_replace("\n$", "", $log[$i]);
+                        while (++$i < count($log) && !preg_match('/^-+$/', $log[$i]))
+                        $info[$key] .= preg_replace("/\n$/", "", $log[$i]);
                         $i--;
                         break;
                 } 
@@ -110,26 +110,26 @@ class browsecvs {
         // retrieve log info
         while ($i < count($log)) {
             // pick revision number
-            if (! ereg("^revision *([0-9.]+)$", $log[$i], $regs)) break;
+            if (! preg_match('/^revision *([0-9.]+)$/', $log[$i], $regs)) break;
             $rev = $regs[1];
             $i++; 
             // pick IDs
-            if (ereg("^date: ([0-9/]+ [0-9:]+);.* author: ([^;]+);.*$", $log[$i], $regs)) {
+            if (preg_match('/^date: ([0-9\/]+ [0-9:]+);.* author: ([^;]+);.*$/', $log[$i], $regs)) {
                 $info['log'][$rev]['date'] = $regs[1];
                 $info['log'][$rev]['auth'] = $regs[2];
             } 
-            if (ereg("lines: (.+)", $log[$i], $regs))
+            if (preg_match('/lines: (.+)/', $log[$i], $regs))
                 $info['log'][$rev]['lines'] = $regs[1];
             $i++; 
             // pick branch
-            while ($i < count($log) && ereg("^branches: *([0-9.]+)", $log[$i], $regs)) {
+            while ($i < count($log) && preg_match('/^branches: *([0-9.]+)/', $log[$i], $regs)) {
                 $info['log'][$rev]['branches'] = array();
                 foreach (split(";", $regs[1]) as $branches)
                 array_push($info['log'][$rev]['branches'], trim($branches));
                 $i++;
             } 
             // pick comment lines
-            while ($i < count($log) && !ereg("^(-+|=+)$", $log[$i]))
+            while ($i < count($log) && !preg_match('/^(-+|=+)$/', $log[$i]))
             $info['log'][$rev]['comment'] .= $log[$i++] . "\n";
             $i++;
         } 

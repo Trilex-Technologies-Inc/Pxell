@@ -388,28 +388,26 @@ $setCopyright = '<!-- Powered by NetOffice v' . $version . ' -->';
 function openDatabase() {
     global $MY_DBH,$databaseCharset;
 
-    // set the database connection type
-    $connect_func = (constant("DB_PCONNECT")) ? 'mysql_pconnect' : 'mysql_connect';
-
-    // Establish a database connection
-    if (!$MY_DBH = $connect_func(MYSERVER, MYLOGIN, MYPASSWORD)) {
-        // There was an error connecting to the database
+    $host = MYSERVER;
+    if (constant("DB_PCONNECT")) {
+        if (strpos($host, 'p:') !== 0) {
+            $host = 'p:' . $host;
+        }
+    }
+    
+    $MY_DBH = @mysqli_connect($host, MYLOGIN, MYPASSWORD, MYDATABASE);
+    
+    if (!$MY_DBH) {
+        $error_msg = function_exists('mysqli_connect_error') ? mysqli_connect_error() : 'Connection failed';
         print '<li>Can not connect to ' . MYSERVER . ' as ' . MYLOGIN;
-        print '<li>MySQL Error: ' . mysql_error();
+        print '<li>MySQL Error: ' . $error_msg;
         #header('Location: ../general/error.php?type=myserver');
         exit;
     }
 
-    // Set the database for this resource link
-    if (!mysql_select_db(MYDATABASE, $MY_DBH)) {
-        // Unable to set the database
-        print '<li>Unable to select database ' . MYDATABASE;
-        print '<li>MySQL Error: ' . mysql_error();
-        #header('Location: ../general/error.php?type=mydatabase');
-        exit;
+	if ( $databaseCharset != '' ) {
+        mysqli_query($MY_DBH, "SET NAMES '".$databaseCharset."'");
     }
-
-	if ( $databaseCharset != '' ) mysql_query("SET NAMES '".$databaseCharset."'", $MY_DBH);
     return($MY_DBH);
 }
 
@@ -460,20 +458,25 @@ function autoLinks($data) {
 
     $lines = explode("\n", $data);
 
-    while (list($key, $line) = each($lines)) {
-        $line = eregi_replace("([ \t]|^)www\.", " http://www.", $line);
-        $line = eregi_replace("([ \t]|^)ftp\.", " ftp://ftp.", $line);
-        $line = eregi_replace("(http://[^ )\r\n]+)", "<a href=\"\\1\" target=\"_blank\">\\1</a>", $line);
-        $line = eregi_replace("(https://[^ )\r\n]+)", "<a href=\"\\1\" target=\"_blank\">\\1</a>", $line);
-        $line = eregi_replace("(ftp://[^ )\r\n]+)", "<a href=\"\\1\" target=\"_blank\">\\1</a>", $line);
-        $line = eregi_replace("([-a-z0-9_]+(\.[_a-z0-9-]+)*@([a-z0-9-]+(\.[a-z0-9-]+)+))", "<a href=\"mailto:\\1\">\\1</a>", $line);
+    foreach ($lines as $key => $line) {
+        // make plain www. and ftp. into full URLs
+        $line = preg_replace('/(^|[ \t])www\./i', ' http://www.', $line);
+        $line = preg_replace('/(^|[ \t])ftp\./i', ' ftp://ftp.', $line);
+
+        // link http, https and ftp URLs
+        $line = preg_replace('/(http:\/\/[^ )\r\n]+)/i', '<a href="\\1" target="_blank">\\1</a>', $line);
+        $line = preg_replace('/(https:\/\/[^ )\r\n]+)/i', '<a href="\\1" target="_blank">\\1</a>', $line);
+        $line = preg_replace('/(ftp:\/\/[^ )\r\n]+)/i', '<a href="\\1" target="_blank">\\1</a>', $line);
+
+        // link email addresses
+        $line = preg_replace('/([-a-z0-9_]+(\.[_a-z0-9-]+)*@([a-z0-9-]+(\.[a-z0-9-]+)+))/i', '<a href="mailto:\\1">\\1</a>', $line);
 
         if (empty($newText)) {
             $newText = $line;
         } else {
             $newText .= "\n$line";
-        } 
-    } 
+        }
+    }
 }
 
 /**
@@ -972,15 +975,15 @@ function compt($tmpsql)
     if ($databaseType == 'mysql') {
         $res = openDatabase();
         $sql = $tmpsql;
-        $index = mysql_query($sql, $res);
+        $index = mysqli_query($res, $sql);
 
-        while ($row = mysql_fetch_row($index)) {
+        while ($row = mysqli_fetch_row($index)) {
             $countEnreg[] = ($row[0]);
         } 
 
         $countEnregTotal = count($countEnreg);
-        @mysql_free_result($index);
-        @mysql_close($res);
+        @mysqli_free_result($index);
+        @mysqli_close($res);
     } 
 
     return($countEnregTotal);
@@ -999,9 +1002,11 @@ function connectSql($tmpsql)
     if ($databaseType == 'mysql') {
         $res = openDatabase();
         $sql = $tmpsql;
-        $index = mysql_query($sql, $res);
-        @mysql_free_result($index); //!!! index might be invalid
-        @mysql_close($res);
+        $index = mysqli_query($res, $sql);
+        if ($index) {
+            @mysqli_free_result($index); //!!! index might be invalid
+        }
+        @mysqli_close($res);
     } 
 }
 
@@ -1019,14 +1024,14 @@ function last_id($tmpsql)
         $res = openDatabase();
         global $lastId;
         $sql = 'SELECT id FROM ' . $tmpsql . ' ORDER BY id DESC';
-        $index = mysql_query($sql, $res);
+        $index = mysqli_query($res, $sql);
 
-        while ($row = mysql_fetch_row($index)) {
+        while ($row = mysqli_fetch_row($index)) {
             $lastId[] = $row[0];
         } 
 
-        @mysql_free_result($index);
-        @mysql_close($res);
+        @mysqli_free_result($index);
+        @mysqli_close($res);
     } 
 }
 
@@ -1076,7 +1081,7 @@ function _sess_mysql_close()
     global $MY_DBH; 
 
     // Closes non-persistent database connections
-    if (@mysql_close($MY_DBH) != true) {
+    if (@mysqli_close($MY_DBH) != true) {
         return(false);
     }
 
@@ -1112,17 +1117,17 @@ function _sess_mysql_read($session_id)
     $MY_DBH = openDatabase();
 
     // Execute the query
-    if (!$result = mysql_query($select, $MY_DBH)) {
+    if (!$result = mysqli_query($MY_DBH, $select)) {
         // error with query
         print '<li>Unable to query the database ' . MYDATABASE;
-        print '<li>MySQL Error: ' . mysql_error();
+        print '<li>MySQL Error: ' . mysqli_error($MY_DBH);
         exit;
     } 
 
     // Check for result, must only be one to return data
-    if (mysql_num_rows($result) == 1) {
+    if (mysqli_num_rows($result) == 1) {
         // Session data found, strip any slashes used for escaping
-        $row = mysql_fetch_array($result);
+        $row = mysqli_fetch_array($result);
         $data = stripSlashes($row['session_data']);
     } else {
         // We have an invalid or stale session, destroy it!
@@ -1130,7 +1135,7 @@ function _sess_mysql_read($session_id)
     }
 
     // Free up the resources used by the statement
-    @mysql_free_result($result);
+    @mysqli_free_result($result);
 
     return($data);
 }
@@ -1170,9 +1175,9 @@ function _sess_mysql_write($session_id, $val)
 
     // First try the insert, if that doesn't succeed, it means the
     // session already exists and we need to update it instead.
-    if (!mysql_query($insert, $MY_DBH)) {
+    if (!mysqli_query($MY_DBH, $insert)) {
         // Insert failed, issue an update
-        if (!mysql_query($update, $MY_DBH)) {
+        if (!mysqli_query($MY_DBH, $update)) {
             // Everything faild, return false
             return(false);
         } 
@@ -1200,15 +1205,15 @@ function _sess_mysql_destroy($session_id)
     $MY_DBH = openDatabase();
 
     // Execute the query
-    if (!$result = mysql_query($select, $MY_DBH)) {
+    if (!$result = mysqli_query($MY_DBH, $select)) {
         // error with query
         print '<li>Unable to query the database ' . MYDATABASE;
-        print '<li>MySQL Error: ' . mysql_error();
+        print '<li>MySQL Error: ' . mysqli_error($MY_DBH);
         exit;
     } 
 
     // Free up resources used by the query
-    @mysql_free_result($result);
+    @mysqli_free_result($result);
 
     return($result);
 }
@@ -1229,15 +1234,15 @@ function _sess_mysql_gc($max_lifetime)
    $MY_DBH = openDatabase();
 
     // Execute the query
-    if (!$result = mysql_query($query, $MY_DBH)) {
+    if (!$result = mysqli_query($MY_DBH, $query)) {
         // error with query
         print '<li>Unable to query the database ' . MYDATABASE;
-        print '<li>MySQL Error: ' . mysql_error();
+        print '<li>MySQL Error: ' . mysqli_error($MY_DBH);
         exit;
     } 
 
     // Free up resources used by the query
-    @mysql_free_result($result);
+    @mysqli_free_result($result);
 
     return($result);
 }

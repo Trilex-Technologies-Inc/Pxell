@@ -98,109 +98,178 @@ $block1->closePaletteIcon();
 
 $block1->openContent();
 $block1->contentTitle($strings["edit_user_account"]);
+?>
 
+    <div class="container-fluid">
+        <?php if ($error != ""): ?>
+            <div class="alert alert-danger">
+                <?php echo $error; ?>
+            </div>
+        <?php endif; ?>
 
-// ---------- FULL NAME ----------
-$block1->formRow(
-    $strings["full_name"],
-    '<input type="text" name="fn" value="' . htmlspecialchars($userPrefs->mem_name[0]) . '" class="form-control" >'
-);
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4"><?php echo $strings["edit_user_account"]; ?></h5>
 
-// ---------- TITLE ----------
-$block1->formRow(
-    $strings["title"],
-    '<input type="text" name="tit" value="' . htmlspecialchars($userPrefs->mem_title[0]) . '" class="form-control" >'
-);
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["full_name"]; ?>:</label>
+                            <div class="col-md-9 col-lg-10">
+                                <input type="text" class="form-control" name="fn" value="<?php echo htmlspecialchars($userPrefs->mem_name[0]); ?>">
+                            </div>
+                        </div>
 
-// ---------- EMAIL ----------
-$block1->formRow(
-    $strings["email"],
-    '<input type="email" name="em" value="' . htmlspecialchars($userPrefs->mem_email_work[0]) . '" class="form-control" >'
-);
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["title"]; ?>:</label>
+                            <div class="col-md-9 col-lg-10">
+                                <input type="text" class="form-control" name="tit" value="<?php echo htmlspecialchars($userPrefs->mem_title[0]); ?>">
+                            </div>
+                        </div>
 
-// ---------- WORK PHONE ----------
-$block1->formRow(
-    $strings["work_phone"],
-    '<input type="text" name="wp" value="' . htmlspecialchars($userPrefs->mem_phone_work[0]) . '" class="form-control" >'
-);
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["email"]; ?>:</label>
+                            <div class="col-md-9 col-lg-10">
+                                <input type="email" class="form-control" name="em" value="<?php echo htmlspecialchars($userPrefs->mem_email_work[0]); ?>">
+                            </div>
+                        </div>
 
-// ---------- HOME PHONE ----------
-$block1->formRow(
-    $strings["home_phone"],
-    '<input type="text" name="hp" value="' . htmlspecialchars($userPrefs->mem_phone_home[0]) . '" class="form-control" >'
-);
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["work_phone"]; ?>:</label>
+                            <div class="col-md-9 col-lg-10">
+                                <input type="text" class="form-control" name="wp" value="<?php echo htmlspecialchars($userPrefs->mem_phone_work[0]); ?>">
+                            </div>
+                        </div>
 
-// ---------- MOBILE PHONE ----------
-$block1->formRow(
-    $strings["mobile_phone"],
-    '<input type="text" name="mp" value="' . htmlspecialchars($userPrefs->mem_mobile[0]) . '" class="form-control" >'
-);
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["home_phone"]; ?>:</label>
+                            <div class="col-md-9 col-lg-10">
+                                <input type="text" class="form-control" name="hp" value="<?php echo htmlspecialchars($userPrefs->mem_phone_home[0]); ?>">
+                            </div>
+                        </div>
 
-// ---------- FAX ----------
-$block1->formRow(
-    $strings["fax"],
-    '<input type="text" name="fax" value="' . htmlspecialchars($userPrefs->mem_fax[0]) . '" class="form-control" >'
-);
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["mobile_phone"]; ?>:</label>
+                            <div class="col-md-9 col-lg-10">
+                                <input type="text" class="form-control" name="mp" value="<?php echo htmlspecialchars($userPrefs->mem_mobile[0]); ?>">
+                            </div>
+                        </div>
 
-// ---------- LOGOUT TIME SELECT ----------
-$logoutMenu = '<select name="logout_time" class="form-select" >';
-foreach ($autoLogoutOptions as $key => $value) {
-    $selected = ($userPrefs->mem_logout_time[0] == $key) ? 'selected' : '';
-    $logoutMenu .= '<option value="' . $key . '" ' . $selected . '>' . $value . '</option>';
-}
-$logoutMenu .= '</select>';
-$block1->formRow($strings['logout_time'], $logoutMenu);
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["fax"]; ?>:</label>
+                            <div class="col-md-9 col-lg-10">
+                                <input type="text" class="form-control" name="fax" value="<?php echo htmlspecialchars($userPrefs->mem_fax[0]); ?>">
+                            </div>
+                        </div>
 
-// ---------- TIMEZONE SELECT ----------
-if ($gmtTimezone == "true") {
-    $selectTimezone = '<select name="tz" class="form-select" >';
-    for ($i = -12; $i <= 12; $i++) {
-        $selected = ($userPrefs->mem_timezone[0] == $i) ? 'selected' : '';
-        $selectTimezone .= '<option value="' . $i . '" ' . $selected . '>' . $i . '</option>';
-    }
-    $selectTimezone .= '</select>';
-    $block1->formRow($strings["user_timezone"] . $blockPage->printHelp("user_timezone"), $selectTimezone);
-}
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["logout_time"]; ?>:</label>
+                            <div class="col-md-9 col-lg-10">
+                                <select name="logout_time" class="form-select">
+                                    <?php foreach ($autoLogoutOptions as $key => $value): ?>
+                                        <option value="<?php echo $key; ?>" <?php echo ($userPrefs->mem_logout_time[0] == $key) ? 'selected' : ''; ?>>
+                                            <?php echo $value; ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
 
-// ---------- START PAGE SELECT ----------
-$startPageMenu = '<select name="start_page" class="form-select" style="max-width: 300px;">';
-if ($userPrefs->mem_profil[0] == 0) {
-    $startPageOptions = array_merge(array('administration/admin.php' => 'Administration page'), $startPageOptions);
-}
-foreach ($startPageOptions as $key => $value) {
-    $selected = ($userPrefs->mem_last_page[0] == $key) ? 'selected' : '';
-    $startPageMenu .= '<option value="' . $key . '" ' . $selected . '>' . $value . '</option>';
-}
-$startPageMenu .= '</select>';
-$block1->formRow($strings['start_page'], $startPageMenu);
+                        <?php if ($gmtTimezone == "true"): ?>
+                            <div class="row mb-3">
+                                <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["user_timezone"] . $blockPage->printHelp("user_timezone"); ?>:</label>
+                                <div class="col-md-9 col-lg-10">
+                                    <select name="tz" class="form-select">
+                                        <?php for ($i = -12; $i <= 12; $i++): ?>
+                                            <option value="<?php echo $i; ?>" <?php echo ($userPrefs->mem_timezone[0] == $i) ? 'selected' : ''; ?>>
+                                                <?php echo $i; ?>
+                                            </option>
+                                        <?php endfor; ?>
+                                    </select>
+                                </div>
+                            </div>
+                        <?php endif; ?>
 
-// ---------- PERMISSIONS ----------
-$profilePermissions = [
-    "0" => $strings["administrator_permissions"],
-    "1" => $strings["project_manager_permissions"],
-    "2" => $strings["user_permissions"],
-    "5" => $strings["project_manager_administrator_permissions"]
-];
-if (isset($profilePermissions[$userPrefs->mem_profil[0]])) {
-    $block1->formRow($strings["permissions"], $profilePermissions[$userPrefs->mem_profil[0]]);
-}
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["start_page"]; ?>:</label>
+                            <div class="col-md-9 col-lg-10">
+                                <select name="start_page" class="form-select">
+                                    <?php
+                                    $displayOptions = $startPageOptions;
+                                    if ($userPrefs->mem_profil[0] == 0) {
+                                        $displayOptions = array_merge(array('administration/admin.php' => 'Administration page'), $startPageOptions);
+                                    }
+                                    foreach ($displayOptions as $key => $value):
+                                        ?>
+                                        <option value="<?php echo $key; ?>" <?php echo ($userPrefs->mem_last_page[0] == $key) ? 'selected' : ''; ?>>
+                                            <?php echo $value; ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
 
-// ---------- ACCOUNT CREATED ----------
-$block1->formRow($strings["account_created"], createDate($userPrefs->mem_created[0], $_SESSION['timezoneSession']));
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["permissions"]; ?>:</label>
+                            <div class="col-md-9 col-lg-10">
+                                <?php
+                                $profilePermissions = [
+                                    "0" => $strings["administrator_permissions"],
+                                    "1" => $strings["project_manager_permissions"],
+                                    "2" => $strings["user_permissions"],
+                                    "5" => $strings["project_manager_administrator_permissions"]
+                                ];
+                                if (isset($profilePermissions[$userPrefs->mem_profil[0]])) {
+                                    echo '<p class="form-control-plaintext">' . $profilePermissions[$userPrefs->mem_profil[0]] . '</p>';
+                                }
+                                ?>
+                            </div>
+                        </div>
 
-// ---------- SUBMIT BUTTON ----------
-$block1->formRow(
-    "",
-    '<input type="submit" name="Save" value="' . $strings["save"] . '" class="btn btn-primary">'
-);
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["account_created"]; ?>:</label>
+                            <div class="col-md-9 col-lg-10">
+                                <p class="form-control-plaintext"><?php echo createDate($userPrefs->mem_created[0], $_SESSION['timezoneSession']); ?></p>
+                            </div>
+                        </div>
 
+                        <div class="row mb-3">
+                            <div class="col-md-9 col-lg-10 offset-md-3 offset-lg-2">
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="fas fa-save me-2"></i><?php echo $strings["save"]; ?>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
+                <!--
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h6 class="card-title mb-3"><?php echo $strings["quick_links"]; ?></h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="../preferences/updatepassword.php" class="btn btn-outline-secondary">
+                                <i class="fas fa-key me-1"></i><?php echo $strings["change_password"]; ?>
+                            </a>
+                            <?php if ($notifications == "true"): ?>
+                                <a href="../preferences/updatenotifications.php" class="btn btn-outline-secondary">
+                                    <i class="fas fa-bell me-1"></i><?php echo $strings["notifications"]; ?>
+                                </a>
+                            <?php endif; ?>
+                            <button type="button" onclick="window.open('../users/exportuser.php?id=<?php echo $_SESSION['idSession']; ?>', '_blank')" class="btn btn-outline-secondary">
+                                <i class="fas fa-download me-1"></i><?php echo $strings["export"]; ?>
+                            </button>
+                        </div>
+                    </div>
+                    -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+<?php
 $block1->closeContent();
 $block1->closeForm();
-
-$block1->openPaletteScript();
-$block1->paletteScript(0, "export", "../users/exportuser.php?id=" . $_SESSION['idSession'], "true,true,true", $strings["export"]);
-$block1->closePaletteScript("", "");
 
 require_once("../themes/" . THEME . "/footer.php");
 

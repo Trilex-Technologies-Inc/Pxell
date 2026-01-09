@@ -90,15 +90,15 @@ echo "<table border=\"0\" cellpadding=\"2\" cellspacing=\"0\">
 </table>
 <table border=0 cellpadding=2 cellspacing=0>
 <tr><td width=18><img height=8 src=\"../themes/" . THEME . "/spacer.gif\" alt=\"\" width=18></td>
-<td class=infoValue noWrap><input type=\"text\" style=\"width: 150px;\" name=\"S_SDATE2\" id=\"sel1\" size=\"20\" value=\"\"><button type=\"reset\" id=\"trigger_a\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel1\", button:\"trigger_a\" });</script></td>
+<td class=infoValue noWrap><input type=\"text\" style=\"width: 150px;\" name=\"S_SDATE2\" id=\"sel1\" size=\"20\" value=\"\"><button type=\"reset\" id=\"trigger_a\" class=\"btn btn-outline-secondary\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel1\", button:\"trigger_a\" });</script></td>
 </tr>
 <tr>
-<td width=18>&nbsp;" . $strings["and"] . "&nbsp;<TD class=infoValue noWrap><input type=\"text\" style=\"width: 150px;\" name=\"S_EDATE2\" id=\"sel3\" size=\"20\" value=\"\"><button type=\"reset\" id=\"trigger_b\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel3\", button:\"trigger_b\" });</script></TD>
+<td width=18>&nbsp;" . $strings["and"] . "&nbsp;<TD class=infoValue noWrap><input type=\"text\" style=\"width: 150px;\" name=\"S_EDATE2\" id=\"sel3\" size=\"20\" value=\"\"><button type=\"reset\" id=\"trigger_b\" class=\"btn btn-outline-secondary\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel3\", button:\"trigger_b\" });</script></TD>
 </tr>
 </table>";
 // need a submit button
 echo "</select></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td><input type=\"submit\" name=\"Save\" value=\"" . $strings["create"] . "\"></td></tr>";
+<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td><input type=\"submit\" name=\"Save\" value=\"" . $strings["create"] . "\" class=\"btn btn-primary\"></td></tr>";
 echo "</td></tr></table>\n";
 
 $block1->closeContent();

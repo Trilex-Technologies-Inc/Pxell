@@ -22,7 +22,7 @@ require_once('../includes/error_handler.php');
 require_once('../languages/lang_en.php');
 require_once('../languages/help_en.php');
 
-$versionNew = '2.6.0b2';
+$versionNew = '2.7.1B';
 
 define("INSTALL", true);
 
@@ -57,23 +57,21 @@ if ($_GET['action'] == 'database') {
 
     if (count($SQL) >= 1) {
         if ($databaseType == 'mysql') {
-            $my = mysql_connect(MYSERVER, MYLOGIN, MYPASSWORD);
+            $my = mysqli_connect(MYSERVER, MYLOGIN, MYPASSWORD, MYDATABASE);
 
-            if (mysql_errno() != 0) {
+            if (!$my || mysqli_connect_error()) {
                 exit('<br><b>PANIC! Error during connection on server MySQL.</b><br>');
             } 
 
-            mysql_select_db(MYDATABASE, $my);
-
-            if (mysql_errno() != 0) {
+            if (mysqli_errno($my) != 0) {
                 exit('<br><b>PANIC! Error during selection database.</b><br>');
             } 
 
             for($con = 0; $con < count($SQL); $con++) {
-                mysql_query($SQL[$con]); 
+                mysqli_query($my, $SQL[$con]); 
                 // echo $SQL[$con].'<br>';
-                if (mysql_errno() != 0) {
-                    exit('<br><b>PANIC! Error during the update of the database.</b><br> Error: ' . mysql_error());
+                if (mysqli_errno($my) != 0) {
+                    exit('<br><b>PANIC! Error during the update of the database.</b><br> Error: ' . mysqli_error($my));
                 } 
             } 
         } 
@@ -148,7 +146,7 @@ if ($_GET['step'] == '2') {
     $block1->form = 'database';
     $block1->openForm('../installation/upgrade.php?action=database&amp;step=3');
     $block1->closeContent();
-    echo '<center><input type="submit" name="submit" value="STEP 3 >>"></center>';
+    echo '<center><input type="submit" name="submit" value="STEP 3 >>" class="btn btn-primary"></center>';
     $block1->closeForm();
 } 
 else if ($_GET['step'] == '3') {
@@ -171,7 +169,7 @@ else if ($_GET['step'] == '3') {
         $block1->form = 'settings';
         $block1->openForm('../installation/upgrade.php?action=settings&amp;step=4');
         $block1->closeContent();
-        echo '<center><input type="submit" name="submit" value="STEP 4 >>"></center>';
+        echo '<center><input type="submit" name="submit" value="STEP 4 >>" class="btn btn-primary"></center>';
         $block1->closeForm();
     } else {
         $block1->closeContent();
@@ -198,7 +196,7 @@ else {
     $block1->form = 'license';
     $block1->openForm('../installation/upgrade.php?step=2');
     $block1->closeContent();
-    echo '<center><input type="submit" name="submit" value="STEP 2 >>"></center>';
+    echo '<center><input type="submit" name="submit" value="STEP 2 >>" class="btn btn-primary"></center>';
     $block1->closeForm();
 } 
 $block1->headingForm_close();

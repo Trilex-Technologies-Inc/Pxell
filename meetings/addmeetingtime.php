@@ -3,9 +3,9 @@
 
 /**
  * $Id: addmeetingtime.php,v 1.5 2005/05/27 21:39:26 madbear Exp $
- * 
+ *
  * Copyright (c) 2004 by the NetOffice developers
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -17,11 +17,11 @@ require_once("../includes/library.php");
 
 if ($meeting != "") {
     $cheatCode = "true";
-} 
+}
 
 if ($meeting != "" && $cheatCode == "true") {
     $id = $meeting;
-} 
+}
 
 // Meeting Detail
 $tmpquery = "WHERE mee.id = '$id'";
@@ -44,12 +44,12 @@ if ($comptMemberTest == "0") {
     $teamMember = "false";
 } else {
     $teamMember = "true";
-} 
+}
 
 if ($teamMember == "false" && $projectsFilter == "true") {
     header("Location:../general/permissiondenied.php");
     exit;
-} 
+}
 
 //--- header ---
 $breadcrumbs[]=buildLink("../projects/listprojects.php?", $strings["projects"], LINK_INSIDE);
@@ -63,17 +63,17 @@ require_once("../themes/" . THEME . "/header.php");
 // Check field values
 if ($_GET['action'] == 'add') {
     $msgLabel .= ''; // init
-     
+
     // make sure we have the required information
     if (!empty($hr)) {
         if (!is_numeric($hr)) {
             // we need this to be numeric
             $msgLabel = '<b>' . $strings['attention'] . '</b> : ' . $strings['worked_hours'] . ' ' . $strings['error_numerical'];
-        } 
+        }
     } else {
         // we need this to be numeric
         $msgLabel = '<b>' . $strings['attention'] . '</b> : ' . $strings['worked_hours'] . ' ' . $strings['error_required'];
-    } 
+    }
 
     // insert meeting time in database
     if (empty($msgLabel)) {
@@ -82,11 +82,11 @@ if ($_GET['action'] == 'add') {
         connectSql($tmpquery1);
         $ld = null;
         $hr = null;
-        $comm = null; 
+        $comm = null;
         // successful insert
         $msgLabel = '<b>' . $strings['success'] . '</b> : ' . $strings['hours_updated'];
-    } 
-} 
+    }
+}
 
 $tmpquery1 = "SELECT sum(hours) FROM " . $tableCollab['meetings_time'];
 
@@ -127,13 +127,13 @@ for ($i = 0;$i < $comptProjmem;$i++) {
 
     if ($projmem->tea_mem_profil[$i] == '3') {
         $clientUser = ' (' . $strings['client_user'] . ')';
-    } 
+    }
     if ($_SESSION['nameSession'] == $projmem->tea_mem_name[$i]) {
         echo "<option value='" . $projmem->tea_mem_id[$i] . "' selected>" . $projmem->tea_mem_name[$i] . "$clientUser</option>";
     } else {
         echo "<option value='" . $projmem->tea_mem_id[$i] . "'>" . $projmem->tea_mem_name[$i] . "$clientUser</option>";
-    } 
-} 
+    }
+}
 
 echo '
   </select></td>
@@ -141,10 +141,10 @@ echo '
 
 if ($ld == '') {
     $ld = $date;
-} 
+}
 
 $block1->contentRow($strings['date'], "<input type=\"text\" style=\"width: 150px;\" name=\"ld\" id=\"sel1\" 
-size=\"20\" value=\"$ld\"><button type=\"reset\" id=\"trigger_a\">...</button>
+size=\"20\" value=\"$ld\"><button type=\"reset\" id=\"trigger_a\" class=\"btn btn-outline-secondary\">...</button>
 <script type=\"text/javascript\">Calendar.setup({ inputField:\"sel1\", button:\"trigger_a\" });</script>");
 
 echo "
@@ -193,7 +193,7 @@ $comptListMeetingTimes = count($listMeetingTimes->mti_id);
 if ($comptListMeetingTimes != "0") {
     $block2->openResults();
 
-    $block2->labels($labels = array(0 => $strings["owner"], 1 => $strings["date"], 2 => ucfirst($strings["hours"]), 3 => $strings["created"], 4 => $strings["modified"], 5 => $strings['comment']), "true"); 
+    $block2->labels($labels = array(0 => $strings["owner"], 1 => $strings["date"], 2 => ucfirst($strings["hours"]), 3 => $strings["created"], 4 => $strings["modified"], 5 => $strings['comment']), "true");
     // display logged hours for project
     for ($i = 0;$i < $comptListMeetingTimes;$i++) {
         // only PM, PMA, and OWNERS can modify/delete
@@ -205,24 +205,24 @@ if ($comptListMeetingTimes != "0") {
             $block2->cellRow($listMeetingTimes->mti_date[$i]);
             $block2->cellRow($listMeetingTimes->mti_hours[$i]);
             $block2->cellRow($listMeetingTimes->mti_created[$i]);
-            $block2->cellRow($listMeetingTimes->mti_modified[$i]); 
+            $block2->cellRow($listMeetingTimes->mti_modified[$i]);
             // truncate large comments to keep the display clean
             $comments = $listMeetingTimes->mti_comments[$i];
             $lenComm = 40;
             if (strLen($comments) > $lenComm) {
                 $comments = substr($listMeetingTimes->mti_comments[$i], 0, $lenComm) . ' ...';
-            } 
+            }
 
             $block2->cellRow($comments);
             $block2->closeRow();
-        } 
-    } 
+        }
+    }
 
     $block2->closeResults();
     $block2->bornesFooter("1", $blockPage->bornesNumber, "", "id=$id");
 } else {
     $block2->noresults();
-} 
+}
 
 $block2->closeContent();
 $block2->headingForm_close();

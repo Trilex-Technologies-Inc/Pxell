@@ -80,7 +80,7 @@ for ($i = 0; $i < $comptListOrganizations; $i++) {
     $block1->contentRow('#' . $listOrganizations->org_id[$i], $listOrganizations->org_name[$i]);
 }
 
-$block1->contentRow('', '<input type="submit" name="delete" value="' . $strings['delete'] . '"> <input type="button" name="cancel" value="' . $strings['cancel'] . '" onClick="history.back();">');
+$block1->contentRow('', '<input type="submit" name="delete" class="btn btn-danger" value="' . $strings['delete'] . '"> <input type="button" name="cancel" class="btn btn-secondary" value="' . $strings['cancel'] . '" onClick="history.back();">');
 
 $block1->closeContent();
 $block1->headingForm_close();

@@ -100,14 +100,14 @@ AND mem.id = tas.assigned_to";
 
 $res = openDatabase();
 
-$rows = mysql_query($sql, $res);
+$rows = mysqli_query($res, $sql);
 
-while ($row = mysql_fetch_row($rows)) {
+while ($row = mysqli_fetch_row($rows)) {
     $notice_list[$row[0]] = $row[1];
     $notice_name[$row[0]] = $row[2];
 } 
 
-@mysql_free_result($rows);
+@mysqli_free_result($rows);
 // iterate through the list of resources and pull all their tasks
 foreach ($notice_list as $staffid => $email) {
     $recipient_name = $notice_name[$staffid];
@@ -125,9 +125,9 @@ foreach ($notice_list as $staffid => $email) {
     AND tas.assigned_to = '$staffid'
     ORDER BY tas.due_date, tas.status";
 
-    $rows = mysql_query($sql, $res);
+    $rows = mysqli_query($res, $sql);
 
-    while ($row = mysql_fetch_row($rows)) {
+    while ($row = mysqli_fetch_row($rows)) {
         if ($row[6] < $datenow) {
             $content .= task_row($row, $late_task_color);
         } elseif ($row[6] == $datenow) {
@@ -156,6 +156,6 @@ foreach ($notice_list as $staffid => $email) {
         echo "Mailer Error: " . $tasknotice->ErrorInfo . "\n\n";
     } 
 } 
-@mysql_close($res);
+@mysqli_close($res);
 
 ?>

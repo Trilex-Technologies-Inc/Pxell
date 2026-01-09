@@ -3,9 +3,9 @@
 
 /**
  * $Id: listholidays.php,v 1.6 2004/12/22 17:13:43 madbear Exp $
- * 
+ *
  * Copyright (c) 2003 by the NetOffice developers
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -411,11 +411,7 @@ $block1->openForm("../administration/listholidays.php?action=add&amp;d=" . $d. "
 // ---------- DATE ----------
 echo '<div class="mb-3">
         <label class="form-label fw-bold">' . $strings["date"] . ' :</label>
-        <div class="input-group" style="max-width: 200px;">
-            <input type="date" name="d" id="sel1" value="' . htmlspecialchars($sd) . '" class="form-control">
-            <button type="button" id="trigger_a" class="btn btn-outline-secondary">...</button>
-        </div>
-      
+        <input type="date" name="d" id="sel1" value="' . htmlspecialchars($sd) . '" class="form-control" style="max-width: 200px;">
       </div>';
 
 // ---------- COMMENTS ----------
@@ -429,7 +425,7 @@ echo '<div class="mb-3">
         <input type="submit" value="' . $strings["save"] . '" class="btn btn-primary">
       </div>';
 
-
+$block1->closeForm();
 $block1->closeContent();
 
 $block1->heading($strings["holidays"]);
@@ -460,7 +456,7 @@ if ($comptHolidayList > 0) {
     $block1->closeResults();
 } else {
     $block1->noresults();
-} 
+}
 
 $block1->closeFormResults();
 
@@ -471,5 +467,4 @@ $block1->closePaletteScript($comptHolidayList, $holidayList->hol_id);
 $block1->headingForm_close();
 
 require_once("../themes/" . THEME . "/footer.php");
-
 ?>

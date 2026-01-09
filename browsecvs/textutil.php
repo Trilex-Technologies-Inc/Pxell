@@ -35,14 +35,14 @@ class htmltextsystem {
     } 
     function is_email($address)
     {
-        if (!ereg("@", $address)) return 0;
-        if (ereg("\.\.", $address) || ereg(" ", $address)) return 0;
+        if (!preg_match('/@/', $address)) return 0;
+        if (preg_match('/\.\./', $address) || preg_match('/\s/', $address)) return 0;
         return preg_match('/\w+(?:[\.\w]+)*\w@(?:\w)+(?:\.\w+)*\.\w{2,3}/', $address);
     } 
     function is_url($address)
     {
-        if (ereg("\.\.", $address)) return 0;
-        if (!strstr($address, "://") || ereg(" ", $address)) return 0;
+        if (preg_match('/\.\./', $address)) return 0;
+        if (!strstr($address, "://") || preg_match('/\s/', $address)) return 0;
         return (strlen($address) > 10);
     } 
     function formatsize($value)

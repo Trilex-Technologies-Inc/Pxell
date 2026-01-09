@@ -34,19 +34,19 @@ class request {
         $comptRequest = $comptRequest + 1;
 
         if ($databaseType == 'mysql') {
-            $this->index = mysql_query($sql, $MY_DBH);
+            $this->index = mysqli_query($MY_DBH, $sql);
         } 
     } 
 
     function fetch()
     {
-        global $row, $databaseType;
+        global $row, $databaseType, $MY_DBH;
 
         if ($databaseType == 'mysql') {
-            @$row = mysql_fetch_row($this->index);
+            @$row = mysqli_fetch_row($this->index);
 
-            if (mysql_errno() != 0) {
-                echo '<font color=red><b>' . mysql_error() . '</b></font><br>';
+            if (mysqli_errno($MY_DBH) != 0) {
+                echo '<font color=red><b>' . mysqli_error($MY_DBH) . '</b></font><br>';
             } 
         } 
 
@@ -57,8 +57,10 @@ class request {
     {
         global $MY_DBH, $databaseType;
         if ($databaseType == "mysql") {
-            @mysql_free_result($this->index);
-            @mysql_close($MY_DBH);
+            if ($this->index) {
+                @mysqli_free_result($this->index);
+            }
+            @mysqli_close($MY_DBH);
         } 
     } 
     // results sorting

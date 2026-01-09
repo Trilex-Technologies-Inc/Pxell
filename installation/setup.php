@@ -52,7 +52,7 @@ if (substr($ftpRoot, -1) == '/') {
     $ftpRoot = substr($ftpRoot, 0, -1);
 }
 
-$version = '2.6.0b2';
+$version = '2.7.1B';
 
 $dateheure = date("Y-m-d H:i");
 
@@ -93,25 +93,23 @@ if ($action == "generate") {
         require_once("./db_var.inc.php");
         require_once("./setup_db.php");
         if ($databaseType == "mysql") {
-            $my = mysql_connect($myserver, $mylogin, $mypassword);
-            if (mysql_errno($my) != 0) {
+            $my = mysqli_connect($myserver, $mylogin, $mypassword, $mydatabase);
+            if (!$my || mysqli_connect_error()) {
                 print '<br><b>PANIC! <br> Error during connection on server MySQL.</b><br>';
-                print "[". mysql_errno($my) . "] " . mysql_error($my) ."<br/>\n";
+                print "[". mysqli_connect_errno() . "] " . mysqli_connect_error() ."<br/>\n";
                 exit;
             }
-            
-            mysql_select_db($mydatabase, $my);
-            
-            if (mysql_errno() != 0) {
+
+            if (mysqli_errno($my) != 0) {
                 exit('<br><b>PANIC! <br> Error during selection database.</b><br>');
             }
 
             for($con = 0; $con < count($SQL); $con++) {
-                mysql_query($SQL[$con]);
+                mysqli_query($my, $SQL[$con]);
                 // echo $SQL[$con] . ';<br>';
                 
-                if (mysql_errno() != 0) {
-                    exit('<br><b>PANIC! <br> Error during the creation of the tables.</b><br> Error: ' . mysql_error());
+                if (mysqli_errno($my) != 0) {
+                    exit('<br><b>PANIC! <br> Error during the creation of the tables.</b><br> Error: ' . mysqli_error($my));
                 }
             }
         }
@@ -201,11 +199,9 @@ if ($step == "1") {
     $block1->openContent();
     //$block1->contentTitle("&nbsp;");
 
-    echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td>
-	<div class=license>";
+    echo '<div class="mb-3"><div class="license p-3 border rounded bg-light">';
     include_once('../docs/copying.txt');
-    echo "</div>
-</td></tr>";
+    echo "</div></div>";
     $block1->closeContent();
 }
 
@@ -233,14 +229,44 @@ if ($step == "2") {
         $dbCheckMysql = "checked";
     } 
 
-    echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">* Installation type :</td><td><input type=\"radio\" name=\"installationType\" value=\"offline\" $installCheckOffline> Offline (firewall/intranet, no update checker)&nbsp;<input type=\"radio\" name=\"installationType\" value=\"online\" $installCheckOnline> Online</td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">* Database type :</td><td><input type=\"radio\" name=\"databaseType\" value=\"mysql\" $dbCheckMysql> MySql</td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">* Database server :</td><td><input size=\"44\" value=\"$myserver\" style=\"width: 200px\" name=\"myserver\" maxlength=\"100\" type=\"text\"></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">* Database login :</td><td><input size=\"44\" value=\"$mylogin\" style=\"width: 200px\" name=\"mylogin\" maxlength=\"100\" type=\"text\"></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">Database password :</td><td><input size=\"44\" value=\"$mypassword\" style=\"width: 200px\" name=\"mypassword\" maxlength=\"100\" type=\"password\"></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">* Database name :</td><td><input size=\"44\" value=\"$mydatabase\" style=\"width: 200px\" name=\"mydatabase\" maxlength=\"100\" type=\"text\"></td></tr>
-
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">Table prefix :<br>[<a href=\"javascript:void(0);\" onmouseover=\"return overlib('" . addslashes($help["setup_myprefix"]) . "',ABOVE,SNAPX,550,BGCOLOR,'#5B7F93',FGCOLOR,'#C4D3DB');\" onmouseout=\"return nd();\">Help</a>] </td><td><input size=\"44\" value=\"$myprefix\" style=\"width: 200px\" name=\"myprefix\" maxlength=\"100\" type=\"text\"></td></tr>";
+    echo '<div class="mb-3">
+        <label class="form-label">* Installation type:</label>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="installationType" id="installTypeOffline" value="offline" ' . $installCheckOffline . '>
+            <label class="form-check-label" for="installTypeOffline">Offline (firewall/intranet, no update checker)</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="installationType" id="installTypeOnline" value="online" ' . $installCheckOnline . '>
+            <label class="form-check-label" for="installTypeOnline">Online</label>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">* Database type:</label>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="databaseType" id="dbTypeMysql" value="mysql" ' . $dbCheckMysql . '>
+            <label class="form-check-label" for="dbTypeMysql">MySQL</label>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="myserver" class="form-label">* Database server:</label>
+        <input type="text" class="form-control" id="myserver" name="myserver" value="' . htmlspecialchars($myserver) . '" maxlength="100" required>
+    </div>
+    <div class="mb-3">
+        <label for="mylogin" class="form-label">* Database login:</label>
+        <input type="text" class="form-control" id="mylogin" name="mylogin" value="' . htmlspecialchars($mylogin) . '" maxlength="100" required>
+    </div>
+    <div class="mb-3">
+        <label for="mypassword" class="form-label">Database password:</label>
+        <input type="password" class="form-control" id="mypassword" name="mypassword" value="' . htmlspecialchars($mypassword) . '" maxlength="100">
+    </div>
+    <div class="mb-3">
+        <label for="mydatabase" class="form-label">* Database name:</label>
+        <input type="text" class="form-control" id="mydatabase" name="mydatabase" value="' . htmlspecialchars($mydatabase) . '" maxlength="100" required>
+    </div>
+    <div class="mb-3">
+        <label for="myprefix" class="form-label">Table prefix: [<a href="javascript:void(0);" onmouseover="return overlib(\'' . addslashes($help["setup_myprefix"]) . '\',ABOVE,SNAPX,550,BGCOLOR,\'#5B7F93\',FGCOLOR,\'#C4D3DB\');" onmouseout="return nd();">Help</a>]</label>
+        <input type="text" class="form-control" id="myprefix" name="myprefix" value="' . htmlspecialchars($myprefix) . '" maxlength="100">
+    </div>';
 
     $safemodeTest = ini_get(safe_mode);
     if ($safemodeTest == "1") {
@@ -260,57 +286,100 @@ if ($step == "2") {
         $gdlibrary = "off";
     } 
 
-    echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">* Create folder method :<br>[<a href=\"javascript:void(0);\" onmouseover=\"return overlib('" . addslashes($help["setup_mkdirMethod"]) . "',SNAPX,550,BGCOLOR,'#5B7F93',FGCOLOR,'#C4D3DB');\" onmouseout=\"return nd();\">Help</a>] </td><td>
-
-<table cellpadding=0 cellspacing=0><tr><td valign=top><input type=\"radio\" name=\"mkdirMethod\" value=\"FTP\" $checked1_a> FTP&nbsp;<input type=\"radio\" name=\"mkdirMethod\" value=\"PHP\" $checked2_a> PHP<br>[Safe-mode $safemode]</td><td align=right>";
+    echo '<div class="mb-3">
+        <label class="form-label">* Create folder method: [<a href="javascript:void(0);" onmouseover="return overlib(\'' . addslashes($help["setup_mkdirMethod"]) . '\',SNAPX,550,BGCOLOR,\'#5B7F93\',FGCOLOR,\'#C4D3DB\');" onmouseout="return nd();">Help</a>]</label>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="mkdirMethod" id="mkdirFTP" value="FTP" ' . $checked1_a . '>
+                    <label class="form-check-label" for="mkdirFTP">FTP</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="mkdirMethod" id="mkdirPHP" value="PHP" ' . $checked2_a . '>
+                    <label class="form-check-label" for="mkdirPHP">PHP</label>
+                </div>
+                <small class="text-muted">[Safe-mode ' . $safemode . ']</small>
+            </div>';
     if ($safemodeTest == "1") {
-        echo "Ftp server <input size=\"44\" value=\"$ftpserver\" style=\"width: 200px\" name=\"ftpserver\" maxlength=\"100\" type=\"text\"><br>
-Ftp login <input size=\"44\" value=\"$ftplogin\" style=\"width: 200px\" name=\"ftplogin\" maxlength=\"100\" type=\"text\"><br>
-Ftp password <input size=\"44\" value=\"$ftppassword\" style=\"width: 200px\" name=\"ftppassword\" maxlength=\"100\" type=\"password\"><br>
-Ftp root <input size=\"44\" value=\"$ftpRoot\" style=\"width: 200px\" name=\"ftpRoot\" maxlength=\"100\" type=\"text\">";
+        echo '<div class="col-md-6">
+                <div class="mb-2">
+                    <label for="ftpserver" class="form-label">FTP server:</label>
+                    <input type="text" class="form-control" id="ftpserver" name="ftpserver" value="' . htmlspecialchars($ftpserver) . '" maxlength="100">
+                </div>
+                <div class="mb-2">
+                    <label for="ftplogin" class="form-label">FTP login:</label>
+                    <input type="text" class="form-control" id="ftplogin" name="ftplogin" value="' . htmlspecialchars($ftplogin) . '" maxlength="100">
+                </div>
+                <div class="mb-2">
+                    <label for="ftppassword" class="form-label">FTP password:</label>
+                    <input type="password" class="form-control" id="ftppassword" name="ftppassword" value="' . htmlspecialchars($ftppassword) . '" maxlength="100">
+                </div>
+                <div class="mb-2">
+                    <label for="ftpRoot" class="form-label">FTP root:</label>
+                    <input type="text" class="form-control" id="ftpRoot" name="ftpRoot" value="' . htmlspecialchars($ftpRoot) . '" maxlength="100">
+                </div>
+            </div>';
     } 
-
-    echo "</td></tr></table>
-
-</td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">* Notifications :<br>[<a href=\"javascript:void(0);\" onmouseover=\"return overlib('" . addslashes($help["setup_notifications"]) . "',SNAPX,550,BGCOLOR,'#5B7F93',FGCOLOR,'#C4D3DB');\" onmouseout=\"return nd();\">Help</a>] </td><td><input type=\"radio\" name=\"notifications\" value=\"false\" $checked1_b> False&nbsp;<input type=\"radio\" name=\"notifications\" value=\"true\" $checked2_b> True<br>[Mail $gdlibrary]</td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">* Forced login :<br>[<a href=\"javascript:void(0);\" onmouseover=\"return overlib('" . addslashes($help["setup_forcedlogin"]) . "',SNAPX,550,BGCOLOR,'#5B7F93',FGCOLOR,'#C4D3DB');\" onmouseout=\"return nd();\">Help</a>] </td><td><input type=\"radio\" name=\"forcedlogin\" value=\"false\" checked> False&nbsp;<input type=\"radio\" name=\"forcedlogin\" value=\"true\"> True</td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">Default language :<br>[<a href=\"javascript:void(0);\" onmouseover=\"return overlib('" . addslashes($help["setup_langdefault"]) . "',SNAPX,550,BGCOLOR,'#5B7F93',FGCOLOR,'#C4D3DB');\" onmouseout=\"return nd();\">Help</a>] </td><td>
-           <select name=langdefault>
-            <option value=\"\">Blank</option>
-	<option value=az>Azerbaijani</option>
-	<option value=pt-br>Brazilian Portuguese</option>
-	<option value=bg>Bulgarian</option>
-	<option value=ca>Catalan</option>
-	<option value=zh>Chinese simplified</option>
-	<option value=zh-tw>Chinese traditional</option>
-	<option value=cs-iso>Czech (iso)</option>
-	<option value=cs-win1250>Czech (win1250)</option>
-	<option value=da>Danish</option>
-	<option value=nl>Dutch</option>
-	<option value=en>English</option>
-	<option value=et>Estonian</option>
-	<option value=fr>French</option>
-	<option value=de>German</option>
-	<option value=hu>Hungarian</option>
-	<option value=is>Icelandic</option>
-	<option value=in>Indonesian</option>
-	<option value=it>Italian</option>
-	<option value=ko>Korean</option>
-	<option value=lv>Latvian</option>
-	<option value=no>Norwegian</option>
-	<option value=pl>Polish</option>
-	<option value=pt>Portuguese</option>
-	<option value=ro>Romanian</option>
-	<option value=ru>Russian</option>
-	<option value=sk-win1250>Slovak (win1250)</option>
-	<option value=es>Spanish</option>
-	<option value=sv>Swedish</option>
-	<option value=tr>Turkish</option>
-	<option value=uk>Ukrainian</option>
-           </select>
-          </td>
-         </tr>";
+    echo '</div></div>
+    <div class="mb-3">
+        <label class="form-label">* Notifications: [<a href="javascript:void(0);" onmouseover="return overlib(\'' . addslashes($help["setup_notifications"]) . '\',SNAPX,550,BGCOLOR,\'#5B7F93\',FGCOLOR,\'#C4D3DB\');" onmouseout="return nd();">Help</a>]</label>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="notifications" id="notifFalse" value="false" ' . $checked1_b . '>
+            <label class="form-check-label" for="notifFalse">False</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="notifications" id="notifTrue" value="true" ' . $checked2_b . '>
+            <label class="form-check-label" for="notifTrue">True</label>
+        </div>
+        <small class="text-muted">[Mail ' . $gdlibrary . ']</small>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">* Forced login: [<a href="javascript:void(0);" onmouseover="return overlib(\'' . addslashes($help["setup_forcedlogin"]) . '\',SNAPX,550,BGCOLOR,\'#5B7F93\',FGCOLOR,\'#C4D3DB\');" onmouseout="return nd();">Help</a>]</label>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="forcedlogin" id="forcedLoginFalse" value="false" checked>
+            <label class="form-check-label" for="forcedLoginFalse">False</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="forcedlogin" id="forcedLoginTrue" value="true">
+            <label class="form-check-label" for="forcedLoginTrue">True</label>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="langdefault" class="form-label">Default language: [<a href="javascript:void(0);" onmouseover="return overlib(\'' . addslashes($help["setup_langdefault"]) . '\',SNAPX,550,BGCOLOR,\'#5B7F93\',FGCOLOR,\'#C4D3DB\');" onmouseout="return nd();">Help</a>]</label>
+        <select class="form-select" name="langdefault" id="langdefault">
+            <option value="">Blank</option>
+            <option value="az">Azerbaijani</option>
+            <option value="pt-br">Brazilian Portuguese</option>
+            <option value="bg">Bulgarian</option>
+            <option value="ca">Catalan</option>
+            <option value="zh">Chinese simplified</option>
+            <option value="zh-tw">Chinese traditional</option>
+            <option value="cs-iso">Czech (iso)</option>
+            <option value="cs-win1250">Czech (win1250)</option>
+            <option value="da">Danish</option>
+            <option value="nl">Dutch</option>
+            <option value="en">English</option>
+            <option value="et">Estonian</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="hu">Hungarian</option>
+            <option value="is">Icelandic</option>
+            <option value="in">Indonesian</option>
+            <option value="it">Italian</option>
+            <option value="ko">Korean</option>
+            <option value="lv">Latvian</option>
+            <option value="no">Norwegian</option>
+            <option value="pl">Polish</option>
+            <option value="pt">Portuguese</option>
+            <option value="ro">Romanian</option>
+            <option value="ru">Russian</option>
+            <option value="sk-win1250">Slovak (win1250)</option>
+            <option value="es">Spanish</option>
+            <option value="sv">Swedish</option>
+            <option value="tr">Turkish</option>
+            <option value="uk">Ukrainian</option>
+        </select>
+    </div>';
 
     $url = $_SERVER['SERVER_NAME'];
     if ($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) {
@@ -324,10 +393,32 @@ Ftp root <input size=\"44\" value=\"$ftpRoot\" style=\"width: 200px\" name=\"ftp
     $root = $protocol . $url . dirname($_SERVER['PHP_SELF']);
     $root = str_replace("installation", "", $root);
 
-    echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\"> * Root :</td><td><input size=\"44\" value=\"$root\" style=\"width: 200px\" name=\"root\" maxlength=\"100\" type=\"text\"></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">* Login method :<br>[<a href=\"javascript:void(0);\" onmouseover=\"return overlib('" . addslashes($help["setup_loginmethod"]) . "',SNAPX,550,BGCOLOR,'#5B7F93',FGCOLOR,'#C4D3DB');\" onmouseout=\"return nd();\">Help</a>] </td><td><input type=\"radio\" name=\"loginMethod\" value=\"PLAIN\"> Plain&nbsp;<input type=\"radio\" name=\"loginMethod\" value=\"MD5\"> Md5&nbsp;<input type=\"radio\" name=\"loginMethod\" value=\"CRYPT\" checked> Crypt</td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">* Admin password :</td><td><input size=\"44\" value=\"$adminPwd\" style=\"width: 200px\" name=\"adminPwd\" maxlength=\"100\" type=\"password\"></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td><input type=\"SUBMIT\" value=\"Save\"></td></tr>";
+    echo '<div class="mb-3">
+        <label for="root" class="form-label">* Root:</label>
+        <input type="text" class="form-control" id="root" name="root" value="' . htmlspecialchars($root) . '" maxlength="100" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">* Login method: [<a href="javascript:void(0);" onmouseover="return overlib(\'' . addslashes($help["setup_loginmethod"]) . '\',SNAPX,550,BGCOLOR,\'#5B7F93\',FGCOLOR,\'#C4D3DB\');" onmouseout="return nd();">Help</a>]</label>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="loginMethod" id="loginPlain" value="PLAIN">
+            <label class="form-check-label" for="loginPlain">Plain</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="loginMethod" id="loginMD5" value="MD5">
+            <label class="form-check-label" for="loginMD5">MD5</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="loginMethod" id="loginCrypt" value="CRYPT" checked>
+            <label class="form-check-label" for="loginCrypt">Crypt</label>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="adminPwd" class="form-label">* Admin password:</label>
+        <input type="password" class="form-control" id="adminPwd" name="adminPwd" value="' . htmlspecialchars($adminPwd) . '" maxlength="100" required>
+    </div>
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary">Save</button>
+    </div>';
     $block1->closeContent();
     $block1->closeForm();
 } 
@@ -336,14 +427,21 @@ if ($step == "3") {
     $block1->openContent();
     $block1->contentTitle("&nbsp;");
 
-    echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td>$msg</td></tr>";
+    echo '<div class="alert alert-info">' . htmlspecialchars($msg) . '</div>';
     $block1->closeContent();
 } 
 $block1->headingForm_close();
 
 $stepNext = $step + 1;
 if ($step < "2") {
-    echo "<form name=\"license\" action=\"../installation/setup.php?step=2&amp;redirect=true\" method=\"post\"><center><a href=\"javascript:document.license.submit();\"><b>Step $stepNext</b></a><br><br><input type=\"checkbox\" value=\"off\" name=\"connexion\"> Offline installation (firewall/intranet, no update checker)</center></form><br>";
+    echo '<form name="license" action="../installation/setup.php?step=2&amp;redirect=true" method="post" class="text-center">
+        <a href="javascript:document.license.submit();" class="btn btn-primary btn-lg"><b>Step ' . $stepNext . '</b></a>
+        <br><br>
+        <div class="form-check d-inline-block">
+            <input class="form-check-input" type="checkbox" value="off" name="connexion" id="connexionOffline">
+            <label class="form-check-label" for="connexionOffline">Offline installation (firewall/intranet, no update checker)</label>
+        </div>
+    </form><br>';
 } 
 
 $footerDev = false;

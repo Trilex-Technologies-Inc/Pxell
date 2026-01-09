@@ -216,11 +216,11 @@ if ($dd == "") {
     $dd = "--";
 } 
 
-$block1->contentRow($strings["start_date"], "<input type=\"text\" style=\"width: 150px;\" name=\"sd\" id=\"sel1\" size=\"20\" value=\"$sd\"><button type=\"reset\" id=\"trigger_a\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel1\", button:\"trigger_a\" });</script>");
+$block1->contentRow($strings["start_date"], "<input type=\"text\" style=\"width: 150px;\" name=\"sd\" id=\"sel1\" size=\"20\" value=\"$sd\"><button type=\"reset\" id=\"trigger_a\" class=\"btn btn-outline-secondary\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel1\", button:\"trigger_a\" });</script>");
 
-$block1->contentRow($strings["due_date"], "<input type=\"text\" style=\"width: 150px;\" name=\"dd\" id=\"sel3\" size=\"20\" value=\"$dd\"><button type=\"reset\" id=\"trigger_b\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel3\", button:\"trigger_b\" });</script>");
+$block1->contentRow($strings["due_date"], "<input type=\"text\" style=\"width: 150px;\" name=\"dd\" id=\"sel3\" size=\"20\" value=\"$dd\"><button type=\"reset\" id=\"trigger_b\" class=\"btn btn-outline-secondary\">...</button><script type=\"text/javascript\">Calendar.setup({ inputField:\"sel3\", button:\"trigger_b\" });</script>");
 
-echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td><input type=\"SUBMIT\" value=\"" . $strings["update"] . "\"></td></tr>";
+echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td><input type=\"SUBMIT\" value=\"" . $strings["update"] . "\" class=\"btn btn-primary\"></td></tr>";
 
 echo "<input name=\"id\" type=\"HIDDEN\" value=\"$id\"><input name=\"project\" type=\"HIDDEN\" value=\"$project\">";
 

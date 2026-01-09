@@ -3,9 +3,9 @@
 
 /**
  * $Id: editclient.php,v 1.9 2005/01/20 16:41:58 madbear Exp $
- * 
+ *
  * Copyright (c) 2003 by the NetOffice developers
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,8 +16,8 @@ $checkSession = true;
 require_once('../includes/library.php');
 
 // these user levels can't perform this action
-if ( ($_SESSION['profilSession'] == 4) || ($_SESSION['profilSession'] == 3) || 
-     ($_SESSION['profilSession'] == 2) ) {
+if ( ($_SESSION['profilSession'] == 4) || ($_SESSION['profilSession'] == 3) ||
+    ($_SESSION['profilSession'] == 2) ) {
     header("Location: ../general/home.php?msg=permissiondenied");
     exit;
 }
@@ -33,8 +33,8 @@ if ($id != '') {
     if ($comptClientDetail == '0') {
         header('Location: ../clients/listclients.php?msg=blankClient');
         exit;
-    } 
-} 
+    }
+}
 // case update client organization
 if ($id != '') {
     if ($action == 'update') {
@@ -42,14 +42,14 @@ if ($id != '') {
             $tmpquery = 'UPDATE ' . $tableCollab['organizations'] . " SET extension_logo='' WHERE id='$id'";
             connectSql($tmpquery);
             @unlink("../logos_clients/" . $id . ".$extensionOld");
-        } 
+        }
 
         $extension = strtolower(substr(strrchr($_FILES['upload']['name'], '.'), 1));
 
         if (@move_uploaded_file($_FILES['upload']['tmp_name'], '../logos_clients/' . $id . ".$extension")) {
             $tmpquery = 'UPDATE ' . $tableCollab['organizations'] . " SET extension_logo='$extension' WHERE id='$id'";
             connectSql($tmpquery);
-        } 
+        }
         // replace quotes by html code in name and address
         $cn = convertData($cn);
         $add = convertData($add);
@@ -59,7 +59,7 @@ if ($id != '') {
         connectSql($tmpquery);
         header("Location: ../clients/viewclient.php?id=$id&msg=update");
         exit;
-    } 
+    }
     // set value in form
     $cn = $clientDetail->org_name[0];
     $add = $clientDetail->org_address1[0];
@@ -67,7 +67,7 @@ if ($id != '') {
     $url = $clientDetail->org_url[0];
     $email = $clientDetail->org_email[0];
     $c = $clientDetail->org_comments[0];
-} 
+}
 // case add client organization
 if ($id == '') {
     if ($action == 'add') {
@@ -78,7 +78,7 @@ if ($id == '') {
             // replace quotes by html code in name and address
             $cn = convertData($cn);
             $add = convertData($add);
-            $c = convertData($c); 
+            $c = convertData($c);
             // test if name already exists
             $tmpquery = "WHERE org.name = '$cn'";
             $existsClient = new request();
@@ -101,14 +101,14 @@ if ($id == '') {
                 if (@move_uploaded_file($upload, '../logos_clients/' . $num . ".$extension")) {
                     $tmpquery = 'UPDATE ' . $tableCollab['organizations'] . " SET extension_logo='$extension' WHERE id='$num'";
                     connectSql($tmpquery);
-                } 
+                }
 
                 header("Location: ../clients/viewclient.php?id=$num&msg=add");
                 exit;
-            } 
-        } 
-    } 
-} 
+            }
+        }
+    }
+}
 
 
 //--- header ---
@@ -117,12 +117,12 @@ $pageSection='clients';
 
 if ($id == '') {
     $breadcrumbs[]=$strings['add_organization'];
-} 
+}
 
 if ($id != '') {
     $breadcrumbs[]=buildLink('../clients/viewclient.php?id=' . $clientDetail->org_id[0], $clientDetail->org_name[0], LINK_INSIDE);
     $breadcrumbs[]=$strings['edit_organization'];
-} 
+}
 
 
 
@@ -131,121 +131,145 @@ require_once('../themes/' . THEME . '/header.php');
 
 //---- content ---
 $block1 = new block();
+?>
+    <div class="container mt-4">
+        <?php if ($error != ''): ?>
+            <div class="alert alert-danger">
+                <?php echo $error; ?>
+            </div>
+        <?php endif; ?>
 
-if ($id == '') {
-    echo "<a name=\"" . $block1->form . "Anchor\"></a>\n
-<form accept-charset=\"UNKNOWN\" method=\"POST\" action=\"../clients/editclient.php?action=add\" name=\"ecDForm\" enctype=\"multipart/form-data\"><input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"100000000\">\n";
-} 
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <?php if ($id == ''): ?>
+                        <?php echo $strings['add_organization']; ?>
+                    <?php else: ?>
+                        <?php echo $strings['edit_organization'] . ' : ' . htmlspecialchars($clientDetail->org_name[0]); ?>
+                    <?php endif; ?>
+                </h5>
+            </div>
 
-if ($id != '') {
-    echo "<a name=\"" . $block1->form . "Anchor\"></a>\n
-<form accept-charset=\"UNKNOWN\" method=\"POST\" action=\"../clients/editclient.php?id=$id&amp;action=update\" name=\"ecDForm\" enctype=\"multipart/form-data\"><input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"100000000\">\n";
-} 
+            <?php if ($id == ''): ?>
+            <form method="POST" action="../clients/editclient.php?action=add" name="ecDForm" enctype="multipart/form-data" class="needs-validation" novalidate>
+                <input type="hidden" name="MAX_FILE_SIZE" value="100000000">
+                <?php else: ?>
+                <form method="POST" action="../clients/editclient.php?id=<?php echo $id; ?>&amp;action=update" name="ecDForm" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <input type="hidden" name="MAX_FILE_SIZE" value="100000000">
+                    <?php endif; ?>
 
-if ($error != '') {
-    $block1->headingError($strings['errors']);
-    $block1->contentError($error);
-} 
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-3 text-muted"><?php echo $strings['details']; ?></h6>
 
-if ($id == '') {
-    $block1->headingForm($strings['add_organization']);
-} 
-else {
-    $block1->headingForm($strings['edit_organization'] . ' : ' . $clientDetail->org_name[0]);
-} 
+                        <?php if ($clientsFilter == 'true'): ?>
+                            <div class="row mb-3">
+                                <label class="col-sm-3 col-form-label"><?php echo $strings['owner']; ?> :</label>
+                                <div class="col-sm-9">
+                                    <select name="cown" class="form-select">
+                                        <?php
+                                        $tmpquery = "WHERE (mem.profil='5' OR mem.profil='1' OR mem.profil='0') AND mem.login != 'demo' ORDER BY mem.name";
+                                        $clientOwner = new request();
+                                        $clientOwner->openMembers($tmpquery);
+                                        $comptClientOwner = count($clientOwner->mem_id);
 
-$block1->openContent();
-$block1->contentTitle($strings['details']);
+                                        for ($i = 0; $i < $comptClientOwner; $i++) {
+                                            $selected = ($clientDetail->org_owner[0] == $clientOwner->mem_id[$i] || $_SESSION['idSession'] == $clientOwner->mem_id[$i]) ? 'selected' : '';
+                                            echo '<option value="' . $clientOwner->mem_id[$i] . '" ' . $selected . '>' .
+                                                htmlspecialchars($clientOwner->mem_login[$i] . ' / ' . $clientOwner->mem_name[$i]) . '</option>';
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                        <?php endif; ?>
 
-if ($clientsFilter == 'true') {
-    $selectOwner = '<select name="cown" class="form-select" >';
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label">
+                                <span class="text-danger">*</span> <?php echo $strings['name']; ?> :
+                            </label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" name="cn" value="<?php echo htmlspecialchars($cn); ?>" maxlength="100" required autofocus>
+                                <div class="invalid-feedback">
+                                    <?php echo $strings['blank_organization_field']; ?>
+                                </div>
+                            </div>
+                        </div>
 
-    $tmpquery = "WHERE (mem.profil='5' OR mem.profil='1' OR mem.profil='0') AND mem.login != 'demo' ORDER BY mem.name";
-    $clientOwner = new request();
-    $clientOwner->openMembers($tmpquery);
-    $comptClientOwner = count($clientOwner->mem_id);
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label"><?php echo $strings['address']; ?> :</label>
+                            <div class="col-sm-9">
+                                <textarea class="form-control" name="add" rows="3"><?php echo htmlspecialchars($add); ?></textarea>
+                            </div>
+                        </div>
 
-    for ($i = 0; $i < $comptClientOwner; $i++) {
-        if ($clientDetail->org_owner[0] == $clientOwner->mem_id[$i] || $_SESSION['idSession'] == $clientOwner->mem_id[$i]) {
-            $selectOwner .= '<option value="' . $clientOwner->mem_id[$i] . '" selected>' . $clientOwner->mem_login[$i] . ' / ' . $clientOwner->mem_name[$i] . '</option>';
-        } else {
-            $selectOwner .= '<option value="' . $clientOwner->mem_id[$i] . '">' . $clientOwner->mem_login[$i] . ' / ' . $clientOwner->mem_name[$i] . '</option>';
-        } 
-    } 
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label"><?php echo $strings['phone']; ?> :</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" name="wp" value="<?php echo htmlspecialchars($wp); ?>" maxlength="32">
+                            </div>
+                        </div>
 
-    $selectOwner .= '</select>';
-    $block1->formRow($strings['owner'], $selectOwner);
-} 
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label"><?php echo $strings['url']; ?> :</label>
+                            <div class="col-sm-9">
+                                <input type="url" class="form-control" name="url" value="<?php echo htmlspecialchars($url); ?>" maxlength="2000">
+                            </div>
+                        </div>
 
-$block1->formRow(
-    '* ' . $strings['name'],
-    '<input type="text" name="cn" maxlength="100" value="' . $cn . '" class="form-control">'
-);
-// ---------- ADDRESS ----------
-$block1->formRow(
-    $strings['address'],
-    '<textarea name="add" rows="3" class="form-control">' . $add . '</textarea>'
-);
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label"><?php echo $strings['email']; ?> :</label>
+                            <div class="col-sm-9">
+                                <input type="email" class="form-control" name="email" value="<?php echo htmlspecialchars($email); ?>" maxlength="2000">
+                            </div>
+                        </div>
 
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label"><?php echo $strings['comments']; ?> :</label>
+                            <div class="col-sm-9">
+                                <textarea class="form-control" name="c" rows="3"><?php echo htmlspecialchars($c); ?></textarea>
+                            </div>
+                        </div>
 
-// ---------- PHONE ----------
-$block1->formRow(
-    $strings['phone'],
-    '<input type="text" name="wp" maxlength="32" value="' . $wp . '" class="form-control">'
-);
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label"><?php echo $strings['logo']; ?> :</label>
+                            <div class="col-sm-9">
+                                <input type="file" class="form-control" name="upload" accept="image/*">
+                                <div class="form-text"><?php echo $strings['logo_upload_help']; ?></div>
+                            </div>
+                        </div>
 
+                        <?php if ($id != '' && !empty($clientDetail->org_extension_logo[0])):
+                            $logoPath = '../logos_clients/' . $id . '.' . $clientDetail->org_extension_logo[0];
+                            if (file_exists($logoPath)):
+                                ?>
+                                <div class="row mb-3">
+                                    <div class="col-sm-9 offset-sm-3">
+                                        <div class="mb-2">
+                                            <img src="<?php echo $logoPath; ?>" class="img-fluid" style="max-height: 150px;">
+                                        </div>
+                                        <input type="hidden" name="extensionOld" value="<?php echo $clientDetail->org_extension_logo[0]; ?>">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="logoDel" value="on" id="logoDelete">
+                                            <label class="form-check-label" for="logoDelete">
+                                                <?php echo $strings['delete']; ?>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endif; endif; ?>
 
-// ---------- URL ----------
-$block1->formRow(
-    $strings['url'],
-    '<input type="text" name="url" maxlength="2000" value="' . $url . '" class="form-control">'
-);
-
-
-// ---------- EMAIL ----------
-$block1->formRow(
-    $strings['email'],
-    '<input type="text" name="email" maxlength="2000" value="' . $email . '" class="form-control">'
-);
-
-
-// ---------- COMMENTS ----------
-$block1->formRow(
-    $strings['comments'],
-    '<textarea name="c" rows="3" class="form-control">' . $c . '</textarea>'
-);
-
-
-// ---------- LOGO UPLOAD ----------
-$block1->formRow(
-    $strings['logo'],
-    '<input type="file" name="upload" class="form-control">'
-);
-
-
-// ---------- LOGO PREVIEW + DELETE ----------
-if ($id != '') {
-    $logoPath = '../logos_clients/' . $id . '.' . $clientDetail->org_extension_logo[0];
-
-    if (file_exists($logoPath)) {
-        $block1->formRow(
-            '',
-            '<img src="' . $logoPath . '" class="img-fluid mb-2">
-
-             <input type="hidden" name="extensionOld" value="' . $clientDetail->org_extension_logo[0] . '">
-
-             <div class="form-check mt-2">
-                 <input class="form-check-input" type="checkbox" name="logoDel" value="on">
-                 <label class="form-check-label">' . $strings['delete'] . '</label>
-             </div>'
-        );
-    }
-}
+                        <div class="row mb-3">
+                            <div class="col-sm-9 offset-sm-3">
+                                <button type="submit" class="btn btn-primary"><?php echo $strings['save']; ?></button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+        </div>
+    </div>
 
 
-
-$block1->formRow('', '<input  class="btn btn-primary" type="SUBMIT" value="' . $strings['save'] . '">');
-
+<?php
 $block1->closeContent();
 $block1->headingForm_close();
 $block1->closeForm();

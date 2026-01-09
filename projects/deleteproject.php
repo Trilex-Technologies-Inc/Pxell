@@ -164,7 +164,7 @@ for ($i = 0; $i < $comptListProjects; $i++) {
     $block1->contentRow('#' . $listProjects->pro_id[$i], $listProjects->pro_name[$i]);
 }
 
-$block1->contentRow('', '<input type="submit" name="delete" value="' . $strings['delete'] . '"> <input type="button" name="cancel" value="' . $strings['cancel'] . '" onClick="history.back();">');
+$block1->contentRow('', '<input type="submit" name="delete" class="btn btn-danger" value="' . $strings['delete'] . '"> <input type="button" name="cancel" class="btn btn-secondary" value="' . $strings['cancel'] . '" onClick="history.back();">');
 
 $block1->closeContent();
 $block1->headingForm_close();

@@ -43,28 +43,37 @@ if ($comptListTasks != "0") {
 <span class=\"listEvenBold\">Powered by <a href=\"http://www.aditus.nu/jpgraph/\" target=\"_blank\">JpGraph</a></span><br><br>";
     }
 
-    echo "<table cellspacing=\"0\" width=\"90%\" border=\"0\" cellpadding=\"3\" cols=\"4\" class=\"listing\">
-<tr><th class=\"active\">" . $strings["name"] . "</th><th>" . $strings["description"] . "</th><th>" . $strings["status"] . "</th><th>" . $strings["due"] . "</th></tr>";
+    echo '<div class="table-responsive">
+<table class="table table-striped table-hover">
+<thead class="table-dark">
+<tr>
+<th>' . htmlspecialchars($strings["name"]) . '</th>
+<th>' . htmlspecialchars($strings["description"]) . '</th>
+<th>' . htmlspecialchars($strings["status"]) . '</th>
+<th>' . htmlspecialchars($strings["due"]) . '</th>
+</tr>
+</thead>
+<tbody>';
 
     for ($i = 0;$i < $comptListTasks;$i++) {
-        if (!($i % 2)) {
-            $class = "odd";
-            $highlightOff = $block1->oddColor;
-        } else {
-            $class = "even";
-            $highlightOff = $block1->evenColor;
-        }
         if ($listTasks->tas_due_date[$i] == "") {
             $listTasks->tas_due_date[$i] = $strings["none"];
         }
         $idStatus = $listTasks->tas_status[$i];
-        echo "<tr class=\"$class\" onmouseover=\"this.style.backgroundColor='" . $block1->highlightOn . "'\" onmouseout=\"this.style.backgroundColor='" . $highlightOff . "'\"><td><a href=\"teamtaskdetail.php?id=" . $listTasks->tas_id[$i] . "\">" . $listTasks->tas_name[$i] . "</a></td><td>" . nl2br($listTasks->tas_description[$i]) . "</td><td>$status[$idStatus]</td><td>" . $listTasks->tas_due_date[$i] . "</td></tr>";
+        echo '<tr>
+<td><a href="teamtaskdetail.php?id=' . $listTasks->tas_id[$i] . '">' . htmlspecialchars($listTasks->tas_name[$i]) . '</a></td>
+<td>' . nl2br(htmlspecialchars($listTasks->tas_description[$i])) . '</td>
+<td>' . htmlspecialchars($status[$idStatus]) . '</td>
+<td>' . htmlspecialchars($listTasks->tas_due_date[$i]) . '</td>
+</tr>';
     }
 
-    echo "</table>\n";
+    echo '</tbody>
+</table>
+</div>';
 }
 else {
-    echo "<table cellspacing=\"0\" border=\"0\" cellpadding=\"2\"><tr><td colspan=\"4\">" . $strings["no_items"] . "</td></tr></table>";
+    echo '<div class="alert alert-info">' . htmlspecialchars($strings["no_items"]) . '</div>';
 }
 
 echo "<br><br>

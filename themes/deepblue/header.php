@@ -1,8 +1,7 @@
 <?php
 // $Revision: 1.14 $
-/**
- * header.php — Bootstrap sidebar version (PHP 5 compatible)
- */
+
+
 
 echo $setDoctype . "\n";
 echo $setCopyright . "\n";
@@ -455,7 +454,7 @@ echo $setCopyright . "\n";
                     <a href="../projects_site/home.php?changeProject=true" class="d-block"><i
                                 class="fa fa-house me-1"></i><?php echo $strings["go_projects_site"]; ?></a>
                 <?php else: ?>
-                    <a href="../general/login.php" class="btn btn-primary btn-sm w-100"><i
+                    <a href="../general/login.php" class="btn  btn-sm w-100"><i
                                 class="fa fa-right-to-bracket me-1"></i>Login</a>
                 <?php endif; ?>
             </div>
