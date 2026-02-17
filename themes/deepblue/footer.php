@@ -12,7 +12,7 @@
  * (at your option) any later version.
  */
 
-echo "<p id='footer'>Powered by Pxell http://www.pxell.com v$version";
+echo "<p id='footer'>Powered by Pxell http://www.pxell.net v$version";
 
 if ($notLogged != true && $blank != true) {
     echo ' - Connected users: ' . $connectedUsers;
