@@ -45,7 +45,7 @@ function cvs_add_repository($cvs_user, $cvs_pass, $cvs_project)
 
     $cvs_dir = $cvs_root . '/' . $cvs_project;
 
-    exec($cvs_cmd . ' -d ' . $cvs_dir . ' init');
+    exec($cvs_cmd . ' -d ' . escapeshellarg($cvs_dir) . ' init');
 
     cvs_add_user($cvs_user, $cvs_pass, $cvs_project);
 } 
