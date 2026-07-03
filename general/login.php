@@ -275,6 +275,10 @@ require_once('../themes/' . THEME . '/header.php');
         background: transparent;
     }
 
+    #footer .site-footer__main {
+        justify-content: center;
+    }
+
     .login-page {
         min-height: calc(100vh - 96px);
         display: grid;
