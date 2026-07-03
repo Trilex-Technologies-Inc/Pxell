@@ -15,20 +15,74 @@
 $checkSession = true;
 require_once("../includes/library.php");
 
+$action = isset($action) ? $action : "";
+$error = isset($error) ? $error : "";
+$fn = isset($fn) ? $fn : "";
+$tit = isset($tit) ? $tit : "";
+$em = isset($em) ? $em : "";
+$wp = isset($wp) ? $wp : "";
+$hp = isset($hp) ? $hp : "";
+$mp = isset($mp) ? $mp : "";
+$fax = isset($fax) ? $fax : "";
+$logout_time = isset($logout_time) ? $logout_time : "";
+$tz = isset($tz) ? $tz : (isset($_SESSION['timezoneSession']) ? $_SESSION['timezoneSession'] : "");
+$start_page = isset($start_page) ? $start_page : "";
+
+if (!isset($autoLogoutOptions) || !is_array($autoLogoutOptions)) {
+    $autoLogoutOptions = array(
+        0 => "Disabled",
+        300 => "5 minutes",
+        600 => "10 minutes",
+        900 => "15 minutes",
+        1800 => "30 minutes",
+        2700 => "45 minutes",
+        3600 => "60 minutes"
+    );
+}
+
+if (!isset($startPageOptions) || !is_array($startPageOptions)) {
+    $startPageOptions = array(
+        "general/home.php" => isset($strings["home"]) ? $strings["home"] : "Home page",
+        "calendar/viewcalendar.php" => isset($strings["calendar"]) ? $strings["calendar"] : "Calendar",
+        "bookmarks/listbookmarks.php?view=my" => isset($strings["bookmarks"]) ? $strings["bookmarks"] : "My Bookmarks",
+        "reports/createreport.php?typeReports=custom" => isset($strings["reports"]) ? $strings["reports"] : "Reports"
+    );
+}
+
+if (!isset($strings["start_page"])) {
+    $strings["start_page"] = "Start on";
+}
+
+function updateUserConvertData($data)
+{
+    $data = str_replace('"', '&quot;', $data);
+    $data = str_replace('<', '&lt;', $data);
+    $data = str_replace('>', '&gt;', $data);
+    if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc() == 1) {
+        return $data;
+    }
+    return addslashes($data);
+}
+
 if ($action == "update") {
     if (($logout_time < "30" && $logout_time != "0") || !is_numeric($logout_time)) {
         $logout_time = "30";
     }
 
-    $fn = convertData($fn);
-    $tit = convertData($tit);
-    $em = convertData($em);
-    $wp = convertData($wp);
-    $hp = convertData($hp);
-    $mp = convertData($mp);
-    $fax = convertData($fax);
-    $logout_time = convertData($logout_time);
-    $start_page = convertData($start_page);
+    if ($tz == "") {
+        $tz = isset($_SESSION['timezoneSession']) ? $_SESSION['timezoneSession'] : "";
+    }
+
+    $fn = updateUserConvertData($fn);
+    $tit = updateUserConvertData($tit);
+    $em = updateUserConvertData($em);
+    $wp = updateUserConvertData($wp);
+    $hp = updateUserConvertData($hp);
+    $mp = updateUserConvertData($mp);
+    $fax = updateUserConvertData($fax);
+    $logout_time = updateUserConvertData($logout_time);
+    $tz = updateUserConvertData($tz);
+    $start_page = updateUserConvertData($start_page);
 
     $tmpquery = "UPDATE " . $tableCollab["members"] . " SET name='$fn',title='$tit',email_work='$em',phone_work='$wp',phone_home='$hp',mobile='$mp',fax='$fax',logout_time='$logout_time',timezone='$tz',last_page='$start_page' WHERE id = '" . $_SESSION['idSession'] . "'";
 
@@ -116,49 +170,49 @@ $block1->contentTitle($strings["edit_user_account"]);
                         <div class="row mb-3">
                             <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["full_name"]; ?>:</label>
                             <div class="col-md-9 col-lg-10">
-                                <input type="text" class="form-control" name="fn" value="<?php echo htmlspecialchars($userPrefs->mem_name[0]); ?>">
+                                <input type="text" class="form-control" name="fn" value="<?php echo htmlspecialchars($userPrefs->mem_name[0], ENT_QUOTES); ?>">
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["title"]; ?>:</label>
                             <div class="col-md-9 col-lg-10">
-                                <input type="text" class="form-control" name="tit" value="<?php echo htmlspecialchars($userPrefs->mem_title[0]); ?>">
+                                <input type="text" class="form-control" name="tit" value="<?php echo htmlspecialchars($userPrefs->mem_title[0], ENT_QUOTES); ?>">
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["email"]; ?>:</label>
                             <div class="col-md-9 col-lg-10">
-                                <input type="email" class="form-control" name="em" value="<?php echo htmlspecialchars($userPrefs->mem_email_work[0]); ?>">
+                                <input type="email" class="form-control" name="em" value="<?php echo htmlspecialchars($userPrefs->mem_email_work[0], ENT_QUOTES); ?>">
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["work_phone"]; ?>:</label>
                             <div class="col-md-9 col-lg-10">
-                                <input type="text" class="form-control" name="wp" value="<?php echo htmlspecialchars($userPrefs->mem_phone_work[0]); ?>">
+                                <input type="text" class="form-control" name="wp" value="<?php echo htmlspecialchars($userPrefs->mem_phone_work[0], ENT_QUOTES); ?>">
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["home_phone"]; ?>:</label>
                             <div class="col-md-9 col-lg-10">
-                                <input type="text" class="form-control" name="hp" value="<?php echo htmlspecialchars($userPrefs->mem_phone_home[0]); ?>">
+                                <input type="text" class="form-control" name="hp" value="<?php echo htmlspecialchars($userPrefs->mem_phone_home[0], ENT_QUOTES); ?>">
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["mobile_phone"]; ?>:</label>
                             <div class="col-md-9 col-lg-10">
-                                <input type="text" class="form-control" name="mp" value="<?php echo htmlspecialchars($userPrefs->mem_mobile[0]); ?>">
+                                <input type="text" class="form-control" name="mp" value="<?php echo htmlspecialchars($userPrefs->mem_mobile[0], ENT_QUOTES); ?>">
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["fax"]; ?>:</label>
                             <div class="col-md-9 col-lg-10">
-                                <input type="text" class="form-control" name="fax" value="<?php echo htmlspecialchars($userPrefs->mem_fax[0]); ?>">
+                                <input type="text" class="form-control" name="fax" value="<?php echo htmlspecialchars($userPrefs->mem_fax[0], ENT_QUOTES); ?>">
                             </div>
                         </div>
 
@@ -167,8 +221,8 @@ $block1->contentTitle($strings["edit_user_account"]);
                             <div class="col-md-9 col-lg-10">
                                 <select name="logout_time" class="form-select">
                                     <?php foreach ($autoLogoutOptions as $key => $value): ?>
-                                        <option value="<?php echo $key; ?>" <?php echo ($userPrefs->mem_logout_time[0] == $key) ? 'selected' : ''; ?>>
-                                            <?php echo $value; ?>
+                                        <option value="<?php echo htmlspecialchars($key, ENT_QUOTES); ?>" <?php echo ($userPrefs->mem_logout_time[0] == $key) ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($value); ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
@@ -182,7 +236,7 @@ $block1->contentTitle($strings["edit_user_account"]);
                                     <select name="tz" class="form-select">
                                         <?php for ($i = -12; $i <= 12; $i++): ?>
                                             <option value="<?php echo $i; ?>" <?php echo ($userPrefs->mem_timezone[0] == $i) ? 'selected' : ''; ?>>
-                                                <?php echo $i; ?>
+                                                GMT<?php echo ($i > 0) ? "+" . $i : $i; ?>
                                             </option>
                                         <?php endfor; ?>
                                     </select>
@@ -201,8 +255,8 @@ $block1->contentTitle($strings["edit_user_account"]);
                                     }
                                     foreach ($displayOptions as $key => $value):
                                         ?>
-                                        <option value="<?php echo $key; ?>" <?php echo ($userPrefs->mem_last_page[0] == $key) ? 'selected' : ''; ?>>
-                                            <?php echo $value; ?>
+                                        <option value="<?php echo htmlspecialchars($key, ENT_QUOTES); ?>" <?php echo ($userPrefs->mem_last_page[0] == $key) ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($value); ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
@@ -213,14 +267,14 @@ $block1->contentTitle($strings["edit_user_account"]);
                             <label class="col-md-3 col-lg-2 col-form-label"><?php echo $strings["permissions"]; ?>:</label>
                             <div class="col-md-9 col-lg-10">
                                 <?php
-                                $profilePermissions = [
+                                $profilePermissions = array(
                                     "0" => $strings["administrator_permissions"],
                                     "1" => $strings["project_manager_permissions"],
                                     "2" => $strings["user_permissions"],
                                     "5" => $strings["project_manager_administrator_permissions"]
-                                ];
+                                );
                                 if (isset($profilePermissions[$userPrefs->mem_profil[0]])) {
-                                    echo '<p class="form-control-plaintext">' . $profilePermissions[$userPrefs->mem_profil[0]] . '</p>';
+                                    echo '<p class="form-control-plaintext">' . htmlspecialchars($profilePermissions[$userPrefs->mem_profil[0]]) . '</p>';
                                 }
                                 ?>
                             </div>
