@@ -427,7 +427,7 @@ if ($step == "3") {
     $block1->openContent();
     $block1->contentTitle("&nbsp;");
 
-    echo '<div class="alert alert-info">' . htmlspecialchars($msg) . '</div>';
+    echo '<div class="alert alert-info">' . $msg . '</div>';
     $block1->closeContent();
 } 
 $block1->headingForm_close();
