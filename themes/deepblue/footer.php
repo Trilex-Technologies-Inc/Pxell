@@ -32,22 +32,30 @@ echo '</p>'
 
 <!-- JavaScript -->
 <script>
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const mobileToggle = document.getElementById('mobileMenuToggle');
+    const content = document.querySelector('.content');
+
     // Toggle sidebar
-    document.getElementById('sidebarToggle').addEventListener('click', function() {
-        document.getElementById('sidebar').classList.toggle('collapsed');
-    });
+    if (sidebar && sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+        });
+    }
 
     // Mobile menu toggle
-    document.getElementById('mobileMenuToggle').addEventListener('click', function() {
-        document.getElementById('sidebar').classList.toggle('active');
-    });
+    if (sidebar && mobileToggle) {
+        mobileToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+    }
 
     // Close sidebar when clicking outside on mobile
     document.addEventListener('click', function(event) {
-        const sidebar = document.getElementById('sidebar');
-        const mobileToggle = document.getElementById('mobileMenuToggle');
-
         if (window.innerWidth <= 992 &&
+            sidebar &&
+            mobileToggle &&
             !sidebar.contains(event.target) &&
             !mobileToggle.contains(event.target)) {
             sidebar.classList.remove('active');
@@ -56,10 +64,7 @@ echo '</p>'
 
     // Adjust content margin on window resize
     window.addEventListener('resize', function() {
-        const sidebar = document.getElementById('sidebar');
-        const content = document.querySelector('.content');
-
-        if (window.innerWidth > 992) {
+        if (window.innerWidth > 992 && sidebar && content) {
             if (sidebar.classList.contains('collapsed')) {
                 content.style.marginLeft = 'calc(70px + 20px)';
             } else {

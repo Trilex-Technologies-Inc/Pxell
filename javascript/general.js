@@ -247,16 +247,45 @@
 		
 		if (MM_arrayContainsString(form.selectedItems, itemName)) {
 			form.selectedItems = MM_removeStringFromArray(form.selectedItems, itemName);
-			document[imageName].src = '../themes/'+theme+'/checkbox_off_16.gif';
+			MM_setCheckboxState(form, imageName, false, theme);
 			//MM_swapImage(imageName, '', '../themes/'+theme+'/checkbox_off_16.gif', '1');
 		} else {
 			form.selectedItems[form.selectedItems.length] = itemName;
-			document[imageName].src = '../themes/'+theme+'/checkbox_on_16.gif';
+			MM_setCheckboxState(form, imageName, true, theme);
 			//MM_swapImage(imageName, '', '../themes/'+theme+'/checkbox_on_16.gif', '1');
 		}
 		
 		MM_updateButtons2(form, form.selectedItems);
 
+	}
+
+	function MM_getCheckboxControl(form, imageName) {
+		if (form && form.elements && form.elements[imageName])
+			return form.elements[imageName];
+		return MM_findObj(imageName);
+	}
+
+	function MM_setCheckboxState(form, imageName, selected, theme) {
+		var checkbox = MM_getCheckboxControl(form, imageName);
+		if (!checkbox)
+			return;
+
+		if (checkbox.type == 'checkbox') {
+			checkbox.checked = selected;
+		} else if (checkbox.src != null) {
+			checkbox.src = '../themes/'+theme+'/checkbox_' + (selected ? 'on' : 'off') + '_16.gif';
+		}
+	}
+
+	function MM_isCheckboxDisabled(form, imageName) {
+		var checkbox = MM_getCheckboxControl(form, imageName);
+		if (!checkbox)
+			return true;
+
+		if (checkbox.type == 'checkbox')
+			return checkbox.disabled;
+
+		return checkbox.src != null && checkbox.src.indexOf('dim_16.gif') != -1;
 	}
 	
 	function MM_selectAllItems(form, theme) {
@@ -266,8 +295,8 @@
 			var checkboxCount = form.checkboxes.length;
 			for (i = 0; i < checkboxCount; i++) {
 				var checkbox = form.checkboxes[i];
-				if (-1 == document[checkbox.mImageName].src.indexOf('dim_16.gif')) {
-					document[checkbox.mImageName].src = '../themes/'+theme+'/checkbox_on_16.gif';
+				if (!MM_isCheckboxDisabled(form, checkbox.mImageName)) {
+					MM_setCheckboxState(form, checkbox.mImageName, true, theme);
 					form.selectedItems[form.selectedItems.length] = checkbox.mName;
 				}
 			}
@@ -283,8 +312,8 @@
 			var checkboxCount = form.checkboxes.length;
 			for (i = 0; i < checkboxCount; i++) {
 				var checkbox = form.checkboxes[i];
-				if (-1 == document[checkbox.mImageName].src.indexOf('dim_16.gif')) {
-					document[checkbox.mImageName].src = '../themes/'+theme+'/checkbox_off_16.gif';
+				if (!MM_isCheckboxDisabled(form, checkbox.mImageName)) {
+					MM_setCheckboxState(form, checkbox.mImageName, false, theme);
 				}
 			}
 		}
@@ -313,7 +342,7 @@
 			var checkboxCount = form.checkboxes.length;
 			for (i = 0; i < checkboxCount; i++) {
 				var checkbox = form.checkboxes[i];
-				if (-1 != document[checkbox.mImageName].src.indexOf('dim_16.gif')) {
+				if (MM_isCheckboxDisabled(form, checkbox.mImageName)) {
 					disabledCount++;
 				}
 			}
