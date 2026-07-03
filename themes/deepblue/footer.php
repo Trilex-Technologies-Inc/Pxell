@@ -66,9 +66,9 @@ echo '</p>'
     window.addEventListener('resize', function() {
         if (window.innerWidth > 992 && sidebar && content) {
             if (sidebar.classList.contains('collapsed')) {
-                content.style.marginLeft = 'calc(70px + 20px)';
+                content.style.marginLeft = 'calc(var(--sidebar-collapsed-width) + var(--content-padding))';
             } else {
-                content.style.marginLeft = 'calc(250px + 20px)';
+                content.style.marginLeft = 'calc(var(--sidebar-width) + var(--content-padding))';
             }
         }
     });

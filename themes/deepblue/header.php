@@ -21,15 +21,15 @@ echo $setCopyright . "\n";
         <script type="text/javascript" src="../javascript/jscalendar/lang/calendar-en.js"></script>
         <script type="text/javascript" src="../javascript/jscalendar/calendar-setup.js"></script>
 
-        <!-- CSS files -->
-        <link rel="stylesheet" href="../themes/default/stylesheet.css" type="text/css">
-        <link rel="stylesheet" href="../themes/default/calendar/theme.css" type="text/css">
-
         <!-- Bootstrap -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
         <!-- Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+        <!-- CSS files -->
+        <link rel="stylesheet" href="../themes/<?php echo THEME; ?>/stylesheet.css" type="text/css">
+        <link rel="stylesheet" href="../themes/<?php echo THEME; ?>/calendar/theme.css" type="text/css">
 
         <style>
             :root {
@@ -343,16 +343,192 @@ echo $setCopyright . "\n";
         .sidebar-content::-webkit-scrollbar-thumb:hover {
             background: #a8a8a8;
         }
+
+        :root {
+            --primary-color: #164773;
+            --primary-hover: #0f3558;
+            --accent-color: #2f6f6a;
+            --page-bg: #eef3f7;
+            --surface: #ffffff;
+            --surface-muted: #f6f9fb;
+            --border-color: #d9e3ec;
+            --text-color: #162033;
+            --muted-color: #657487;
+            --sidebar-width: 264px;
+            --sidebar-collapsed-width: 76px;
+            --content-padding: 28px;
+            --transition-speed: 0.25s;
+            --shadow-soft: 0 12px 36px rgba(34, 49, 72, 0.09);
+        }
+
+        body {
+            background: var(--page-bg);
+            color: var(--text-color);
+            font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+            line-height: 1.5;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+        }
+
+        .sidebar {
+            background: #112235;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 18px 0;
+            box-shadow: 12px 0 30px rgba(17, 34, 53, 0.16);
+            transition: width var(--transition-speed), transform var(--transition-speed);
+        }
+
+        .sidebar-content {
+            padding: 0 14px;
+        }
+
+        .sidebar .logo {
+            min-height: 82px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+            padding: 0 12px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar .logo img {
+            max-width: 168px;
+            max-height: 58px;
+        }
+
+        .sidebar.collapsed .logo img {
+            max-width: 42px;
+            max-height: 42px;
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.76);
+            font-weight: 600;
+            padding: 12px 14px;
+            margin-bottom: 6px;
+            border-radius: 8px;
+            gap: 12px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .sidebar .nav-link.active {
+            background: var(--accent-color);
+            color: #ffffff;
+            box-shadow: 0 8px 18px rgba(47, 111, 106, 0.28);
+        }
+
+        .sidebar .nav-link i {
+            min-width: 20px;
+            margin-right: 0 !important;
+        }
+
+        .sidebar.collapsed .nav-link {
+            justify-content: center;
+            padding: 12px 10px;
+        }
+
+        .sidebar.collapsed .nav-text,
+        .sidebar.collapsed .user-info-text {
+            display: none;
+        }
+
+        .user-info {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 18px;
+            padding: 18px 8px 0;
+            color: rgba(255, 255, 255, 0.78);
+        }
+
+        .user-info a {
+            color: rgba(255, 255, 255, 0.78);
+            gap: 8px;
+            padding: 8px 6px;
+            border-radius: 8px;
+        }
+
+        .user-info a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .sidebar-toggle,
+        .mobile-menu-toggle {
+            background: var(--primary-color);
+            color: #ffffff;
+            border: 0;
+            box-shadow: 0 8px 18px rgba(22, 71, 115, 0.24);
+        }
+
+        .sidebar-toggle {
+            top: 18px;
+            right: -16px;
+            width: 32px;
+            height: 32px;
+        }
+
+        .sidebar-toggle:hover,
+        .mobile-menu-toggle:hover {
+            background: var(--primary-hover);
+            transform: none;
+        }
+
+        .content {
+            padding: var(--content-padding);
+        }
+
+        .admin-grid {
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 16px;
+            padding: 4px 0;
+        }
+
+        @media (max-width: 992px) {
+            .content {
+                padding: 72px 16px 24px;
+            }
+
+            .mobile-menu-toggle {
+                display: flex;
+                position: fixed;
+                top: 16px;
+                left: 16px;
+                z-index: 1001;
+                border-radius: 8px;
+                width: 42px;
+                height: 42px;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        .sidebar-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.28);
+        }
     </style>
 
         <?php echo $headBonus; ?>
     </head>
 <body>
 
-    <!-- Sidebar -->
-    <!-- Sidebar -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Open navigation">
+        <i class="fas fa-bars"></i>
+    </button>
+
     <aside class="sidebar" id="sidebar">
-        <button class="sidebar-toggle" id="sidebarToggle">
+        <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Toggle navigation">
             <i class="fas fa-chevron-left"></i>
         </button>
 
@@ -440,7 +616,7 @@ echo $setCopyright . "\n";
                             break;
                     }
 
-                    echo '<a class="nav-link ' . $active . '" href="' . $url . '"><i class="fa ' . $icon . ' me-2"></i>' . $label . '</a>';
+                    echo '<a class="nav-link ' . $active . '" href="' . $url . '"><i class="fa ' . $icon . '"></i><span class="nav-text">' . $label . '</span></a>';
                 }
                 ?>
             </nav>
@@ -448,14 +624,14 @@ echo $setCopyright . "\n";
             <!-- User Info -->
             <div class="user-info ">
                 <?php if (!$blank && !$notLogged): ?>
-                    <div><strong><?php echo htmlspecialchars($_SESSION['nameSession']); ?></strong></div>
+                    <div class="user-info-text"><strong><?php echo htmlspecialchars($_SESSION['nameSession']); ?></strong></div>
                     <a href="../general/login.php?logout=true" class="d-block"><i
-                                class="fa fa-lock me-1"></i><?php echo $strings["logout"]; ?></a>
+                                class="fa fa-lock"></i><span class="user-info-text"><?php echo $strings["logout"]; ?></span></a>
                     <a href="../projects_site/home.php?changeProject=true" class="d-block"><i
-                                class="fa fa-house me-1"></i><?php echo $strings["go_projects_site"]; ?></a>
+                                class="fa fa-house"></i><span class="user-info-text"><?php echo $strings["go_projects_site"]; ?></span></a>
                 <?php else: ?>
                     <a href="../general/login.php" class="btn  btn-sm w-100"><i
-                                class="fa fa-right-to-bracket me-1"></i>Login</a>
+                                class="fa fa-right-to-bracket"></i><span class="user-info-text">Login</span></a>
                 <?php endif; ?>
             </div>
         </div>

@@ -256,7 +256,8 @@ require_once('../themes/' . THEME . '/header.php');
         background: #eef3f7;
     }
 
-    .sidebar {
+    .sidebar,
+    .mobile-menu-toggle {
         display: none;
     }
 
