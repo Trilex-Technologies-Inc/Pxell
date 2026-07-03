@@ -497,11 +497,234 @@ else if ($type == "monthPreview") {
     $teamList->openTeams($tmpquery);
     $comptTeamList = count($teamList->tea_id);
 
-    $block9 = new block();
-    $block9->form = "caV";
-    $block9->openForm("../calendar/viewcalendar.php?dateCalend=$dateCalend&amp;type=$type#" . $block9->form . "Anchor");
+    $calendarMonthValue = intval($month);
+    $calendarYearValue = intval($year);
+    $datePast = date("Y-m-d", mktime(0, 0, 0, $calendarMonthValue - 1, 1, $calendarYearValue));
+    $dateNext = date("Y-m-d", mktime(0, 0, 0, $calendarMonthValue + 1, 1, $calendarYearValue));
+    $calendarScope = $strings['cal_personal'] . " " . $strings['calendar'];
+    if ($viewCalend != 0) {
+        $calendarScope = $strings['project'] . " " . $strings['calendar'] . " - " . $listTeam->tea_pro_name[0];
+    }
+    ?>
+    <style>
+        .calendar-page {
+            display: grid;
+            gap: 22px;
+        }
 
-    echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["view"] . " :</td><td><select name=\"S_VIEW\" onchange=\"document.caVForm.submit()\">";
+        .calendar-hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 22px;
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid #d9e3ec;
+            border-radius: 8px;
+            box-shadow: 0 12px 36px rgba(34, 49, 72, 0.09);
+            padding: 24px;
+        }
+
+        .calendar-hero__eyebrow {
+            color: #2f6f6a;
+            font-size: 0.78rem;
+            font-weight: 750;
+            letter-spacing: 0.08em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .calendar-hero h1 {
+            color: #162033;
+            font-size: 1.9rem;
+            font-weight: 750;
+            letter-spacing: 0;
+            margin: 0 0 8px;
+        }
+
+        .calendar-hero p {
+            color: #657487;
+            margin: 0;
+        }
+
+        .calendar-hero__badge {
+            width: 72px;
+            height: 72px;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            background: #e8f4f4;
+            color: #2f6f6a;
+            font-size: 1.8rem;
+        }
+
+        .calendar-toolbar {
+            display: grid;
+            grid-template-columns: minmax(240px, 1fr) auto;
+            gap: 12px;
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid #d9e3ec;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(34, 49, 72, 0.06);
+            padding: 12px;
+        }
+
+        .calendar-toolbar__nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .calendar-month-card {
+            background: #ffffff;
+            border: 1px solid #d9e3ec;
+            border-radius: 8px;
+            box-shadow: 0 12px 36px rgba(34, 49, 72, 0.09);
+            overflow: hidden;
+        }
+
+        .calendar-month-card__header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #d9e3ec;
+            padding: 16px 18px;
+        }
+
+        .calendar-month-card__header h2 {
+            color: #162033;
+            font-size: 1.05rem;
+            font-weight: 750;
+            letter-spacing: 0;
+            margin: 0;
+        }
+
+        .calendar-month-table-wrap {
+            overflow: auto;
+            padding: 12px;
+        }
+
+        .calendar-month-grid {
+            border: 0;
+            border-collapse: separate;
+            border-spacing: 8px;
+            min-width: 860px;
+            width: 100%;
+        }
+
+        .calendar-month-grid .calendDays {
+            background: #f6f9fb;
+            border: 1px solid #d9e3ec;
+            border-radius: 8px;
+            color: #526174;
+            font-size: 0.78rem;
+            font-weight: 750;
+            letter-spacing: 0.04em;
+            padding: 10px;
+            text-transform: uppercase;
+        }
+
+        .calendar-day {
+            background: #ffffff;
+            border: 1px solid #d9e3ec;
+            border-radius: 8px;
+            height: 132px;
+            padding: 8px;
+            vertical-align: top;
+        }
+
+        .calendar-day--empty {
+            background: #f6f9fb;
+        }
+
+        .calendar-day--today {
+            background: #e8f4f4;
+            border-color: #9fcfca;
+        }
+
+        .calendar-day__number {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 6px;
+        }
+
+        .calendar-day__number a {
+            display: grid;
+            place-items: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #f6f9fb;
+            color: #164773;
+            font-weight: 750;
+            text-decoration: none;
+        }
+
+        .calendar-day--today .calendar-day__number a {
+            background: #2f6f6a;
+            color: #ffffff;
+        }
+
+        .calendar-day a {
+            color: #164773;
+            font-weight: 650;
+            text-decoration: none;
+        }
+
+        .calendar-day a:hover {
+            text-decoration: underline;
+        }
+
+        .calendar-gantt {
+            background: #ffffff;
+            border: 1px solid #d9e3ec;
+            border-radius: 8px;
+            box-shadow: 0 12px 36px rgba(34, 49, 72, 0.09);
+            padding: 16px;
+        }
+
+        @media (max-width: 720px) {
+            .calendar-hero,
+            .calendar-toolbar {
+                grid-template-columns: 1fr;
+            }
+
+            .calendar-hero {
+                padding: 20px;
+            }
+
+            .calendar-hero__badge {
+                width: 56px;
+                height: 56px;
+                font-size: 1.35rem;
+            }
+
+            .calendar-toolbar__nav {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+
+    <div class="calendar-page">
+        <section class="calendar-hero">
+            <div>
+                <div class="calendar-hero__eyebrow"><?php echo $strings["calendar"]; ?></div>
+                <h1><?php echo "$monthName $year"; ?></h1>
+                <p><?php echo htmlspecialchars($calendarScope); ?></p>
+            </div>
+            <div class="calendar-hero__badge" aria-hidden="true">
+                <i class="fa fa-calendar-days"></i>
+            </div>
+        </section>
+
+        <form method="POST" action="../calendar/viewcalendar.php?dateCalend=<?php echo htmlspecialchars($dateCalend); ?>&amp;type=<?php echo htmlspecialchars($type); ?>" name="caVForm" class="calendar-toolbar">
+            <label>
+                <span class="form-label d-block mb-1"><?php echo $strings["view"]; ?></span>
+                <select name="S_VIEW" onchange="document.caVForm.submit()" class="form-select">
+<?php
     echo "<option value=\"0\"";
     if ($viewCalend == 0) {
         echo " selected";
@@ -516,17 +739,26 @@ else if ($type == "monthPreview") {
         echo ">" . $strings['project'] . ":" . $teamList->tea_pro_name[$t] . "</option>";
     }
 
-    echo "</select></td></tr>";
-
-    $block9->closeForm();
+    echo "</select>";
+?>
+            </label>
+            <div class="calendar-toolbar__nav">
+                <a class="btn btn-outline-primary" href="../calendar/viewcalendar.php?viewCalend=<?php echo $viewCalend; ?>&amp;dateCalend=<?php echo $datePast; ?>"><?php echo $strings["previous"]; ?></a>
+                <a class="btn btn-primary" href="../calendar/viewcalendar.php?viewCalend=<?php echo $viewCalend; ?>&amp;dateCalend=<?php echo $dateToday; ?>"><?php echo $strings["today"]; ?></a>
+                <a class="btn btn-outline-primary" href="../calendar/viewcalendar.php?viewCalend=<?php echo $viewCalend; ?>&amp;dateCalend=<?php echo $dateNext; ?>"><?php echo $strings["next"]; ?></a>
+            </div>
+        </form>
+<?php
     //--- content -----
     $block2 = new block();
 
-    $block2->headingForm("$monthName $year");
-
-    $block2->openContent();
-    echo "<tr><td>";
-    echo "<table border=0 cellpadding=0 cellspacing=2 width=100% class=listing><tr>";
+    echo '<section class="calendar-month-card">';
+    echo '<div class="calendar-month-card__header">';
+    echo '<h2>' . $monthName . ' ' . $year . '</h2>';
+    echo '<a class="btn btn-primary" href="../calendar/viewcalendar.php?viewCalend=' . $viewCalend . '&amp;dateCalend=' . $dateCalend . '&amp;type=calendEdit"><i class="fa fa-plus me-1"></i>' . $strings["add"] . '</a>';
+    echo '</div>';
+    echo '<div class="calendar-month-table-wrap">';
+    echo "<table class=\"calendar-month-grid\"><tr>";
     for($daynumber = 1; $daynumber < 8; $daynumber++) {
         echo "<td width=14% class=calendDays>&nbsp;$dayNameArray[$daynumber]</td>";
     }
@@ -600,15 +832,15 @@ else if ($type == "monthPreview") {
         $comptListCalendarScan = count($listCalendarScan->cal_id);
 
         if (($i < $firstday) || ($a == "00")) {
-            echo "<td width=14% class=even>&nbsp;</td>";
+            echo "<td class=\"calendar-day calendar-day--empty\">&nbsp;</td>";
         } else {
             if ($dateLink == $dateToday) {
-                $classCell = "old";
+                $classCell = "calendar-day calendar-day--today";
             } else {
-                $classCell = "odd";
+                $classCell = "calendar-day";
             }
 
-            echo "<td width=14% align=left valign=top class=\"$classCell\" onmouseover=\"this.style.backgroundColor='" . $block2->highlightOn . "'\" onmouseout=\"this.style.backgroundColor='" . $highlightOff . "'\"><div align=right>" . buildLink("../calendar/viewcalendar.php?viewCalend=$viewCalend&amp;dateCalend=$dateLink&amp;type=dayList", $day, LINK_INSIDE) . "</div>";
+            echo "<td class=\"$classCell\"><div class=\"calendar-day__number\">" . buildLink("../calendar/viewcalendar.php?viewCalend=$viewCalend&amp;dateCalend=$dateLink&amp;type=dayList", $day, LINK_INSIDE) . "</div>";
             if ($comptListCalendarScan != "0") {
                 for ($h = 0;$h < $comptListCalendarScan;$h++) {
                     echo buildLink("../calendar/viewcalendar.php?viewCalend=$viewCalend&amp;dateEnreg=" . $listCalendarScan->cal_id[$h] . "&amp;type=calendDetail&amp;dateCalend=$dateLink", $listCalendarScan->cal_shortname[$h], LINK_INSIDE) . "<br>";
@@ -664,9 +896,8 @@ else if ($type == "monthPreview") {
     }
 
     echo "</table>";
-    echo "</td></tr>";
-    $block2->closeContent();
-    $block2->headingForm_close();
+    echo "</div>";
+    echo "</section>";
 
     if ($month == 1) {
         $pyear = $year - 1;
@@ -703,11 +934,8 @@ else if ($type == "monthPreview") {
     $dateNext = "$nyear-$nmonth-01";
 
     $dateToday = "$year-$month-$day";
-    echo "<table><tr><td class=calend> </td></tr></table>";
-
-    echo "<table cellspacing=\"0\" width=\"100%\" border=\"0\" cellpadding=\"0\"><tr><td nowrap align=\"right\" class=\"footerCell\">" . buildLink("../calendar/viewcalendar.php?viewCalend=$viewCalend&amp;dateCalend=$datePast", $strings["previous"], LINK_INSIDE) . " | " . buildLink("../calendar/viewcalendar.php?viewCalend=$viewCalend&amp;dateCalend=$dateToday", $strings["today"], LINK_INSIDE) . " | " . buildLink("../calendar/viewcalendar.php?viewCalend=$viewCalend&amp;dateCalend=$dateNext", $strings["next"], LINK_INSIDE) . "</td></tr><tr><td height=\"5\" colspan=\"2\"><img width=\"1\" height=\"5\" border=\"0\" src=\"../themes/" . THEME . "/spacer.gif\" alt=\"\"></td></tr></table>";
-
     if ($activeJpgraph == "true" && $gantt == "true") {
+        echo '<section class="calendar-gantt">';
         // show the expanded or compact Gantt Chart
         if ($_GET['base'] == 1) {
             echo "<a href='viewcalendar.php?viewCalend=$viewCalend&amp;dateCalend=$dateCalend&amp;base=0'>expand</a><br>";
@@ -717,7 +945,9 @@ else if ($type == "monthPreview") {
 
         echo "<img src=\"graphtasks.php?viewCalend=$viewCalend&amp;dateCalend=$dateCalend&amp;base=" . $_GET['base'] . "\" alt=\"\"><br>
 <span class=\"listEvenBold\">" . buildLink("http://www.aditus.nu/jpgraph/", "JpGraph", LINK_POWERED) . "</span>";
+        echo '</section>';
     }
+    echo '</div>';
 }
 
 require_once("../themes/" . THEME . "/footer.php");
