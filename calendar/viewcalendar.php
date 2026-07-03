@@ -559,9 +559,9 @@ else if ($type == "monthPreview") {
 
         .calendar-toolbar {
             display: grid;
-            grid-template-columns: minmax(240px, 1fr) auto;
+            grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
             gap: 12px;
-            align-items: center;
+            align-items: end;
             background: #ffffff;
             border: 1px solid #d9e3ec;
             border-radius: 8px;
@@ -569,11 +569,32 @@ else if ($type == "monthPreview") {
             padding: 12px;
         }
 
+        .calendar-toolbar__field {
+            min-width: 0;
+        }
+
+        .calendar-toolbar__field .form-label {
+            color: #162033;
+            font-size: 0.82rem;
+            font-weight: 750;
+            margin-bottom: 6px;
+        }
+
+        .calendar-toolbar__field .form-select {
+            min-height: 38px;
+            width: 100%;
+        }
+
         .calendar-toolbar__nav {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
             justify-content: flex-end;
+        }
+
+        .calendar-toolbar__nav .btn {
+            min-height: 38px;
+            min-width: 64px;
         }
 
         .calendar-month-card {
@@ -705,6 +726,10 @@ else if ($type == "monthPreview") {
             .calendar-toolbar__nav {
                 justify-content: flex-start;
             }
+
+            .calendar-toolbar__nav .btn {
+                flex: 1 1 96px;
+            }
         }
     </style>
 
@@ -721,7 +746,7 @@ else if ($type == "monthPreview") {
         </section>
 
         <form method="POST" action="../calendar/viewcalendar.php?dateCalend=<?php echo htmlspecialchars($dateCalend); ?>&amp;type=<?php echo htmlspecialchars($type); ?>" name="caVForm" class="calendar-toolbar">
-            <label>
+            <label class="calendar-toolbar__field">
                 <span class="form-label d-block mb-1"><?php echo $strings["view"]; ?></span>
                 <select name="S_VIEW" onchange="document.caVForm.submit()" class="form-select">
 <?php
