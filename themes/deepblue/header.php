@@ -378,10 +378,23 @@ echo $setCopyright . "\n";
             padding: 18px 0;
             box-shadow: 12px 0 30px rgba(17, 34, 53, 0.16);
             transition: width var(--transition-speed), transform var(--transition-speed);
+            overflow: visible;
         }
 
         .sidebar-content {
             padding: 0 14px;
+            scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+            scrollbar-width: thin;
+        }
+
+        .sidebar.collapsed .sidebar-content {
+            padding: 0 10px;
+            scrollbar-width: none;
+        }
+
+        .sidebar.collapsed .sidebar-content::-webkit-scrollbar {
+            width: 0;
+            height: 0;
         }
 
         .sidebar .logo {
@@ -469,10 +482,12 @@ echo $setCopyright . "\n";
         }
 
         .sidebar-toggle {
-            top: 18px;
-            right: -16px;
-            width: 32px;
-            height: 32px;
+            top: 20px;
+            right: -15px;
+            width: 34px;
+            height: 34px;
+            border: 2px solid #eef3f7;
+            font-size: 0.78rem;
         }
 
         .sidebar-toggle:hover,
@@ -511,11 +526,16 @@ echo $setCopyright . "\n";
         }
 
         .sidebar-content::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.08);
+            background: transparent;
         }
 
         .sidebar-content::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.28);
+            background: rgba(255, 255, 255, 0.18);
+            border-radius: 999px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.32);
         }
     </style>
 
