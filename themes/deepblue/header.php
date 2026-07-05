@@ -6,233 +6,235 @@
 echo $setDoctype . "\n";
 echo $setCopyright . "\n";
 ?>
-    <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $setCharset; ?>">
-        <title><?php echo htmlspecialchars($setTitle); ?></title>
-        <meta name="robots" content="none">
-        <meta name="description" content="<?php echo htmlspecialchars($setDescription); ?>">
-        <meta name="keywords" content="<?php echo htmlspecialchars($setKeywords); ?>">
+<html>
 
-        <!-- JavaScript files -->
-        <script type="text/javascript" src="../javascript/general.js"></script>
-        <script type="text/javascript" src="../javascript/overlib/overlib.js"></script>
-        <script type="text/javascript" src="../javascript/jscalendar/calendar.js"></script>
-        <script type="text/javascript" src="../javascript/jscalendar/lang/calendar-en.js"></script>
-        <script type="text/javascript" src="../javascript/jscalendar/calendar-setup.js"></script>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $setCharset; ?>">
+    <title><?php echo htmlspecialchars($setTitle); ?></title>
+    <meta name="robots" content="none">
+    <meta name="description" content="<?php echo htmlspecialchars($setDescription); ?>">
+    <meta name="keywords" content="<?php echo htmlspecialchars($setKeywords); ?>">
 
-        <!-- Bootstrap -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- JavaScript files -->
+    <script type="text/javascript" src="../javascript/general.js"></script>
+    <script type="text/javascript" src="../javascript/overlib/overlib.js"></script>
+    <script type="text/javascript" src="../javascript/jscalendar/calendar.js"></script>
+    <script type="text/javascript" src="../javascript/jscalendar/lang/calendar-en.js"></script>
+    <script type="text/javascript" src="../javascript/jscalendar/calendar-setup.js"></script>
 
-        <!-- Font Awesome -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-        <!-- CSS files -->
-        <link rel="stylesheet" href="../themes/<?php echo THEME; ?>/stylesheet.css" type="text/css">
-        <link rel="stylesheet" href="../themes/<?php echo THEME; ?>/calendar/theme.css" type="text/css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-        <style>
-            :root {
-                --primary-color: #0d6efd;
-                --sidebar-width: 250px;
-                --sidebar-collapsed-width: 70px;
-                --content-padding: 20px;
-                --transition-speed: 0.3s;
-            }
+    <!-- CSS files -->
+    <link rel="stylesheet" href="../themes/<?php echo THEME; ?>/stylesheet.css" type="text/css">
+    <link rel="stylesheet" href="../themes/<?php echo THEME; ?>/calendar/theme.css" type="text/css">
 
-            body {
-                background-color: #f8f9fa;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                line-height: 1.6;
-                overflow-x: hidden;
-            }
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 70px;
+            --content-padding: 20px;
+            --transition-speed: 0.3s;
+        }
 
-            /* Sidebar Styles */
-            .sidebar {
-                width: var(--sidebar-width);
-                height: 100vh;
-                background-color: #fff;
-                border-right: 1px solid #dee2e6;
-                position: fixed;
-                left: 0;
-                top: 0;
-                padding: 15px 0;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-                z-index: 1000;
-                transition: width var(--transition-speed);
-                display: flex;
-                flex-direction: column;
-            }
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
 
-            .sidebar.collapsed {
-                width: var(--sidebar-collapsed-width);
-            }
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background-color: #fff;
+            border-right: 1px solid #dee2e6;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 15px 0;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+            transition: width var(--transition-speed);
+            display: flex;
+            flex-direction: column;
+        }
 
-            .sidebar-content {
-                flex: 1;
-                overflow-y: auto;
-                padding: 0 15px;
-            }
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
 
-            .sidebar .logo {
-                text-align: center;
-                margin-bottom: 25px;
-                padding: 0 15px 15px;
-                border-bottom: 1px solid #eee;
-                transition: all var(--transition-speed);
-            }
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 15px;
+        }
 
-            .sidebar.collapsed .logo {
-                padding: 0 5px 15px;
-            }
+        .sidebar .logo {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 0 15px 15px;
+            border-bottom: 1px solid #eee;
+            transition: all var(--transition-speed);
+        }
 
-            .sidebar .logo img {
-                max-height: 60px;
-                transition: all var(--transition-speed);
-            }
+        .sidebar.collapsed .logo {
+            padding: 0 5px 15px;
+        }
 
-            .sidebar.collapsed .logo img {
-                max-height: 40px;
-            }
+        .sidebar .logo img {
+            max-height: 60px;
+            transition: all var(--transition-speed);
+        }
 
-            .sidebar .logo-text {
-                font-weight: bold;
-                color: var(--primary-color);
-                margin-top: 10px;
-                transition: opacity var(--transition-speed);
-            }
+        .sidebar.collapsed .logo img {
+            max-height: 40px;
+        }
 
-            .sidebar.collapsed .logo-text {
-                opacity: 0;
-                display: none;
-            }
+        .sidebar .logo-text {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-top: 10px;
+            transition: opacity var(--transition-speed);
+        }
 
-            .sidebar .nav-link {
-                color: #495057;
-                font-weight: 500;
-                padding: 12px 15px;
-                margin-bottom: 5px;
-                border-radius: 5px;
-                transition: all 0.2s;
-                display: flex;
-                align-items: center;
-                white-space: nowrap;
-            }
+        .sidebar.collapsed .logo-text {
+            opacity: 0;
+            display: none;
+        }
 
-            .sidebar.collapsed .nav-link {
-                padding: 12px 10px;
-                justify-content: center;
-            }
+        .sidebar .nav-link {
+            color: #495057;
+            font-weight: 500;
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
 
-            .sidebar .nav-link:hover {
-                background-color: #e9ecef;
-                color: var(--primary-color);
-            }
+        .sidebar.collapsed .nav-link {
+            padding: 12px 10px;
+            justify-content: center;
+        }
 
-            .sidebar .nav-link.active {
-                background-color: var(--primary-color);
-                color: white;
-            }
+        .sidebar .nav-link:hover {
+            background-color: #e9ecef;
+            color: var(--primary-color);
+        }
 
-            .sidebar .nav-link i {
-                width: 20px;
-                text-align: center;
-                margin-right: 10px;
-                transition: margin var(--transition-speed);
-            }
+        .sidebar .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
 
-            .sidebar.collapsed .nav-link i {
-                margin-right: 0;
-            }
+        .sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
+            margin-right: 10px;
+            transition: margin var(--transition-speed);
+        }
 
-            .sidebar .nav-text {
-                transition: opacity var(--transition-speed);
-            }
+        .sidebar.collapsed .nav-link i {
+            margin-right: 0;
+        }
 
-            .sidebar.collapsed .nav-text {
-                opacity: 0;
-                display: none;
-            }
+        .sidebar .nav-text {
+            transition: opacity var(--transition-speed);
+        }
 
-            .user-info {
-                border-top: 1px solid #dee2e6;
-                margin-top: 20px;
-                padding: 20px 15px 0;
-                font-size: 0.9rem;
-                transition: padding var(--transition-speed);
-            }
+        .sidebar.collapsed .nav-text {
+            opacity: 0;
+            display: none;
+        }
 
-            .sidebar.collapsed .user-info {
-                padding: 20px 10px 0;
-            }
+        .user-info {
+            border-top: 1px solid #dee2e6;
+            margin-top: 20px;
+            padding: 20px 15px 0;
+            font-size: 0.9rem;
+            transition: padding var(--transition-speed);
+        }
 
-            .user-info a {
-                color: #6c757d;
-                text-decoration: none;
-                display: flex;
-                align-items: center;
-                padding: 8px 0;
-                transition: color 0.2s;
-                white-space: nowrap;
-            }
+        .sidebar.collapsed .user-info {
+            padding: 20px 10px 0;
+        }
 
-            .sidebar.collapsed .user-info a {
-                justify-content: center;
-            }
+        .user-info a {
+            color: #6c757d;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            transition: color 0.2s;
+            white-space: nowrap;
+        }
 
-            .user-info a:hover {
-                color: var(--primary-color);
-            }
+        .sidebar.collapsed .user-info a {
+            justify-content: center;
+        }
 
-            .user-info-text {
-                transition: opacity var(--transition-speed);
-            }
+        .user-info a:hover {
+            color: var(--primary-color);
+        }
 
-            .sidebar.collapsed .user-info-text {
-                opacity: 0;
-                display: none;
-            }
+        .user-info-text {
+            transition: opacity var(--transition-speed);
+        }
 
-            /* Toggle Button */
-            .sidebar-toggle {
-                position: absolute;
-                top: 15px;
-                right: -15px;
-                background: var(--primary-color);
-                color: white;
-                border: none;
-                border-radius: 50%;
-                width: 30px;
-                height: 30px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-                z-index: 1001;
-                transition: transform var(--transition-speed);
-            }
+        .sidebar.collapsed .user-info-text {
+            opacity: 0;
+            display: none;
+        }
 
-            .sidebar-toggle:hover {
-                transform: scale(1.1);
-            }
+        /* Toggle Button */
+        .sidebar-toggle {
+            position: absolute;
+            top: 15px;
+            right: -15px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            transition: transform var(--transition-speed);
+        }
 
-            .sidebar.collapsed .sidebar-toggle i {
-                transform: rotate(180deg);
-            }
+        .sidebar-toggle:hover {
+            transform: scale(1.1);
+        }
 
-            /* Main Content */
-            .content {
-                margin-left: calc(var(--sidebar-width) + var(--content-padding));
-                padding: var(--content-padding);
-                min-height: 100vh;
-                transition: margin-left var(--transition-speed);
-            }
+        .sidebar.collapsed .sidebar-toggle i {
+            transform: rotate(180deg);
+        }
 
-            .sidebar.collapsed ~ .content {
-                margin-left: calc(var(--sidebar-collapsed-width) + var(--content-padding));
-            }
-   /* Admin Cards */
+        /* Main Content */
+        .content {
+            margin-left: calc(var(--sidebar-width) + var(--content-padding));
+            padding: var(--content-padding);
+            min-height: 100vh;
+            transition: margin-left var(--transition-speed);
+        }
+
+        .sidebar.collapsed~.content {
+            margin-left: calc(var(--sidebar-collapsed-width) + var(--content-padding));
+        }
+
+        /* Admin Cards */
         .admin-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -539,8 +541,9 @@ echo $setCopyright . "\n";
         }
     </style>
 
-        <?php echo $headBonus; ?>
-    </head>
+    <?php echo $headBonus; ?>
+</head>
+
 <body>
 
     <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Open navigation">
@@ -566,7 +569,7 @@ echo $setCopyright . "\n";
                 if (!$blank && file_exists($logoFile)) {
                     echo '<img src="' . $logoFile . '" alt="' . htmlspecialchars($clientHeader->org_name[0]) . '">';
                 } else {
-                    echo '<img src="../themes/deepblue/img/logo_netoffice.gif" alt="NetOffice">';
+                    echo '<img src="../themes/deepblue/img/logo.jpeg" alt="NetOffice">';
                 }
                 ?>
             </div>
@@ -646,12 +649,12 @@ echo $setCopyright . "\n";
                 <?php if (!$blank && !$notLogged): ?>
                     <div class="user-info-text"><strong><?php echo htmlspecialchars($_SESSION['nameSession']); ?></strong></div>
                     <a href="../general/login.php?logout=true" class="d-block"><i
-                                class="fa fa-lock"></i><span class="user-info-text"><?php echo $strings["logout"]; ?></span></a>
+                            class="fa fa-lock"></i><span class="user-info-text"><?php echo $strings["logout"]; ?></span></a>
                     <a href="../projects_site/home.php?changeProject=true" class="d-block"><i
-                                class="fa fa-house"></i><span class="user-info-text"><?php echo $strings["go_projects_site"]; ?></span></a>
+                            class="fa fa-house"></i><span class="user-info-text"><?php echo $strings["go_projects_site"]; ?></span></a>
                 <?php else: ?>
                     <a href="../general/login.php" class="btn  btn-sm w-100"><i
-                                class="fa fa-right-to-bracket"></i><span class="user-info-text">Login</span></a>
+                            class="fa fa-right-to-bracket"></i><span class="user-info-text">Login</span></a>
                 <?php endif; ?>
             </div>
         </div>
@@ -660,26 +663,26 @@ echo $setCopyright . "\n";
     <!-- Main Content -->
     <div class="content">
 
-<?php
-//--- Breadcrumbs ---
-if (!empty($breadcrumbs)) {
-    echo '<nav aria-label="breadcrumb"><ol class="breadcrumb">';
-    foreach ($breadcrumbs as $crump) {
-        echo '<li class="breadcrumb-item">' . $crump . '</li>';
-    }
-    echo '</ol></nav>';
-}
+        <?php
+        //--- Breadcrumbs ---
+        if (!empty($breadcrumbs)) {
+            echo '<nav aria-label="breadcrumb"><ol class="breadcrumb">';
+            foreach ($breadcrumbs as $crump) {
+                echo '<li class="breadcrumb-item">' . $crump . '</li>';
+            }
+            echo '</ol></nav>';
+        }
 
-//--- Messages ---
-if (!empty($msg)) {
-    require_once('../includes/messages.php');
-    $template->messagebox($msgLabel);
-}
+        //--- Messages ---
+        if (!empty($msg)) {
+            require_once('../includes/messages.php');
+            $template->messagebox($msgLabel);
+        }
 
-//--- Page Title ---
-if (!empty($pageTitle)) {
-    echo '<div class="d-flex justify-content-between align-items-center mb-4">';
-    echo '<h2 class="h3 mb-0">' . ($pageTitle) . '</h2>';
-    echo '</div>';
-}
-?>
+        //--- Page Title ---
+        if (!empty($pageTitle)) {
+            echo '<div class="d-flex justify-content-between align-items-center mb-4">';
+            echo '<h2 class="h3 mb-0">' . ($pageTitle) . '</h2>';
+            echo '</div>';
+        }
+        ?>

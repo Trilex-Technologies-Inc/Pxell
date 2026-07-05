@@ -14,13 +14,13 @@
 
 echo '<footer id="footer" class="site-footer">';
 echo '<div class="site-footer__main">';
-echo '<span class="site-footer__brand">Powered by <strong>Pxell</strong></span>';
-echo '<a class="site-footer__link" href="http://www.pxell.com" target="_blank">www.pxell.com</a>';
+echo '<span class="site-footer__brand">Powered by <strong>Taskvibe</strong></span>';
+echo '<a class="site-footer__link" href="http://www.taskvibe.net" target="_blank">www.taskvibe.net</a>';
 echo '<span class="site-footer__chip">v' . htmlspecialchars($version) . '</span>';
 
 if ($notLogged != true && $blank != true) {
     echo '<span class="site-footer__chip">Connected users: ' . htmlspecialchars($connectedUsers) . '</span>';
-} 
+}
 
 if ($footerDev == true) {
     $parse_end = getmicrotime();
@@ -30,7 +30,7 @@ if ($footerDev == true) {
     echo '<span class="site-footer__chip">databaseType ' . htmlspecialchars($databaseType) . '</span>';
     echo '<span class="site-footer__chip">select requests ' . htmlspecialchars($comptRequest) . '</span>';
     echo '<a class="site-footer__link" href="http://validator.w3.org/check/referer" target="w3c">w3c</a>';
-} 
+}
 
 echo '</div>';
 echo '</footer>'
@@ -81,4 +81,5 @@ echo '</footer>'
     });
 </script>
 </body>
+
 </html>

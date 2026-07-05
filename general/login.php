@@ -14,7 +14,7 @@
 
 $checkSession = false;
 require_once('../includes/library.php');
-$pageSection='login';
+$pageSection = 'login';
 
 // DEBUG
 // foreach ($_POST as $k => $v) { print "<font color=blue>\$_POST[$k] => $v</font><br>"; }
@@ -35,7 +35,7 @@ if (($_GET['logout'] == 'true') and (isset($_SESSION['loginSession']))) {
     // handle the session
     $_SESSION = array(); // unset all session varables
     session_unset();
-    _sess_mysql_destroy( session_id() ); // then destroy the session
+    _sess_mysql_destroy(session_id()); // then destroy the session
 
     // redirection to login page with logout message
     header('Location: ../general/login.php?msg=logout');
@@ -71,9 +71,9 @@ if ($_POST['loginSubmit']) {
         if ($rememberForm == 'on') {
             $storePwd = get_password($_POST['passwordForm']);
             $cookie_value = base64_encode(serialize(array('loginForm' => $_POST['loginForm'], 'storePwd' => $storePwd, 'tokenSession' => md5($_POST['loginForm'] . $cryptKey))));
-            setcookie('NetOfficeAuthCookie', $cookie_value, time()+31536000, $base_uri);
+            setcookie('NetOfficeAuthCookie', $cookie_value, time() + 31536000, $base_uri);
         } else {
-            setcookie('NetOfficeAuthCookie', '', time()-3600, $base_uri);
+            setcookie('NetOfficeAuthCookie', '', time() - 3600, $base_uri);
         }
     }
 }
@@ -102,7 +102,7 @@ if ($auth == 'on') {
 
     if ($loginCookie != '' && $passwordCookie != '' && $tokenCookie != '') {
         $loginForm = $loginCookie;
-    } 
+    }
 
     // query in members table (demo user not listed if demo mode false,
     // to prohibit the access)
@@ -111,42 +111,41 @@ if ($auth == 'on') {
             $tmpquery = "WHERE mem.email_work = '$ssl_email' AND mem.login != 'demo' AND mem.profil != '4'";
         } else {
             $tmpquery = "WHERE mem.login = '$loginForm' AND mem.login != 'demo' AND mem.profil != '4'";
-        } 
+        }
     } else {
         $tmpquery = "WHERE mem.login = '$loginForm' AND mem.profil != '4'";
-    } 
+    }
 
     $loginUser = new request();
     $loginUser->openMembers($tmpquery);
-    $comptLoginUser = count($loginUser->mem_id); 
+    $comptLoginUser = count($loginUser->mem_id);
 
     // test if user exits
     if ($comptLoginUser == '0') {
-        $error = $strings['invalid_login']; 
-        setcookie('NetOfficeAuthCookie', '', time()-3600, $base_uri);
+        $error = $strings['invalid_login'];
+        setcookie('NetOfficeAuthCookie', '', time() - 3600, $base_uri);
     } else {
         // test password
         if ($loginCookie != '' && $passwordCookie != '' && $tokenCookie != '') {
             if (!$ssl && $passwordCookie != $loginUser->mem_password[0]) {
                 $error = $strings['invalid_login'];
-                setcookie('NetOfficeAuthCookie', '', time()-3600, $base_uri);
+                setcookie('NetOfficeAuthCookie', '', time() - 3600, $base_uri);
             } else {
                 // password passed, now test token
                 if (!$ssl && $tokenCookie != md5($loginCookie . $cryptKey)) {
                     $error = $strings['invalid_login'];
-                    setcookie('NetOfficeAuthCookie', '', time()-3600, $base_uri);
+                    setcookie('NetOfficeAuthCookie', '', time() - 3600, $base_uri);
                 } else {
                     $match = true;
                 }
             }
         } else {
-            
+
             if ((!is_password_match($loginForm, $passwordForm, $loginUser->mem_password[0]))) {
                 $error = $strings['invalid_login'];
             } else {
                 $match = true;
             }
-          
         }
 
         if ($match == true) {
@@ -154,7 +153,7 @@ if ($auth == 'on') {
             $passwordForm = get_password($passwordForm);
 
             // get the ip addr
-            $ip = SESS_REMOTE_ADDR; 
+            $ip = SESS_REMOTE_ADDR;
 
             // set session variables
             $_SESSION['browserSession'] = $HTTP_USER_AGENT;
@@ -168,14 +167,14 @@ if ($auth == 'on') {
             $_SESSION['dateunixSession'] = date('U');
             $_SESSION['dateSession'] = date('d-m-Y H:i:s');
             $_SESSION['profilSession'] = $loginUser->mem_profil[0];
-            $_SESSION['logouttimeSession'] = $loginUser->mem_logout_time[0]; 
+            $_SESSION['logouttimeSession'] = $loginUser->mem_logout_time[0];
             $_SESSION['tokenSession'] = md5($loginForm . $cryptKey);
 
             // register demo session = true in session if user = demo
             if ($loginForm == 'demo') {
                 $demoSession = true;
                 $_SESSION['demoSession'] = $demoSession;
-            } 
+            }
 
             // insert into or update log
             $tmpquery = "WHERE log.login = '$loginForm'";
@@ -192,7 +191,7 @@ if ($auth == 'on') {
                 $increm = $registerLog->log_compt[0] + 1;
                 $tmpquery1 = 'UPDATE ' . $tableCollab['logs'] . " SET ip='$ip',session='$session',compt='$increm',last_visite='$dateheure' WHERE login = '$loginForm'";
                 connectSql($tmpquery1);
-            } 
+            }
             // redirect for external link to internal page
             if ($_GET['url'] != '') {
                 if ($loginUser->mem_profil[0] == '3') {
@@ -201,7 +200,7 @@ if ($auth == 'on') {
                 } else {
                     header('Location: ../' . $_GET['url']);
                     exit;
-                } 
+                }
             } else if (($loginUser->mem_last_page[0] != '') and ($loginUser->mem_profil[0] != '3')) {
                 // redirect to selected start page
                 header('Location: ../' . $loginUser->mem_last_page[0]);
@@ -222,10 +221,10 @@ if ($auth == 'on') {
                 } else {
                     header('Location: ../general/home.php');
                     exit;
-                } 
-            } 
-        } 
-    } 
+                }
+            }
+        }
+    }
 }
 
 if (($_GET['session'] == 'false') and ($_GET['url'] == '')) {
@@ -539,7 +538,7 @@ require_once('../themes/' . THEME . '/header.php');
         <section class="login-brand" aria-label="NetOffice">
             <div>
                 <div class="login-brand__mark">
-                    <img src="../themes/deepblue/img/logo_netoffice.gif" alt="NetOffice">
+                    <img src="../themes/deepblue/img/logo.jpeg" alt="NetOffice">
                 </div>
                 <h1>NetOffice</h1>
                 <p><?php echo $strings['please_login']; ?></p>
@@ -574,16 +573,16 @@ require_once('../themes/' . THEME . '/header.php');
                 <div class="mb-3">
                     <label for="languageForm" class="form-label"><?php echo $strings['language']; ?></label>
                     <select name="languageForm" id="languageForm" class="form-select">
-            <?php
-            array_multisort($langValue, SORT_ASC, SORT_STRING);
-            foreach ($langValue as $key => $value) {
-                if (file_exists('../languages/lang_' . $key . '.php')) {
-                    $selected = ($langDefault == $key) ? 'selected' : '';
-                    $display = ($langDefault == $key) ? "$value (Default)" : $value;
-                    echo '<option value="' . $key . '" ' . $selected . '>' . htmlspecialchars($display) . '</option>';
-                }
-            }
-            ?>
+                        <?php
+                        array_multisort($langValue, SORT_ASC, SORT_STRING);
+                        foreach ($langValue as $key => $value) {
+                            if (file_exists('../languages/lang_' . $key . '.php')) {
+                                $selected = ($langDefault == $key) ? 'selected' : '';
+                                $display = ($langDefault == $key) ? "$value (Default)" : $value;
+                                echo '<option value="' . $key . '" ' . $selected . '>' . htmlspecialchars($display) . '</option>';
+                            }
+                        }
+                        ?>
                     </select>
                 </div>
 
@@ -615,7 +614,7 @@ require_once('../themes/' . THEME . '/header.php');
 </div>
 
 <script>
-    (function () {
+    (function() {
         var login = document.getElementById('loginForm');
         if (login) {
             login.focus();
