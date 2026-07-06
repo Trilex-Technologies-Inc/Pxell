@@ -569,7 +569,7 @@ echo $setCopyright . "\n";
                 if (!$blank && file_exists($logoFile)) {
                     echo '<img src="' . $logoFile . '" alt="' . htmlspecialchars($clientHeader->org_name[0]) . '">';
                 } else {
-                    echo '<img src="../themes/deepblue/img/logo.jpeg" alt="NetOffice">';
+                    echo '<img src="../themes/deepblue/img/logo.png" alt="NetOffice">';
                 }
                 ?>
             </div>
