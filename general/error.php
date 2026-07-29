@@ -21,12 +21,13 @@ require_once('../themes/' . THEME . '/header.php');
 
 // language detection
 if ($langDefault == '') {
-    if (isset($HTTP_ACCEPT_LANGUAGE)) {
-        $plng = split(',', $HTTP_ACCEPT_LANGUAGE);
+    $acceptLang = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '';
+    if ($acceptLang !== '') {
+        $plng = explode(',', $acceptLang);
         if (count($plng) > 0) {
-            while (list($k, $v) = each($plng)) {
-                $k = split(';', $v, 1);
-                $k = split('-', $k[0]);
+            foreach ($plng as $v) {
+                $k = explode(';', $v, 2);
+                $k = explode('-', $k[0]);
                 if (@file_exists('../languages/lang_' . $k[0] . '.php')) {
                     $langDefault = $k[0];
                     break;

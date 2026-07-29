@@ -132,7 +132,7 @@ function PMA_splitSqlFile(&$ret, $sql, $release)
     } // end for
 
     // add any rest to the returned array
-    if (!empty($sql) && ereg('[^[:space:]]+', $sql)) {
+    if (!empty($sql) && preg_match('/[^[:space:]]+/', $sql)) {
         $ret[] = $sql;
     }
 
@@ -161,7 +161,7 @@ if (!function_exists('is_uploaded_file')) {
         $tmp_file     .= '/' . basename($filename);
 
         // User might have trailing slash in php.ini...
-        return (ereg_replace('/+', '/', $tmp_file) == $filename);
+        return (preg_replace('/\/+/', '/', $tmp_file) == $filename);
     } // end of the 'is_uploaded_file()' emulated function
 } // end if
 
@@ -290,12 +290,12 @@ if (!empty($prev_sql_query)) {
 
 // Drop database is not allowed -> ensure the query can be run
 if (!$cfgAllowUserDropDatabase
-    && eregi('DROP[[:space:]]+(IF EXISTS[[:space:]]+)?DATABASE ', $sql_query)) {
+    && preg_match('/DROP[[:space:]]+(IF EXISTS[[:space:]]+)?DATABASE /i', $sql_query)) {
     // Checks if the user is a Superuser
     // TODO: set a global variable with this information
     // loic1: optimized query
-    $result = @mysql_query('USE mysql');
-    if (mysql_error()) {
+    $result = @mysqli_query($GLOBALS['userlink'], 'USE mysql');
+    if (mysqli_error($GLOBALS['userlink'])) {
         include('header.inc.php');
         PMA_mysqlDie($strNoDropDatabases, '', '', $err_url);
     }
@@ -323,12 +323,12 @@ if ($sql_query != '') {
     // Only one query to run
     if ($pieces_count == 1 && !empty($pieces[0]) && $view_bookmark == 0) {
         // sql.php will stripslash the query if get_magic_quotes_gpc
-        if (get_magic_quotes_gpc() == 1) {
+        if (false) { // get_magic_quotes_gpc removed in PHP 8.0
             $sql_query = addslashes($pieces[0]);
         } else {
             $sql_query = $pieces[0];
         }
-        if (eregi('^(DROP|CREATE)[[:space:]]+(IF EXISTS[[:space:]]+)?(TABLE|DATABASE)[[:space:]]+(.+)', $sql_query)) {
+        if (preg_match('/^(DROP|CREATE)[[:space:]]+(IF EXISTS[[:space:]]+)?(TABLE|DATABASE)[[:space:]]+(.+)/i', $sql_query)) {
             $reload = 1;
         }
         include('sql.php');
@@ -336,15 +336,15 @@ if ($sql_query != '') {
     }
 
     // Runs multiple queries
-    else if (mysql_select_db($db)) {
+    else if (mysqli_select_db($GLOBALS['userlink'], $db)) {
         for ($i = 0; $i < $pieces_count; $i++) {
             $a_sql_query = $pieces[$i];
-            $result = mysql_query($a_sql_query);
+            $result = mysqli_query($GLOBALS['userlink'], $a_sql_query);
             if ($result == FALSE) { // readdump failed
                 $my_die = $a_sql_query;
                 break;
             }
-            if (!isset($reload) && eregi('^(DROP|CREATE)[[:space:]]+(IF EXISTS[[:space:]]+)?(TABLE|DATABASE)[[:space:]]+(.+)', $a_sql_query)) {
+            if (!isset($reload) && preg_match('/^(DROP|CREATE)[[:space:]]+(IF EXISTS[[:space:]]+)?(TABLE|DATABASE)[[:space:]]+(.+)/i', $a_sql_query)) {
                 $reload = 1;
             }
         } // end for
@@ -379,7 +379,7 @@ if ($goto == 'tbl_properties.php') {
         $goto     = 'db_details.php';
     } else {
         $is_table = @mysql_query('SHOW TABLES LIKE \'' . PMA_sqlAddslashes($table, TRUE) . '\'');
-        if (!@mysql_numrows($is_table)) {
+        if (!@mysqli_num_rows($is_table)) {
             $goto = 'db_details.php';
             unset($table);
         }
@@ -392,7 +392,7 @@ if ($goto == 'db_details.php') {
     if (!isset($db)) {
         $goto     = 'main.php';
     } else {
-        $is_db    = @mysql_select_db($db);
+        $is_db    = @mysqli_select_db($GLOBALS['userlink'], $db);
         if (!$is_db) {
             $goto = 'main.php';
             unset($db);

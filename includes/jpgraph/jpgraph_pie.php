@@ -361,7 +361,7 @@ class PiePlot {
     }
 
 
-    function Stroke(&$img,$aaoption=0) {
+    function Stroke($img,$aaoption=0) {
 	// aaoption is used to handle antialias
 	// aaoption == 0 a normal pie
 	// aaoption == 1 just the body

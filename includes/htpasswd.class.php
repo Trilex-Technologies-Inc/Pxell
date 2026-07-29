@@ -224,7 +224,7 @@ class Htpasswd {
             fclose($fd);
 
             $this->CONTENTS = $contents;
-            $Mytemp = split("\n", $contents);
+            $Mytemp = explode("\n", $contents);
             for($count = 0;$count < count($Mytemp);$count++) {
                 $user = "";
                 $pass = "";
@@ -242,7 +242,7 @@ class Htpasswd {
                     $this->error("FATAL invalid user [$user] on line [$errno] in [$filename]", 1);
                 } 
 
-                list ($user, $pass) = split(":", $Mytemp[$count]);
+                list ($user, $pass) = explode(":", $Mytemp[$count], 2);
 
                 if (($user != "") and ($pass != "")) {
                     $Myjunk[$count]["user"] = $user;

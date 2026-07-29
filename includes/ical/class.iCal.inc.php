@@ -355,7 +355,7 @@ class iCal {
 	* @see setiCalTimestamp()
 	* @see $ical_timestamp
 	*/
-	function &getiCalTimestamp() {
+	function getiCalTimestamp() {
 		return (string) $this->ical_timestamp;
 	} // end function
 
@@ -366,7 +366,7 @@ class iCal {
 	* @param int $int
 	* @return string $classes
 	*/
-	function &getClassName($int = 0) {
+	function getClassName($int = 0) {
 		$classes = (array) array('PRIVATE','PUBLIC','CONFIDENTIAL');
 		return (string) ((array_key_exists($int, $classes)) ? $classes[$int] : $classes[0]);
 	} // end function
@@ -379,7 +379,7 @@ class iCal {
 	* @return string $statuscode
 	* @since 1.011 - 2002-12-22
 	*/
-	function &getStatusName($int = 0) {
+	function getStatusName($int = 0) {
 	    //
 		$statuscode = (array) array('TENTATIVE','CONFIRMED','CANCELLED','NEEDS-ACTION','COMPLETED','IN-PROCESS','CANCELLED');
 		return (string) ((array_key_exists($int, $statuscode)) ? $statuscode[$int] : $statuscode[0]);
@@ -393,7 +393,7 @@ class iCal {
 	* @see setFrequency(), $frequencies
 	* @since 1.010 - 2002-10-26
 	*/
-	function &getFrequencyName($int = 0) {
+	function getFrequencyName($int = 0) {
 		$frequencies = (array) array('ONCE','SECONDLY','MINUTELY','HOURLY','DAILY','WEEKLY','MONTHLY','YEARLY');
 		return (string) ((array_key_exists($int, $frequencies)) ? $frequencies[$int] : $frequencies[0]);
 	} // end function
@@ -573,7 +573,7 @@ class iCal {
 	* @see addEvent()
 	* @see iCalEvent::iCalEvent()
 	*/
-	function &getEvent($id = 0) {
+	function getEvent($id = 0) {
 		if (count($this->icalevents) < 1) {
 			return (string) 'No Dates found';
 		} elseif (is_int($id) && array_key_exists($id, $this->icalevents)) {
@@ -591,7 +591,7 @@ class iCal {
 	* @see iCalToDo::iCalToDo()
 	* @since 1.020 - 2002-12-24
 	*/
-	function &getToDo($id = 0) {
+	function getToDo($id = 0) {
 		if (count($this->icaltodos) < 1) {
 			return (string) 'No ToDos found';
 		} elseif (is_int($id) && array_key_exists($id, $this->icaltodos)) {
@@ -609,7 +609,7 @@ class iCal {
 	* @see iCalFreeBusy::iCalFreeBusy()
 	* @since 1.020 - 2002-12-24
 	*/
-	function &getFreeBusy($id = 0) {
+	function getFreeBusy($id = 0) {
 		if (count($this->icalfbs) < 1) {
 			return (string) 'No FreeBusys found';
 		} elseif (is_int($id) && array_key_exists($id, $this->icalfbs)) {
@@ -627,7 +627,7 @@ class iCal {
 	* @see iCalJournal::iCalJournal()
 	* @since 1.020 - 2002-12-24
 	*/
-	function &getJournal($id = 0) {
+	function getJournal($id = 0) {
 		if (count($this->icaljournals) < 1) {
 			return (string) 'No Journals found';
 		} elseif (is_int($id) && array_key_exists($id, $this->icaljournals)) {
@@ -649,7 +649,7 @@ class iCal {
 	* @see addEvent()
 	* @see getEvent()
 	*/
-	function &getEvents() {
+	function getEvents() {
 		return (array) $this->icalevents;
 	} // end function
 
@@ -662,7 +662,7 @@ class iCal {
 	* @see getToDo()
 	* @since 1.020 - 2002-12-24
 	*/
-	function &getToDos() {
+	function getToDos() {
 		return (array) $this->icaltodos;
 	} // end function
 
@@ -675,7 +675,7 @@ class iCal {
 	* @see getFreeBusy()
 	* @since 1.020 - 2002-12-24
 	*/
-	function &getFreeBusys() {
+	function getFreeBusys() {
 		return (array) $this->icalfbs;
 	} // end function
 
@@ -688,7 +688,7 @@ class iCal {
 	* @see getJournal()
 	* @since 1.020 - 2002-12-24
 	*/
-	function &getJournals() {
+	function getJournals() {
 		return (array) $this->icaljournals;
 	} // end function
 	/**#@-*/

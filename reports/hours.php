@@ -40,18 +40,18 @@ if ($_POST["S_ORSEL"]) {
 	$S_org = "ALL";
 }
 // a date range was selected
-if ($_POST{'S_COMPLETEDATE'} == 'DATERANGE') {
+if ($_POST['S_COMPLETEDATE'] == 'DATERANGE') {
     $dateRange = true; 
     // get the range start date (if given)
-    if ($_POST{'S_SDATE2'}) {
-        $s_sdate2 = $_POST{'S_SDATE2'};
+    if ($_POST['S_SDATE2']) {
+        $s_sdate2 = $_POST['S_SDATE2'];
     } else {
         $s_sdate2 = date("Y-m-d",
             mktime (0, 0, 0, date("m"), "1", date("Y")));
     } 
     // get the range end date
-    if ($_POST{'S_EDATE2'}) {
-        $s_edate2 = $_POST{'S_EDATE2'};
+    if ($_POST['S_EDATE2']) {
+        $s_edate2 = $_POST['S_EDATE2'];
     } else {
         $s_edate2 = date("Y-m-d",
             mktime (0, 0, 0, date("m"), date("d"), date("Y")));

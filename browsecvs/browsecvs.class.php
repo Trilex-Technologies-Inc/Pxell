@@ -42,14 +42,14 @@ class browsecvs {
     } 
     function revcmp($rev1, $rev2)
     {
-        $r1 = split("\.", $rev1);
-        $r2 = split("\.", $rev2);
+        $r1 = explode(".", $rev1);
+        $r2 = explode(".", $rev2);
         while (count($r1) > 0 && count($r2) > 0) {
             $a = array_shift($r1);
             $b = array_shift($r2);
             if ($a != $b) return $a - $b;
         } 
-        return (count($r1) > 0)? 1: (count($r2) > 0)? -1 : 0;
+        return (count($r1) > 0) ? 1 : ((count($r2) > 0) ? -1 : 0);
     } 
     function rrevcmp($rev1, $rev2)
     {
@@ -124,7 +124,7 @@ class browsecvs {
             // pick branch
             while ($i < count($log) && preg_match('/^branches: *([0-9.]+)/', $log[$i], $regs)) {
                 $info['log'][$rev]['branches'] = array();
-                foreach (split(";", $regs[1]) as $branches)
+                foreach (explode(";", $regs[1]) as $branches)
                 array_push($info['log'][$rev]['branches'], trim($branches));
                 $i++;
             } 

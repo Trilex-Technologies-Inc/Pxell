@@ -618,8 +618,8 @@ class DateLocale {
 
 	for ( $i = 0, $ofs = 0 - strftime('%w'); $i < 7; $i++, $ofs++ ){
 	    $day = strftime('%a', strtotime("$ofs day"));
-	    $day{0} = strtoupper($day{0});
-	    $this->iDayAbb[$aLocale][]= $day{0};
+	    $day[0] = strtoupper($day[0]);
+	    $this->iDayAbb[$aLocale][]= $day[0];
 	    $this->iShortDay[$aLocale][]= $day;
 	}
 
@@ -1489,7 +1489,7 @@ class Graph {
 
 		// Now reconstruct any user URL argument
 		reset($_GET);
-		while( list($key,$value) = each($_GET) ) {
+		foreach( $_GET as $key => $value ) {
 		    if( is_array($value) ) {
 			$n = count($value);
 			for( $i=0; $i < $n; ++$i ) {
@@ -1505,7 +1505,7 @@ class Graph {
 		// but there is little else we can do. One idea for the 
 		// future might be recreate the POST header in case.
 		reset($_POST);
-		while( list($key,$value) = each($_POST) ) {
+		foreach( $_POST as $key => $value ) {
 		    if( is_array($value) ) {
 			$n = count($value);
 			for( $i=0; $i < $n; ++$i ) {
@@ -3236,7 +3236,12 @@ class GraphTabTitle extends Text{
 	$this->align = $aAlign;
     }
 
-    function SetPos($aAlign) {
+    function SetPos($aXAbsPos=0,$aYAbsPos=0,$aHAlign="left",$aVAlign="top") {
+	// In GraphTabTitle, SetPos is used to set the horizontal alignment/tab position
+	$this->align = $aXAbsPos;
+    }
+
+    function SetTabPos($aAlign) {
 	$this->align = $aAlign;
     }
     
@@ -3253,7 +3258,7 @@ class GraphTabTitle extends Text{
 	$this->corner = $aD ;
     }
 
-    function Stroke($aImg) {
+    function Stroke($aImg, $x=null, $y=null) {
 	if( $this->hide ) 
 	    return;
 	$this->boxed = false;
@@ -3387,7 +3392,7 @@ class SuperScriptText extends Text {
     }
 
     // Total width of text
-    function GetWidth(&$aImg) {
+    function GetWidth($aImg) {
 	$aImg->SetFont($this->font_family,$this->font_style,$this->font_size);
 	$w = $aImg->GetTextWidth($this->t);
 	$aImg->SetFont($this->sfont_family,$this->sfont_style,$this->sfont_size);
@@ -3397,7 +3402,7 @@ class SuperScriptText extends Text {
     }
 	
     // Hight of font (approximate the height of the text)
-    function GetFontHeight(&$aImg) {
+    function GetFontHeight($aImg) {
 	$aImg->SetFont($this->font_family,$this->font_style,$this->font_size);	
 	$h = $aImg->GetFontHeight();
 	$aImg->SetFont($this->sfont_family,$this->sfont_style,$this->sfont_size);
@@ -3406,7 +3411,7 @@ class SuperScriptText extends Text {
     }
 
     // Hight of text
-    function GetTextHeight(&$aImg) {
+    function GetTextHeight($aImg) {
 	$aImg->SetFont($this->font_family,$this->font_style,$this->font_size);
 	$h = $aImg->GetTextHeight($this->t);
 	$aImg->SetFont($this->sfont_family,$this->sfont_style,$this->sfont_size);
@@ -5838,7 +5843,7 @@ class Image {
 
     // Get the specific height for a text string
     function GetTextHeight($txt="",$angle=0) {
-	$tmp = split("\n",$txt);
+	$tmp = explode("\n",$txt);
 	$n = count($tmp);
 	$m=0;
 	for($i=0; $i< $n; ++$i)
@@ -5883,7 +5888,7 @@ class Image {
     // Get actual width of text in absolute pixels
     function GetTextWidth($txt,$angle=0) {
 
-	$tmp = split("\n",$txt);
+	$tmp = explode("\n",$txt);
 	$n = count($tmp);
 	if( $this->font_family <= FF_FONT2+1 ) {
 
@@ -6034,8 +6039,8 @@ class Image {
 	    }
 	}
 	else {
-	    if( ereg("\n",$txt) ) { 
-		$tmp = split("\n",$txt);
+	    if( preg_match("/\n/",$txt) ) { 
+		$tmp = explode("\n",$txt);
 		for($i=0; $i < count($tmp); ++$i) {
 		    $w1 = $this->GetTextWidth($tmp[$i]);
 		    if( $paragraph_align=="left" ) {
@@ -6164,7 +6169,7 @@ class Image {
 	    $oy=$y;
 	}
 
-	if( !ereg("\n",$txt) || ($dir>0 && ereg("\n",$txt)) ) {
+	if( !preg_match("/\n/",$txt) || ($dir>0 && preg_match("/\n/",$txt)) ) {
 	    // Format a single line
 
 	    $txt = $this->AddTxtCR($txt);
@@ -6240,7 +6245,7 @@ class Image {
 	    $w=$this->GetTextWidth($txt);
 
 	    $y -= $linemargin/2;
-	    $tmp = split("\n",$txt);
+	    $tmp = explode("\n",$txt);
 	    $nl = count($tmp);
 	    $h = $nl * $fh;
 
@@ -7298,11 +7303,11 @@ class RotImage extends Image {
 	parent::Arc($xc,$yc,$w,$h,$s,$e);
     }
 
-    function FilledArc($xc,$yc,$w,$h,$s,$e) {
+    function FilledArc($xc,$yc,$w,$h,$s,$e,$style="") {
 	list($xc,$yc) = $this->Rotate($xc,$yc);
 	$s += $this->a;
 	$e += $this->a;
-	parent::FilledArc($xc,$yc,$w,$h,$s,$e);
+	parent::FilledArc($xc,$yc,$w,$h,$s,$e,$style);
     }
 
     function SetMargin($lm,$rm,$tm,$bm) {

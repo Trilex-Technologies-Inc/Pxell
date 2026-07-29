@@ -43,7 +43,8 @@ function escape($string)
 {
     return str_replace(";", "\;", $string);
 } 
-// taken from PHP documentation comments
+// taken from PHP documentation comments - wrapped to avoid redeclaration since PHP 5.3 has built-in quoted_printable_encode
+if (!function_exists('quoted_printable_encode')) {
 function quoted_printable_encode($input, $line_max = 76)
 {
     $hex = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F');
@@ -65,7 +66,7 @@ function quoted_printable_encode($input, $line_max = 76)
             } elseif (($dec == 61) || ($dec < 32) || ($dec > 126)) { // always encode "\t", which is *not* required
                 $h2 = floor($dec / 16);
                 $h1 = floor($dec % 16);
-                $c = $escape . $hex["$h2"] . $hex["$h1"];
+                $c = $escape . $hex[$h2] . $hex[$h1];
             } 
             if ((strlen($newline) + strlen($c)) >= $line_max) { // CRLF is not counted
                 $output .= $newline . $escape . $eol; // soft line break; " =\r\n" is okay
@@ -78,6 +79,7 @@ function quoted_printable_encode($input, $line_max = 76)
     } 
     return trim($output);
 } 
+}
 
 class vCard {
     var $properties;

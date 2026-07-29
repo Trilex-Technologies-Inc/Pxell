@@ -457,7 +457,7 @@
 		for ( $i=0; $i<strlen( $p_string ); $i++ ) {
 			if (( ord( $p_string[$i] ) < 33 ) ||
 				( ord( $p_string[$i] ) > 127 ) ||
-				( eregi( "[\%\[\]\{\}\(\)]", $p_string[$i] ) )) {
+				( preg_match( "/[\%\[\]\{\}\(\)]/i", $p_string[$i] ) )) {
 				$output .= sprintf( "%%%02X", ord( $p_string[$i] ) );
 			} else {
 				$output .= $p_string[$i];
