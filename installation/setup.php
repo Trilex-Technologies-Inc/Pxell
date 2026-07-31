@@ -478,12 +478,12 @@ function get_password($newPassword)
     global $loginMethod;
 
     switch ($loginMethod) {
-        case MD5:
+        case 'MD5':
             return md5($newPassword);
-        case CRYPT:
+        case 'CRYPT':
             $salt = substr($newPassword, 0, 2);
             return crypt($newPassword, $salt);
-        case PLAIN:
+        case 'PLAIN':
             return $newPassword;
         default:
             return $newPassword;
