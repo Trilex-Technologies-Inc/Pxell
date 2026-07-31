@@ -9,6 +9,7 @@
 // Copyright (c) Aditus Consulting. All rights reserved.
 //========================================================================
 
+#[\AllowDynamicProperties]
 class ImgData_Diamonds extends ImgData {
     var $name = 'Diamonds';
     var $an = array(MARK_IMG_DIAMOND =>'imgdata');

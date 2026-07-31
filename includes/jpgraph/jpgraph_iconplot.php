@@ -15,6 +15,7 @@
 // Description: Make it possible to add a (small) image
 // to the graph
 //===================================================
+#[\AllowDynamicProperties]
 class IconPlot {
     var $iHorAnchor='left',$iVertAnchor='top';
     var $iX=0,$iY=0;

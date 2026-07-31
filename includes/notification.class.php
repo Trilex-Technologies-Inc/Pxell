@@ -12,6 +12,7 @@
  * (at your option) any later version.
  */
 
+#[\AllowDynamicProperties]
 class notification extends phpmailer {
     function __construct()
     {

@@ -9,6 +9,7 @@
 // Copyright (c) Aditus Consulting. All rights reserved.
 //========================================================================
 
+#[\AllowDynamicProperties]
 class ImgData_Balls extends ImgData {
     var $name = 'Round Balls';
     var $an = array(MARK_IMG_LBALL => 'imgdata_large',

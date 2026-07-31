@@ -9,6 +9,7 @@
 // Copyright (c) Aditus Consulting. All rights reserved.
 //========================================================================
 
+#[\AllowDynamicProperties]
 class ImgData_PushPins extends ImgData {
     var $name = 'Push pins';
     var $an = array(MARK_IMG_PUSHPIN => 'imgdata_small',

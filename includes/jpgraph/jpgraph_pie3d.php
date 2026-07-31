@@ -15,6 +15,7 @@
 // Description: Plots a 3D pie with a specified projection 
 // angle between 20 and 70 degrees.
 //===================================================
+#[\AllowDynamicProperties]
 class PiePlot3D extends PiePlot {
     var $labelhintcolor="red",$showlabelhint=true;
     var $angle=50;	

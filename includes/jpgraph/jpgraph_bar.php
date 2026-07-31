@@ -28,6 +28,7 @@ DEFINE('PATTERN_STRIPE2',10);
 // CLASS BarPlot
 // Description: Main code to produce a bar plot 
 //===================================================
+#[\AllowDynamicProperties]
 class BarPlot extends Plot {
     var $width=0.4; // in percent of major ticks
     var $abswidth=-1; // Width in absolute pixels
@@ -517,6 +518,7 @@ class BarPlot extends Plot {
 // CLASS GroupBarPlot
 // Description: Produce grouped bar plots
 //===================================================
+#[\AllowDynamicProperties]
 class GroupBarPlot extends BarPlot {
     var $plots;
     var $width=0.7;
@@ -604,6 +606,7 @@ class GroupBarPlot extends BarPlot {
 // CLASS AccBarPlot
 // Description: Produce accumulated bar plots
 //===================================================
+#[\AllowDynamicProperties]
 class AccBarPlot extends BarPlot {
     var $plots=null,$nbrplots=0,$numpoints=0;
 //---------------

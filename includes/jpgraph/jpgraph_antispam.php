@@ -9,6 +9,7 @@
 // Copyright (c) Aditus Consulting. All rights reserved.
 //========================================================================
 
+#[\AllowDynamicProperties]
 class HandDigits {
     var $chars = array();
     var $iHeight=30, $iWidth=30;
@@ -543,6 +544,7 @@ $this->chars['q'][1]=
     } 
 }
 
+#[\AllowDynamicProperties]
 class AntiSpam {
 
     var $iData='';

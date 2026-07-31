@@ -12,7 +12,20 @@
  * (at your option) any later version.
  */
 
+#[\AllowDynamicProperties]
 class block {
+    public $iconWidth;
+    public $iconHeight;
+    public $bgColor;
+    public $fgColor;
+    public $oddColor;
+    public $evenColor;
+    public $highlightOn;
+    public $class;
+    public $highlightOff;
+    public $theme;
+    public $pathImg;
+
     function __construct() {
         $this->iconWidth = "23";
         $this->iconHeight = "23";

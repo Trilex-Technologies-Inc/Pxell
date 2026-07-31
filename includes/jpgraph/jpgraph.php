@@ -241,6 +241,7 @@ require_once 'jpgraph_gradient.php';
 // in all methods.
 //
 GLOBAL $__jpg_err;
+#[\AllowDynamicProperties]
 class JpGraphError {
     static function Install($aErrObject) {
 	GLOBAL $__jpg_err;
@@ -317,6 +318,7 @@ else {
 //=============================================================
 // The default trivial text error handler.
 //=============================================================
+#[\AllowDynamicProperties]
 class JpGraphErrObject {
 
     var $iTitle = "JpGraph Error";
@@ -352,6 +354,7 @@ class JpGraphErrObject {
 //==============================================================
 // An image based error handler
 //==============================================================
+#[\AllowDynamicProperties]
 class JpGraphErrObjectImg extends JpGraphErrObject {
 
     function Raise($aMsg,$aHalt=true) {
@@ -512,6 +515,7 @@ function GenImgName() {
     return $fname;
 }
 
+#[\AllowDynamicProperties]
 class LanguageConv {
     var $g2312 = null ;
 
@@ -560,6 +564,7 @@ class LanguageConv {
 // time measurement of generating graphs. Multiple
 // timers can be started.
 //===================================================
+#[\AllowDynamicProperties]
 class JpgTimer {
     var $start;
     var $idx;	
@@ -594,6 +599,7 @@ $gJpgBrandTiming = BRAND_TIMING;
 // CLASS DateLocale
 // Description: Hold localized text used in dates
 //===================================================
+#[\AllowDynamicProperties]
 class DateLocale {
  
     var $iLocale = 'C'; // environmental locale be used by default
@@ -686,6 +692,7 @@ $gJpgDateLocale = new DateLocale();
 // Description: Utility class to help generate data for function plots. 
 // The class supports both parametric and regular functions.
 //===================================================
+#[\AllowDynamicProperties]
 class FuncGenerator {
     var $iFunc='',$iXFunc='',$iMin,$iMax,$iStepSize;
 	
@@ -721,6 +728,7 @@ class FuncGenerator {
 // CLASS Footer
 // Description: Encapsulates the footer line in the Graph
 //=======================================================
+#[\AllowDynamicProperties]
 class Footer {
     var $left,$center,$right;
     var $iLeftMargin = 3;
@@ -757,6 +765,7 @@ class Footer {
 // CLASS Graph
 // Description: Main class to handle graphs
 //===================================================
+#[\AllowDynamicProperties]
 class Graph {
     var $legend;
     var $ytick_factor;
@@ -2867,6 +2876,7 @@ class Graph {
 // CLASS TTF
 // Description: Handle TTF font names
 //===================================================
+#[\AllowDynamicProperties]
 class TTF {
     var $font_files,$style_names;
 //---------------
@@ -2937,6 +2947,7 @@ class TTF {
 // CLASS LineProperty
 // Description: Holds properties for a line
 //===================================================
+#[\AllowDynamicProperties]
 class LineProperty {
     var $iWeight=1, $iColor="black",$iStyle="solid";
     var $iShow=true;
@@ -2980,6 +2991,7 @@ class LineProperty {
 // CLASS Text
 // Description: Arbitrary text object that can be added to the graph
 //===================================================
+#[\AllowDynamicProperties]
 class Text {
     var $t,$x=0,$y=0,$halign="left",$valign="top",$color=array(0,0,0);
     var $font_family=FF_FONT1,$font_style=FS_NORMAL,$font_size=12;
@@ -3229,6 +3241,7 @@ class Text {
     }
 } // Class
 
+#[\AllowDynamicProperties]
 class GraphTabTitle extends Text{
     var $corner = 6 , $posx = 7, $posy = 4;
     var $color='darkred',$fillcolor='lightyellow',$bordercolor='black';
@@ -3362,6 +3375,7 @@ class GraphTabTitle extends Text{
 // CLASS SuperScriptText
 // Description: Format a superscript text
 //===================================================
+#[\AllowDynamicProperties]
 class SuperScriptText extends Text {
     var $iSuper="";
     var $sfont_family="",$sfont_style="",$sfont_size=8;
@@ -3538,6 +3552,7 @@ class SuperScriptText extends Text {
 // CLASS Grid
 // Description: responsible for drawing grid lines in graph
 //===================================================
+#[\AllowDynamicProperties]
 class Grid {
     var $img;
     var $scale;
@@ -3688,6 +3703,7 @@ class Grid {
 // This was a design decision to make the code easier to
 // follow. 
 //===================================================
+#[\AllowDynamicProperties]
 class Axis {
     var $pos = false;
     var $weight=1;
@@ -4125,6 +4141,7 @@ class Axis {
 // Description: Abstract base class for drawing linear and logarithmic
 // tick marks on axis
 //===================================================
+#[\AllowDynamicProperties]
 class Ticks {
     var $minor_abs_size=3, $major_abs_size=5;
     var $direction=1; // Should ticks be in(=1) the plot area or outside (=-1)?
@@ -4256,6 +4273,7 @@ class Ticks {
 // CLASS LinearTicks
 // Description: Draw linear ticks on axis
 //===================================================
+#[\AllowDynamicProperties]
 class LinearTicks extends Ticks {
     var $minor_step=1, $major_step=2;
     var $xlabel_offset=0,$xtick_offset=0;
@@ -4510,6 +4528,7 @@ class LinearTicks extends Ticks {
 // CLASS LinearScale
 // Description: Handle linear scaling between screen and world 
 //===================================================
+#[\AllowDynamicProperties]
 class LinearScale {
     var $scale=array(0,0);
     var $scale_abs=array(0,0);
@@ -5074,6 +5093,7 @@ class LinearScale {
 // CLASS RGB
 // Description: Color definitions as RGB triples
 //===================================================
+#[\AllowDynamicProperties]
 class RGB {
     var $rgb_table;
     var $img;
@@ -5643,6 +5663,7 @@ class RGB {
 // Description: Wrapper class with some goodies to form the
 // Interface to low level image drawing routines.
 //===================================================
+#[\AllowDynamicProperties]
 class Image {
     var $img_format;
     var $expired=true;
@@ -7249,6 +7270,7 @@ HTTP headers have already been sent.</font></td></tr><tr><td><b>Explanation:</b>
 // Description: Exactly as Image but draws the image at
 // a specified angle around a specified rotation point.
 //===================================================
+#[\AllowDynamicProperties]
 class RotImage extends Image {
     var $m=array();
     var $a=0;
@@ -7402,6 +7424,7 @@ class RotImage extends Image {
 // CLASS ImgStreamCache
 // Description: Handle caching of graphs to files
 //===================================================
+#[\AllowDynamicProperties]
 class ImgStreamCache {
     var $cache_dir;
     var $img=null;
@@ -7565,6 +7588,7 @@ class ImgStreamCache {
 // all the legend text for the graph
 //===================================================
 DEFINE('_DEFAULT_LPM_SIZE',8);
+#[\AllowDynamicProperties]
 class Legend {
     var $color=array(0,0,0); // Default fram color
     var $fill_color=array(235,235,235); // Default fill color
@@ -7913,6 +7937,7 @@ class Legend {
 // CLASS DisplayValue
 // Description: Used to print data values at data points
 //===================================================
+#[\AllowDynamicProperties]
 class DisplayValue {
     var $show=false,$format="%.1f",$negformat="";
     var $iFormCallback='';
@@ -8022,6 +8047,7 @@ class DisplayValue {
 // CLASS Plot
 // Description: Abstract base class for all concrete plot classes
 //===================================================
+#[\AllowDynamicProperties]
 class Plot {
     var $line_weight=1;
     var $coords=array();
@@ -8206,6 +8232,7 @@ class Plot {
 // Usefull to add static borders inside a plot to show
 // for example set-values
 //===================================================
+#[\AllowDynamicProperties]
 class PlotLine {
     var $weight=1;
     var $color="black";

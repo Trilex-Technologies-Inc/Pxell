@@ -17,6 +17,7 @@
  * @author Brent R. Matzelle
  * @copyright 2001 - 2003 Brent R. Matzelle
  */
+#[\AllowDynamicProperties]
 class PHPMailer
 {
     /////////////////////////////////////////////////

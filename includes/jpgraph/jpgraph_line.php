@@ -22,6 +22,7 @@ DEFINE("LP_AREA_NO_BORDER",true);
 // CLASS LinePlot
 // Description: 
 //===================================================
+#[\AllowDynamicProperties]
 class LinePlot extends Plot{
     var $filled=false;
     var $fill_color='blue';
@@ -388,6 +389,7 @@ class LinePlot extends Plot{
 // CLASS AccLinePlot
 // Description: 
 //===================================================
+#[\AllowDynamicProperties]
 class AccLinePlot extends Plot {
     var $plots=null,$nbrplots=0,$numpoints=0;
 //---------------

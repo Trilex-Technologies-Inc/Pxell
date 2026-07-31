@@ -9,6 +9,7 @@
 // Copyright (c) Aditus Consulting. All rights reserved.
 //========================================================================
 
+#[\AllowDynamicProperties]
 class HandDigits {
     var $digits_thumb30x30 = array();
     var $iHeight=30, $iWidth=30;
@@ -152,6 +153,7 @@ class HandDigits {
     } 
 }
 
+#[\AllowDynamicProperties]
 class AntiSpam {
 
     var $iNumber='';

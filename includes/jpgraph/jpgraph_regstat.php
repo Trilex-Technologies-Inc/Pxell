@@ -15,6 +15,7 @@
 // Create a new data array from an existing data array but with more points.
 // The new points are interpolated using a cubic spline algorithm
 //------------------------------------------------------------------------
+#[\AllowDynamicProperties]
 class Spline {
     // 3:rd degree polynom approximation
 

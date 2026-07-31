@@ -34,6 +34,7 @@ DEFINE('POLAR_180',2);
 //--------------------------------------------------------------------------
 // class PolarPlot
 //--------------------------------------------------------------------------
+#[\AllowDynamicProperties]
 class PolarPlot {
     var $numpoints=0;
     var $iColor='navy',$iFillColor='';
@@ -148,6 +149,7 @@ class PolarPlot {
 //--------------------------------------------------------------------------
 // class PolarAxis
 //--------------------------------------------------------------------------
+#[\AllowDynamicProperties]
 class PolarAxis extends Axis {
     var $angle_step=15,$angle_color='lightgray',$angle_label_color='black';
     var $angle_fontfam=FF_FONT1,$angle_fontstyle=FS_NORMAL,$angle_fontsize=10;
@@ -572,6 +574,7 @@ class PolarAxis extends Axis {
     }
 }
 
+#[\AllowDynamicProperties]
 class PolarScale extends LinearScale {
     var $graph;
     function __construct($aMax,&$graph) {
@@ -604,6 +607,7 @@ class PolarScale extends LinearScale {
     }
 }
 
+#[\AllowDynamicProperties]
 class PolarLogScale extends LogScale {
     var $graph;
     function __construct($aMax,&$graph) {
@@ -636,6 +640,7 @@ class PolarLogScale extends LogScale {
     }
 }
 
+#[\AllowDynamicProperties]
 class PolarGraph extends Graph {
     var $scale;
     var $iType=POLAR_360;

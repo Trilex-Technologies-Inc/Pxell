@@ -10,6 +10,7 @@
 //========================================================================
 
 
+#[\AllowDynamicProperties]
 class ImgData_Stars extends ImgData {
     var $name = 'Stars';
     var $an = array(MARK_IMG_STAR => 'imgdata');

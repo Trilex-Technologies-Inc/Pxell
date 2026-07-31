@@ -18,6 +18,7 @@ DEFINE('LOGLABELS_MAGNITUDE',1);
 // CLASS LogScale
 // Description: Logarithmic scale between world and screen
 //===================================================
+#[\AllowDynamicProperties]
 class LogScale extends LinearScale {
 //---------------
 // CONSTRUCTOR
@@ -99,6 +100,7 @@ class LogScale extends LinearScale {
 // CLASS LogTicks
 // Description: 
 //===================================================
+#[\AllowDynamicProperties]
 class LogTicks extends Ticks{
     var $label_logtype=LOGLABELS_MAGNITUDE;
 //---------------

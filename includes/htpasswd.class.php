@@ -32,6 +32,7 @@
 
 */
 
+#[\AllowDynamicProperties]
 class Htpasswd {
     // Globally accessable variables
     var $VERSION = 'Revision 0.8 1999/01/17 15:20:00 cdi@thewebmasters.net'; 

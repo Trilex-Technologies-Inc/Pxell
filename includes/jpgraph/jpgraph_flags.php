@@ -17,6 +17,7 @@ DEFINE('FLAGSIZE2',2);
 DEFINE('FLAGSIZE3',3);
 DEFINE('FLAGSIZE4',4);
 
+#[\AllowDynamicProperties]
 class FlagImages {
 
     var $iCountryNameMap = array(

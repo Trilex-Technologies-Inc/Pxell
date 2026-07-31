@@ -12,6 +12,7 @@
  * (at your option) any later version.
  */
 
+#[\AllowDynamicProperties]
 class htmltextsystem {
     function clear_repeats($text)
     {

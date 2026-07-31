@@ -27,6 +27,7 @@ require_once 'class.iCalBase.inc.php';
 * @package iCalendar
 * @version 1.032
 */
+#[\AllowDynamicProperties]
 class iCalJournal extends iCalBase {
 
 	/*-------------------*/

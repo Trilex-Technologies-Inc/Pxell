@@ -9,6 +9,7 @@
 // Copyright (c) Aditus Consulting. All rights reserved.
 //========================================================================
 
+#[\AllowDynamicProperties]
 class ImgData_Bevels extends ImgData {
     var $name = 'Round Bevels';
     var $an = array(MARK_IMG_BEVEL => 'imgdata');

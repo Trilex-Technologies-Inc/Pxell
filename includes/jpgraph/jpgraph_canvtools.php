@@ -22,6 +22,7 @@ DEFINE('CORNER_BOTTOMLEFT',3);
 // can abstract away with absolute pixels
 //===================================================
  
+#[\AllowDynamicProperties]
 class CanvasScale {
     var $g;
     var $w,$h;
@@ -67,6 +68,7 @@ class CanvasScale {
 // CLASS Shape
 // Description: Methods to draw shapes on canvas
 //===================================================
+#[\AllowDynamicProperties]
 class Shape {
     var $img,$scale;
 
@@ -373,6 +375,7 @@ class Shape {
 // Description: Draws a text paragraph inside a 
 // rounded, possible filled, rectangle.
 //===================================================
+#[\AllowDynamicProperties]
 class CanvasRectangleText {
     var $ix,$iy,$iw,$ih,$ir=4;
     var $iTxt,$iColor='black',$iFillColor='',$iFontColor='black';

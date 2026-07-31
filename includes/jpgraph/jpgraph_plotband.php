@@ -21,6 +21,7 @@ DEFINE("BAND_DIAGCROSS",8); // Diagonal crosses
 
 
 // Utility class to hold coordinates for a rectangle
+#[\AllowDynamicProperties]
 class Rectangle {
     var $x,$y,$w,$h;
     var $xe, $ye;
@@ -41,6 +42,7 @@ class Rectangle {
 // must at least implement method DoPattern(&$aImg) which is responsible
 // for drawing the pattern onto the graph.
 //=====================================================================
+#[\AllowDynamicProperties]
 class RectPattern {
     var $color;
     var $weight;
@@ -102,6 +104,7 @@ class RectPattern {
 // Class RectPatternSolid
 // Implements a solid band
 //=====================================================================
+#[\AllowDynamicProperties]
 class RectPatternSolid extends RectPattern {
 
     function __construct($aColor="black",$aWeight=1) {
@@ -119,6 +122,7 @@ class RectPatternSolid extends RectPattern {
 // Class RectPatternHor
 // Implements horizontal line pattern
 //=====================================================================
+#[\AllowDynamicProperties]
 class RectPatternHor extends RectPattern {
 		
     function __construct($aColor="black",$aWeight=1,$aLineSpacing=7) {
@@ -141,6 +145,7 @@ class RectPatternHor extends RectPattern {
 // Class RectPatternVert
 // Implements vertical line pattern
 //=====================================================================
+#[\AllowDynamicProperties]
 class RectPatternVert extends RectPattern {
     var $linespacing=10;	// Line spacing in pixels
 		
@@ -168,6 +173,7 @@ class RectPatternVert extends RectPattern {
 // Class RectPatternRDiag
 // Implements right diagonal pattern
 //=====================================================================
+#[\AllowDynamicProperties]
 class RectPatternRDiag extends RectPattern {
     var $linespacing;	// Line spacing in pixels
 		
@@ -238,6 +244,7 @@ class RectPatternRDiag extends RectPattern {
 // Class RectPatternLDiag
 // Implements left diagonal pattern
 //=====================================================================
+#[\AllowDynamicProperties]
 class RectPatternLDiag extends RectPattern {
     var $linespacing;	// Line spacing in pixels
 		
@@ -303,6 +310,7 @@ class RectPatternLDiag extends RectPattern {
 // Class RectPattern3DPlane
 // Implements "3D" plane pattern
 //=====================================================================
+#[\AllowDynamicProperties]
 class RectPattern3DPlane extends RectPattern {
     var $alpha=50;  // Parameter that specifies the distance
     // to "simulated" horizon in pixel from the
@@ -420,6 +428,7 @@ class RectPattern3DPlane extends RectPattern {
 // Class RectPatternCross
 // Vert/Hor crosses
 //=====================================================================
+#[\AllowDynamicProperties]
 class RectPatternCross extends RectPattern {
     var $vert=null;
     var $hor=null;
@@ -456,6 +465,7 @@ class RectPatternCross extends RectPattern {
 // Vert/Hor crosses
 //=====================================================================
 
+#[\AllowDynamicProperties]
 class RectPatternDiagCross extends RectPattern {
     var $left=null;
     var $right=null;
@@ -492,6 +502,7 @@ class RectPatternDiagCross extends RectPattern {
 // Class RectPatternFactory
 // Factory class for rectangular pattern 
 //=====================================================================
+#[\AllowDynamicProperties]
 class RectPatternFactory {
     function __construct() {
 	// Empty
@@ -536,6 +547,7 @@ class RectPatternFactory {
 // It is responsible for factoring the corresponding pattern
 // concrete class.
 //=====================================================================
+#[\AllowDynamicProperties]
 class PlotBand {
     var $prect=null;
     var $depth;

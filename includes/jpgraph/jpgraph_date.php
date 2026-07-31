@@ -47,6 +47,7 @@ DEFINE('SECPERHOUR',3600);
 DEFINE('SECPERMIN',60);
 
 
+#[\AllowDynamicProperties]
 class DateScale extends LinearScale {
     var $date_format = '';
     var $iStartAlign = false, $iEndAlign = false;

@@ -18,6 +18,7 @@
 // graphic which benefits from all the functionality in the
 // graph liek caching for example. 
 //===================================================
+#[\AllowDynamicProperties]
 class CanvasGraph extends Graph {
 //---------------
 // CONSTRUCTOR

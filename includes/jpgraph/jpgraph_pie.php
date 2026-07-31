@@ -22,6 +22,7 @@ DEFINE("PIE_VALUE_ADJPER",2);
 // CLASS PiePlot
 // Description: Draws a pie plot
 //===================================================
+#[\AllowDynamicProperties]
 class PiePlot {
     var $posx=0.5,$posy=0.5;
     var $radius=0.3;
@@ -910,6 +911,7 @@ class PiePlot {
 // Description: Same as a normal pie plot but with a 
 // filled circle in the center
 //===================================================
+#[\AllowDynamicProperties]
 class PiePlotC extends PiePlot {
     var $imidsize=0.5;		// Fraction of total width
     var $imidcolor='white';
@@ -1090,6 +1092,7 @@ class PiePlotC extends PiePlot {
 // CLASS PieGraph
 // Description: 
 //===================================================
+#[\AllowDynamicProperties]
 class PieGraph extends Graph {
     var $posx, $posy, $radius;		
     var $legends=array();	

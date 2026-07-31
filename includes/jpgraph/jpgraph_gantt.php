@@ -136,6 +136,7 @@ if (!function_exists('array_fill')) {
 // CLASS GanttActivityInfo
 // Description: 
 //===================================================
+#[\AllowDynamicProperties]
 class GanttActivityInfo {
     var $iColor='black';
     var $iBackgroundColor='lightgray';
@@ -324,6 +325,7 @@ class GanttActivityInfo {
 // CLASS GanttGraph
 // Description: Main class to handle gantt graphs
 //===================================================
+#[\AllowDynamicProperties]
 class GanttGraph extends Graph {
     var $scale;							// Public accessible
     var $iObj=array();				// Gantt objects
@@ -1105,6 +1107,7 @@ DEFINE('GICON_FOLDEROPEN',10);
 DEFINE('GICON_FOLDER',11);
 DEFINE('GICON_TEXTIMPORTANT',12);
 
+#[\AllowDynamicProperties]
 class PredefIcons {
     var $iBuiltinIcon = null;
     var $iLen = -1 ;
@@ -1410,6 +1413,7 @@ $_gPredefIcons = new PredefIcons();
 // CLASS IconImage
 // Description: Holds properties for an icon image 
 //===================================================
+#[\AllowDynamicProperties]
 class IconImage {
     var $iGDImage=null;
     var $iWidth,$iHeight;
@@ -1476,6 +1480,7 @@ class IconImage {
 // CLASS TextProperty
 // Description: Holds properties for a text
 //===================================================
+#[\AllowDynamicProperties]
 class TextProperty {
     var $iFFamily=FF_FONT1,$iFStyle=FS_NORMAL,$iFSize=10;
     var $iColor="black";
@@ -1705,6 +1710,7 @@ class TextProperty {
 // Description: Data encapsulating class to hold property 
 // for each type of the scale headers
 //===================================================
+#[\AllowDynamicProperties]
 class HeaderProperty {
     var $iTitleVertMargin=3,$iFFamily=FF_FONT0,$iFStyle=FS_NORMAL,$iFSize=8;
     var $iFrameColor="black",$iFrameWeight=1;
@@ -1809,6 +1815,7 @@ class HeaderProperty {
 // converting dates to position in the chart as well as stroking the
 // date headers (days, week, etc).
 //===================================================
+#[\AllowDynamicProperties]
 class GanttScale {
     var $minute,$hour,$day,$week,$month,$year;
     var $divider,$dividerh,$tableTitle;
@@ -2867,6 +2874,7 @@ class GanttScale {
 // CLASS GanttConstraint
 // Just a structure to store all the values for a constraint
 //===================================================
+#[\AllowDynamicProperties]
 class GanttConstraint {
     var $iConstrainType;
     var $iConstrainRow;
@@ -2890,6 +2898,7 @@ class GanttConstraint {
 // CLASS GanttPlotObject
 // The common signature for a Gantt object
 //===================================================
+#[\AllowDynamicProperties]
 class GanttPlotObject {
     var $iVPos=0;					// Vertical position
     var $iLabelLeftMargin=2;	// Title margin
@@ -2983,6 +2992,7 @@ class GanttPlotObject {
 // Holds parameters for the progress indicator 
 // displyed within a bar
 //===================================================
+#[\AllowDynamicProperties]
 class Progress {
     var $iProgress=-1, $iColor="black", $iFillColor='black';
     var $iPattern=GANTT_SOLID;
@@ -3016,6 +3026,7 @@ DEFINE('GANTT_HGRID2',1);
 // CLASS HorizontalGridLine
 // Responsible for drawinf horizontal gridlines and filled alternatibg rows
 //===================================================
+#[\AllowDynamicProperties]
 class HorizontalGridLine {
     var $iGraph=NULL;
     var $iRowColor1 = '', $iRowColor2 = '';
@@ -3095,6 +3106,7 @@ class HorizontalGridLine {
 // CLASS GanttBar
 // Responsible for formatting individual gantt bars
 //===================================================
+#[\AllowDynamicProperties]
 class GanttBar extends GanttPlotObject {
     var $iEnd;
     var $iHeightFactor=0.5;
@@ -3325,6 +3337,7 @@ class GanttBar extends GanttPlotObject {
 // CLASS MileStone
 // Responsible for formatting individual milestones
 //===================================================
+#[\AllowDynamicProperties]
 class MileStone extends GanttPlotObject {
     var $mark;
 	
@@ -3411,6 +3424,7 @@ class MileStone extends GanttPlotObject {
 // Responsible for formatting individual milestones
 //===================================================
 
+#[\AllowDynamicProperties]
 class TextPropertyBelow extends TextProperty {
     function __construct($aTxt='') {
 	parent::__construct($aTxt);
@@ -3423,6 +3437,7 @@ class TextPropertyBelow extends TextProperty {
     }
 }
 
+#[\AllowDynamicProperties]
 class GanttVLine extends GanttPlotObject {
 
     var $iLine,$title_margin=3;
@@ -3473,6 +3488,7 @@ class GanttVLine extends GanttPlotObject {
 // CLASS LinkArrow
 // Handles the drawing of a an arrow 
 //===================================================
+#[\AllowDynamicProperties]
 class LinkArrow {
     var $ix,$iy;
     var $isizespec = array(
@@ -3543,6 +3559,7 @@ class LinkArrow {
 // Handles the drawing of a link line between 2 points
 //===================================================
 
+#[\AllowDynamicProperties]
 class GanttLink {
     var $ix1,$ix2,$iy1,$iy2;
     var $iPathType=2,$iPathExtend=15;

@@ -49,6 +49,7 @@ require_once 'class.iCalJournal.inc.php';
 * @example sample_ical.php Sample script
 * @version 1.032
 */
+#[\AllowDynamicProperties]
 class iCal {
 
 	/*-------------------*/

@@ -12,6 +12,7 @@
 
 require_once('jpgraph_plotmark.inc');
 
+#[\AllowDynamicProperties]
 class RadarLogTicks extends Ticks {
 //---------------
 // CONSTRUCTOR
@@ -81,6 +82,7 @@ class RadarLogTicks extends Ticks {
     }		
 }
 	
+#[\AllowDynamicProperties]
 class RadarLinearTicks extends LinearTicks {
 //---------------
 // CONSTRUCTOR
@@ -147,6 +149,7 @@ class RadarLinearTicks extends LinearTicks {
 // CLASS RadarAxis
 // Description: Implements axis for the spider graph
 //===================================================
+#[\AllowDynamicProperties]
 class RadarAxis extends Axis {
     var $title_color="navy";
     var $title=null;
@@ -245,6 +248,7 @@ class RadarAxis extends Axis {
 // CLASS RadarGrid
 // Description: Draws grid for the spider graph
 //===================================================
+#[\AllowDynamicProperties]
 class RadarGrid extends Grid {
 //------------
 // CONSTRUCTOR
@@ -285,6 +289,7 @@ class RadarGrid extends Grid {
 // CLASS RadarPlot
 // Description: Plot a spiderplot
 //===================================================
+#[\AllowDynamicProperties]
 class RadarPlot {
     var $data=array();
     var $fill=false, $fill_color=array(200,170,180);
@@ -404,6 +409,7 @@ class RadarPlot {
 // CLASS RadarGraph
 // Description: Main container for a spider graph
 //===================================================
+#[\AllowDynamicProperties]
 class RadarGraph extends Graph {
     var $posx;
     var $posy;

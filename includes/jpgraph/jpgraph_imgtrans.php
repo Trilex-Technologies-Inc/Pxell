@@ -13,6 +13,7 @@
 // Class ImgTrans
 // Perform some simple image transformations. 
 //------------------------------------------------------------------------
+#[\AllowDynamicProperties]
 class ImgTrans {
     var $gdImg=null;
 

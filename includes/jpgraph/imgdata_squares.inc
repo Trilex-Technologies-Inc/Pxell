@@ -9,6 +9,7 @@
 // Copyright (c) Aditus Consulting. All rights reserved.
 //========================================================================
 
+#[\AllowDynamicProperties]
 class ImgData_Squares extends ImgData {
     var $name = 'Squares';
     var $an = array(MARK_IMG_SQUARE =>'imgdata');

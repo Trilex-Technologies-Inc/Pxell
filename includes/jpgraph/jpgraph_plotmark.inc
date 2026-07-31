@@ -15,6 +15,7 @@
 // Description: Base class for all image data classes that contains the 
 // real image data.
 //========================================================================
+#[\AllowDynamicProperties]
 class ImgData {
     var $name = '';		// Each subclass gives a name
     var $an = array();		// Data array names
@@ -54,6 +55,7 @@ $_gFlagCache=array(
     4 => null,
 );
 // Only supposed to b called as statics
+#[\AllowDynamicProperties]
 class FlagCache {
     static function GetFlagImgByName($aSize,$aName) {
 	global $_gFlagCache;
@@ -71,6 +73,7 @@ class FlagCache {
 // CLASS PlotMark
 // Description: Handles the plot marks in graphs
 //===================================================
+#[\AllowDynamicProperties]
 class PlotMark {
     var $title, $show=true;
     var $type,$weight=1;

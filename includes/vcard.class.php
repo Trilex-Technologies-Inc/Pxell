@@ -81,6 +81,7 @@ function quoted_printable_encode($input, $line_max = 76)
 } 
 }
 
+#[\AllowDynamicProperties]
 class vCard {
     var $properties;
     var $filename;

@@ -32,6 +32,7 @@ require_once 'class.iCalAlarm.inc.php';
 * @package iCalendar
 * @version 1.032
 */
+#[\AllowDynamicProperties]
 class iCalToDo extends iCalBase {
 
 	/*-------------------*/

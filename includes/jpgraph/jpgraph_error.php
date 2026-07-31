@@ -15,6 +15,7 @@
 // Description: Error plot with min/max value for
 // each datapoint
 //===================================================
+#[\AllowDynamicProperties]
 class ErrorPlot extends Plot {
     var $errwidth=2;
 //---------------
@@ -83,6 +84,7 @@ class ErrorPlot extends Plot {
 // THIS IS A DEPRECATED PLOT TYPE JUST KEPT FOR
 // BACKWARD COMPATIBILITY
 //===================================================
+#[\AllowDynamicProperties]
 class ErrorLinePlot extends ErrorPlot {
     var $line=null;
 //---------------
@@ -115,6 +117,7 @@ class ErrorLinePlot extends ErrorPlot {
 // CLASS LineErrorPlot
 // Description: Combine a line and error plot
 //===================================================
+#[\AllowDynamicProperties]
 class LineErrorPlot extends ErrorPlot {
     var $line=null;
 //---------------

@@ -23,6 +23,7 @@
 * @package iCalendar
 * @version 1.032
 */
+#[\AllowDynamicProperties]
 class iCalBase {
 
 	/*-------------------*/

@@ -12,6 +12,7 @@
  * (at your option) any later version.
  */
 
+#[\AllowDynamicProperties]
 class browsecvs {
     function __construct()
     {
