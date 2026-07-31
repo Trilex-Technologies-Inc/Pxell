@@ -701,7 +701,11 @@ echo $setCopyright . "\n";
 
         //--- Messages ---
         if (!empty($msg)) {
+            $msgLabel = '';
             require_once('../includes/messages.php');
+            if ($msgLabel === '') {
+                $msgLabel = (string) $msg;
+            }
             $template->messagebox($msgLabel);
         }
 

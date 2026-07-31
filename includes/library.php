@@ -1193,9 +1193,6 @@ function _sess_mysql_destroy($session_id)
         exit;
     } 
 
-    // Free up resources used by the query
-    @mysqli_free_result($result);
-
     return($result);
 }
 
@@ -1221,9 +1218,6 @@ function _sess_mysql_gc($max_lifetime)
         print '<li>MySQL Error: ' . mysqli_error($MY_DBH);
         exit;
     } 
-
-    // Free up resources used by the query
-    @mysqli_free_result($result);
 
     return($result);
 }
