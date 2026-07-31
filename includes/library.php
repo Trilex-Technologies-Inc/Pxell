@@ -93,7 +93,6 @@ if (version_compare(PHP_VERSION, '8.3.0', '<')) {
 
 // Session Settings
 ini_set('session.use_trans_sid', 0); 		// Stop adding SID to URLs
-ini_set('session.save_handler', 'user'); 	// User-defined save handler (files|user)
 ini_set('session.serialize_handler', 'php');// How to store data
 ini_set('session.use_cookies', 1); 			// Cookies store the session ID
 ini_set('session.cookie_path', $base_uri); 	// session cookie save path
@@ -274,9 +273,10 @@ if ($checkSession && !$demoSession) {
     }
 }
 
-if ($checkConnected != 'false') {   //!!! maybe undefined
+if (($checkConnected ?? 'true') != 'false' && !empty($_SESSION['loginSession'])) {
     $dateunix = date('U');
-    $tmpquery1 = 'UPDATE ' . $tableCollab['logs'] . " SET connected='$dateunix' WHERE login = '" . $_SESSION['loginSession'] . "'";
+    $loginSession = $_SESSION['loginSession'];
+    $tmpquery1 = 'UPDATE ' . $tableCollab['logs'] . " SET connected='$dateunix' WHERE login = '" . $loginSession . "'";
     connectSql($tmpquery1);
     $tmpsql = 'SELECT * FROM ' . $tableCollab['logs'] . " WHERE connected > $dateunix-5*60";
     compt($tmpsql);
