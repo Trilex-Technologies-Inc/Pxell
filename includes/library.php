@@ -677,7 +677,7 @@ function deleteFile($source)
     if ($mkdirMethod == 'FTP') {
         $ftp = ftp_connect(FTPSERVER);
         ftp_login($ftp, FTPLOGIN, FTPPASSWORD);
-        ftp_chdir($ftp, $pathNew);
+        ftp_chdir($ftp, $ftpRoot);
         ftp_delete($ftp, $ftpRoot . '/' . $source);
         ftp_quit($ftp);
     } else {

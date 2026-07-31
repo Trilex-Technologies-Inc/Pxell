@@ -176,6 +176,12 @@ class Htpasswd {
 
         return;
     } 
+
+    function lastError()
+    {
+        $error = error_get_last();
+        return $error['message'] ?? 'unknown file error';
+    }
     // **************************************************************
     // Internal function to read the FILE and process it's contents
     // Can be called publicly to re-read the file, but why would
@@ -185,8 +191,6 @@ class Htpasswd {
     // by the initialize method. Have I mentioned that enough yet?
     function htReadFile ()
     {
-        global $php_errormsg;
-
         $Mytemp = array();
         $Myjunk = array();
         $Junk = array();
@@ -217,7 +221,7 @@ class Htpasswd {
             $fd = fopen($filename, "r");
 
             if (empty($fd)) {
-                $this->error("FATAL File access error [$php_errormsg]", 1);
+                $this->error("FATAL File access error [" . $this->lastError() . "]", 1);
                 exit; // Just in case
             } 
 
@@ -390,11 +394,8 @@ class Htpasswd {
     // Returns true on success, false on failure
     function changePass ($UserID, $newPass, $oldPass = "")
     { 
-        // global $php_errormsg;
         $passwdFile = $this->FILE;
         $pass = "";
-        $newname;
-        $newpass; 
         // Can't very well change the password of a non-existant
         // user now can we?
         if ($this->EMPTY) {
@@ -448,7 +449,7 @@ class Htpasswd {
         $this->USERS[$usernum]["pass"] = $this->cryptPass($newPass);
 
         if (!($this->htWriteFile())) {
-            $this->error("FATAL could not save new password file! [$php_errormsg]", 1);
+            $this->error("FATAL could not save new password file! [" . $this->lastError() . "]", 1);
             exit; // just in case
         } 
 
@@ -514,7 +515,7 @@ class Htpasswd {
         $this->USERS[$usernum]["user"] = $NewID;
 
         if (!($this->htWriteFile())) {
-            $this->error("FATAL could not save password file! [$php_errormsg]", 1);
+            $this->error("FATAL could not save password file! [" . $this->lastError() . "]", 1);
             exit; // just in case
         } 
 
@@ -531,8 +532,6 @@ class Htpasswd {
     // the new password file and returns true. False on failure
     function htWriteFile ()
     {
-        global $php_errormsg;
-
         $filename = $this->FILE; 
         // On WIN32 box this should -still- work OK,
         // but it'll generate the tempfile in the system
@@ -543,7 +542,7 @@ class Htpasswd {
         $name = "";
         $pass = "";
         $count = 0;
-        $fd;
+        $fd = false;
         $myerror = "";
 
         if ($this->EMPTY) {
@@ -551,14 +550,14 @@ class Htpasswd {
         } 
 
         if (!copy($filename, $tempfile)) {
-            $this->error("FATAL cannot create backup file [$tempfile] [$php_errormsg]", 1);
+            $this->error("FATAL cannot create backup file [$tempfile] [" . $this->lastError() . "]", 1);
             exit; // Just in case
         } 
 
         $fd = fopen($tempfile, "w");
 
         if (empty($fd)) {
-            $myerror = $php_errormsg; // In case the unlink generates 
+            $myerror = $this->lastError(); // In case the unlink generates
             // a new one - we don't care if
             // the unlink fails - we're
             // already screwed anyway
@@ -579,7 +578,7 @@ class Htpasswd {
         fclose($fd);
 
         if (!copy($tempfile, $filename)) {
-            $myerror = $php_errormsg; // Stash the error, see above
+            $myerror = $this->lastError(); // Stash the error, see above
             unlink($tempfile);
             $this->error("FATAL cannot copy file [$filename] [$myerror]", 1);
             exit; // Just in case
@@ -589,7 +588,7 @@ class Htpasswd {
 
         if (file_exists($tempfile)) {
             // Not fatal but it should be noted
-            $this->error("Could not unlink [$tempfile] : [$php_errormsg]", 0);
+            $this->error("Could not unlink [$tempfile] : [" . $this->lastError() . "]", 0);
         } 
         // Update the information in memory with the
         // new file contents.
@@ -602,7 +601,6 @@ class Htpasswd {
     // Returns true on success, false on failure
     function addUser ($UserID, $newPass)
     { 
-        // global $php_errormsg;
         $count = $this->USERCOUNT;
 
         if (empty($UserID)) {
@@ -628,7 +626,7 @@ class Htpasswd {
         $this->USERS[$count]["pass"] = $this->cryptPass($newPass);
 
         if (!($this->htWriteFile())) {
-            $this->error("FATAL could not add user due to file error! [$php_errormsg]", 1);
+            $this->error("FATAL could not add user due to file error! [" . $this->lastError() . "]", 1);
             exit; // Just in case
         } 
         // Successfully added user
@@ -664,7 +662,7 @@ class Htpasswd {
         $this->USERS[$count]["pass"] = $this->cryptPass($pass);
 
         if (!($this->htWriteFile())) {
-            $this->error("FATAL could not add user due to file error! [$php_errormsg]", 1);
+            $this->error("FATAL could not add user due to file error! [" . $this->lastError() . "]", 1);
             exit; // Just in case
         } 
         // Successfully added user
@@ -675,7 +673,6 @@ class Htpasswd {
     // Returns true on success, false on failure
     function deleteUser ($UserID)
     { 
-        // global $php_errormsg;
         $found = false; 
         // Can't delete non-existant UserIDs
         if ($this->EMPTY) {
@@ -701,7 +698,7 @@ class Htpasswd {
         $this->USERS[$usernum]["pass"] = "";
 
         if (!($this->htWriteFile())) {
-            $this->error("FATAL could not remove user due to file error! [$php_errormsg]", 1);
+            $this->error("FATAL could not remove user due to file error! [" . $this->lastError() . "]", 1);
             exit; // Just in case
         } 
         // Successfully deleted user

@@ -51,14 +51,16 @@ class notification extends phpmailer {
     
     function taskNotification($pAssigneeID, $pTaskID, $pTypeOfChange)
     {
-        if ($num == '') {
-            $num = $id;
-        }
+        global $strings, $priority, $status, $root;
+
+        $num = $pTaskID;
+        $idSession = $_SESSION['idSession'] ?? null;
         
         $tmpquery = "WHERE tas.id IN($pTaskID)";
         $taskNoti = new request();
         $taskNoti->openTasks($tmpquery);
 
+        $project = $taskNoti->tas_project[0] ?? null;
         $tmpquery = "WHERE pro.id = '$project'";
         $projectNoti = new request();
         $projectNoti->openProjects($tmpquery);
@@ -69,7 +71,9 @@ class notification extends phpmailer {
         $comptListNotifications = count($listNotifications->not_id);
 
         if ($listNotifications->not_taskassignment[0] == "0") {
-            $this->getUserinfo($idSession, "from");
+            if ($idSession !== null) {
+                $this->getUserinfo($idSession, "from");
+            }
 
             $this->partSubject = $strings["noti_taskassignment1"];
             $this->partMessage = $strings["noti_taskassignment2"];

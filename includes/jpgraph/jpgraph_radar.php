@@ -175,6 +175,8 @@ class RadarAxis extends Axis {
     // $grid			= Returns an array with positions used to draw the grid
     //	$lf			= Label flag, TRUE if the axis should have labels
     function Stroke($pos,$aAxisAngle,&$grid,$title,$lf) {
+	$majpos = array();
+	$majlabel = array();
 	$this->img->SetColor($this->color);
 		
 	// Determine end points for the axis
@@ -466,7 +468,7 @@ class RadarGraph extends Graph {
 
     function SetSize($aSize) {
 	if( $aSize<0.1 || $aSize>1 )
-	    JpGraphError::Raise("Radar Plot size must be between 0.1 and 1. (Your value=$s)");
+		    JpGraphError::Raise("Radar Plot size must be between 0.1 and 1. (Your value=$aSize)");
 	$this->len=min($this->img->width,$this->img->height)*$aSize/2;
     }
 
@@ -559,6 +561,7 @@ class RadarGraph extends Graph {
 	    $this->StrokeFrame();
 	}
 	$astep=2*M_PI/$nbrpnts;
+	$grid = array();
 
 	// Prepare legends
 	for($i=0; $i<count($this->plots); ++$i)

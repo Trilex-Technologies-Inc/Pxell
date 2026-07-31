@@ -101,7 +101,7 @@ function cvs_read_passwd($cvs_project)
     global $cvs_root;
     $cvs_passwd_file = $cvs_root . '/' . $cvs_project . '/CVSROOT/passwd';
 
-    settype($all_cvs_users, 'array');
+    $all_cvs_users = array();
     if (is_file($cvs_passwd_file)) {
         $fcontents = file($cvs_passwd_file, 'r');
         foreach ($fcontents as $line_num => $line) {

@@ -128,7 +128,7 @@ class vCard {
         $key = "ADR";
         if ($type != "") $key .= ";$type";
         $key .= ";ENCODING=QUOTED-PRINTABLE";
-        $this->properties[$key] = encode($name) . ";" . encode($extended) . ";" . encode($street) . ";" . encode($city) . ";" . encode($region) . ";" . encode($zip) . ";" . encode($country);
+        $this->properties[$key] = encode($postoffice) . ";" . encode($extended) . ";" . encode($street) . ";" . encode($city) . ";" . encode($region) . ";" . encode($zip) . ";" . encode($country);
 
         if ($this->properties["LABEL;$type;ENCODING=QUOTED-PRINTABLE"] == "") {
             // $this->setLabel($postoffice, $extended, $street, $city, $region, $zip, $country, $type);

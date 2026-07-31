@@ -218,7 +218,7 @@ if ($step == "2") {
 
     if ($connexion == "off") {
         echo "<input value=\"false\" name=\"updatechecker\" type=\"hidden\">";
-    } else if (@join('', file("http://netoffice.sourceforge.net/version.txt"))) {
+    } else if (is_readable(dirname(__DIR__) . '/version.txt')) {
         echo "<input value=\"true\" name=\"updatechecker\" type=\"hidden\">";
     } else {
         echo "<input value=\"false\" name=\"updatechecker\" type=\"hidden\">";

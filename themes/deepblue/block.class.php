@@ -168,7 +168,7 @@ class block {
                     echo '<li class="page-item active"><span class="page-link">' . $i . '</span></li>';
                 } else {
                     echo '<li class="page-item">';
-                    echo '<a class="page-link" href="' . $PHP_SELF . '?';
+                    echo '<a class="page-link" href="' . ($_SERVER['PHP_SELF'] ?? '') . '?';
                     for ($k = 1; $k <= $total; $k++) {
                         global ${'borne'.$k};
                         if ($k != $current) {

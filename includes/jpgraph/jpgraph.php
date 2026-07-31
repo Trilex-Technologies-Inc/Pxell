@@ -702,6 +702,8 @@ class FuncGenerator {
     }
 	
     function E($aXMin,$aXMax,$aSteps=50) {
+	$xa = array();
+	$ya = array();
 	$this->iMin = $aXMin;
 	$this->iMax = $aXMax;
 	$this->iStepSize = ($aXMax-$aXMin)/$aSteps;
@@ -1336,7 +1338,7 @@ class Graph {
 		$this->ytick_factor=100;			
 		break;		
 	    default:
-		JpGraphError::Raise("JpGraph: Unsupported Tick density: $densy");
+		JpGraphError::Raise("JpGraph: Unsupported Tick density: $aYDensity");
 	}
 	switch( $aXDensity ) {
 	    case TICKD_DENSE:
@@ -1352,7 +1354,7 @@ class Graph {
 		$this->xtick_factor=60;								
 		break;		
 	    default:
-		JpGraphError::Raise("JpGraph: Unsupported Tick density: $densx");
+		JpGraphError::Raise("JpGraph: Unsupported Tick density: $aXDensity");
 	}		
     }
 	
@@ -7521,7 +7523,7 @@ class ImgStreamCache {
 		    return;
 		}
 		else
-		    JpGraphError::Raise(" Cant open file from cache [$aFile]"); 
+		    JpGraphError::Raise(" Cant open file from cache [$aCacheFileName]");
 	    }
 	}
 	elseif( $aInline ) {
