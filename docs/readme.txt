@@ -8,9 +8,9 @@ NetOffice v2.5.2
 Groupware module. Manage web projects with team collaboration, users management, tasks and projects tracking, files approval tracking, project sites clients access, customer relationship management (Php / Mysql).
 
 # Requirements
-- Php 4.1.0 or greater required
-- register_globals not-dependent (php >= 4.1.0)
-- magic_quotes_gpc not-dependent
+- PHP 8.3 or greater
+- mysqli, session, mbstring, GD, and fileinfo extensions
+
 - session support enabled
 - file_uploads On
 - MySql

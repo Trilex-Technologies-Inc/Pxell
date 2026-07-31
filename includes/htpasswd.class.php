@@ -32,6 +32,7 @@
 
 */
 
+#[\AllowDynamicProperties]
 class Htpasswd {
     // Globally accessable variables
     var $VERSION = 'Revision 0.8 1999/01/17 15:20:00 cdi@thewebmasters.net'; 
@@ -58,7 +59,7 @@ class Htpasswd {
     // **************************************************************
     // An auto-constructor, can initilize the filename when
     // called from new()
-    function Htpasswd ($passwdFile = "")
+    function __construct ($passwdFile = "")
     {
         if (!empty($passwdFile)) {
             $this->initialize($passwdFile);
@@ -224,7 +225,7 @@ class Htpasswd {
             fclose($fd);
 
             $this->CONTENTS = $contents;
-            $Mytemp = split("\n", $contents);
+            $Mytemp = explode("\n", $contents);
             for($count = 0;$count < count($Mytemp);$count++) {
                 $user = "";
                 $pass = "";
@@ -242,7 +243,7 @@ class Htpasswd {
                     $this->error("FATAL invalid user [$user] on line [$errno] in [$filename]", 1);
                 } 
 
-                list ($user, $pass) = split(":", $Mytemp[$count]);
+                list ($user, $pass) = explode(":", $Mytemp[$count], 2);
 
                 if (($user != "") and ($pass != "")) {
                     $Myjunk[$count]["user"] = $user;

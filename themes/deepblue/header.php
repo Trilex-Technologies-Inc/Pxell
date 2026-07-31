@@ -1,6 +1,9 @@
 <?php
 // $Revision: 1.14 $
 
+$setDoctype = $setDoctype ?? '';
+$setCopyright = $setCopyright ?? '';
+$headBonus = $headBonus ?? '';
 
 
 echo $setDoctype . "\n";
@@ -559,15 +562,21 @@ echo $setCopyright . "\n";
             <div class="logo">
                 <?php
                 //--- Client logo ---
+                $logoFile = null;
+                $logoAlt = 'TaskVibe';
                 if (!$blank && $version >= "2.0") {
                     $tmpquery = "WHERE org.id = '1'";
                     $clientHeader = new request();
                     $clientHeader->openOrganizations($tmpquery);
+                    $logoExtension = $clientHeader->org_extension_logo[0] ?? '';
+                    $logoAlt = $clientHeader->org_name[0] ?? $logoAlt;
+                    if ($logoExtension !== '') {
+                        $logoFile = "../logos_clients/1." . $logoExtension;
+                    }
                 }
 
-                $logoFile = "../logos_clients/1." . @$clientHeader->org_extension_logo[0];
-                if (!$blank && file_exists($logoFile)) {
-                    echo '<img src="' . $logoFile . '" alt="' . htmlspecialchars($clientHeader->org_name[0]) . '">';
+                if (!$blank && $logoFile !== null && file_exists($logoFile)) {
+                    echo '<img src="' . htmlspecialchars($logoFile) . '" alt="' . htmlspecialchars($logoAlt) . '">';
                 } else {
                     echo '<img src="../themes/deepblue/img/logo.png" alt="NetOffice">';
                 }

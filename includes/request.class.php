@@ -12,9 +12,10 @@
  * (at your option) any later version.
  */
 
+#[\AllowDynamicProperties]
 class request {
     // constructor
-    function request()
+    function __construct()
     {
     } 
     

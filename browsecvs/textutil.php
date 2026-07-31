@@ -12,6 +12,7 @@
  * (at your option) any later version.
  */
 
+#[\AllowDynamicProperties]
 class htmltextsystem {
     function clear_repeats($text)
     {
@@ -70,10 +71,10 @@ class htmltextsystem {
             604800 => 'week',
             2628000 => 'month',
             31536000 => 'year');
-        while (list($k, $s) = each($desc)) {
+        foreach ($desc as $k => $s) {
             $breaks[] = $k;
             $$s = 0;
-        } 
+        }
         sort($breaks);
 
         $i = 0;

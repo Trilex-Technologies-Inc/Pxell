@@ -606,7 +606,7 @@ $strings['resource_usage'] = 'Resource Usage';
 $strings['resource_usage_desc'] = 'This report summarizes total time logged for projects and organizations.';
 // 2.5.2
 $strings['install_erase'] = 'Remove the installation directory and its contents!!';
-$strings['error_phpversion'] = 'Your PHP version must be greater than or equal to 4.1.0 to run NetOffice!';
+$strings['error_phpversion'] = 'PHP 8.3 or newer is required to run TaskVibe.';
 $strings['display_options'] = 'Display Options';
 $strings['member_items'] = "Member Items";
 $strings['project_totals'] = "Project Totals";

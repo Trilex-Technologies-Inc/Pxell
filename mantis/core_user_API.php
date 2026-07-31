@@ -464,7 +464,7 @@
 		$t_project_view_state = get_project_field( $t_project_id, "view_state" );
 
 		# public project accept all users
-		if ( PUBLIC == $t_project_view_state ) {
+		if ( MANTIS_PUBLIC == $t_project_view_state ) {
 			return;
 		} else {
 			# private projects require users to be assigned
@@ -504,7 +504,7 @@
 		}
 
 		# public project accept all users
-		if ( PUBLIC == $t_project_view_state ) {
+		if ( MANTIS_PUBLIC == $t_project_view_state ) {
 			return;
 		} else {
 			# private projects require users to be assigned

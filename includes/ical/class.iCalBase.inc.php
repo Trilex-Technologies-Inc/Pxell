@@ -23,6 +23,7 @@
 * @package iCalendar
 * @version 1.032
 */
+#[\AllowDynamicProperties]
 class iCalBase {
 
 	/*-------------------*/
@@ -205,7 +206,7 @@ class iCalBase {
 	* @return void
 	*/
 
-	function iCalBase() {
+	function __construct() {
 
 	} // end constructor
 
@@ -523,7 +524,7 @@ class iCalBase {
 	* @see setStartDate()
 	* @see $startdate
 	*/
-	function &getLanguage() {
+	function getLanguage() {
 		return (string) $this->lang;
 	} // end function
 
@@ -535,7 +536,7 @@ class iCalBase {
 	* @see setDescription()
 	* @see $description
 	*/
-	function &getDescription() {
+	function getDescription() {
 		return (string) $this->description;
 	} // end function
 
@@ -549,7 +550,7 @@ class iCalBase {
 	* @see $organizer
 	* @since 1.011 - 2002-12-22
 	*/
-	function &getOrganizerName() {
+	function getOrganizerName() {
 		return (string) $this->organizer[0];
 	} // end function
 
@@ -563,7 +564,7 @@ class iCalBase {
 	* @see $organizer
 	* @since 1.011 - 2002-12-22
 	*/
-	function &getOrganizerMail() {
+	function getOrganizerMail() {
 		return (string) $this->organizer[1];
 	} // end function
 
@@ -576,7 +577,7 @@ class iCalBase {
 	* @see $url
 	* @since 1.011 - 2002-12-22
 	*/
-	function &getURL() {
+	function getURL() {
 		return (string) $this->url;
 	} // end function
 
@@ -588,7 +589,7 @@ class iCalBase {
 	* @see setSummary()
 	* @see $summary
 	*/
-	function &getSummary() {
+	function getSummary() {
 		return (string) $this->summary;
 	} // end function
 
@@ -600,7 +601,7 @@ class iCalBase {
 	* @see setSequence()
 	* @see $sequence
 	*/
-	function &getSequence() {
+	function getSequence() {
 		return (int) $this->sequence;
 	} // end function
 
@@ -613,7 +614,7 @@ class iCalBase {
 	* @see $rec_days
 	* @since 1.010 - 2002-10-26
 	*/
-	function &getDays() {
+	function getDays() {
 		return (string) $this->rec_days;
 	} // end function
 
@@ -626,7 +627,7 @@ class iCalBase {
 	* @see $week_start
 	* @since 1.010 - 2002-10-26
 	*/
-	function &getWeekStart() {
+	function getWeekStart() {
 		return (string) ((array_key_exists($this->week_start, $this->shortDaynames)) ? $this->shortDaynames[$this->week_start] : $this->shortDaynames[1]);
 	} // end function
 
@@ -639,7 +640,7 @@ class iCalBase {
 	* @see $attendees
 	* @since 1.001 - 2002-10-10
 	*/
-	function &getAttendees() {
+	function getAttendees() {
 		return (array) $this->attendees;
 	} // end function
 
@@ -651,7 +652,7 @@ class iCalBase {
 	* @see setLocation()
 	* @see $location
 	*/
-	function &getLocation() {
+	function getLocation() {
 		return (string) $this->location;
 	} // end function
 
@@ -663,7 +664,7 @@ class iCalBase {
 	* @see setCategoriesArray()
 	* @see $categories_array
 	*/
-	function &getCategoriesArray() {
+	function getCategoriesArray() {
 		return (array) $this->categories_array;
 	} // end function
 
@@ -675,7 +676,7 @@ class iCalBase {
 	* @see setCategories()
 	* @see $categories
 	*/
-	function &getCategories() {
+	function getCategories() {
 		return (string) $this->categories;
 	} // end function
 
@@ -688,7 +689,7 @@ class iCalBase {
 	* @see $frequencies
 	* @since 1.010 - 2002-10-26
 	*/
-	function &getFrequency() {
+	function getFrequency() {
 		return (int) $this->frequency;
 	} // end function
 
@@ -701,7 +702,7 @@ class iCalBase {
 	* @see $status
 	* @since 1.011 - 2002-12-22
 	*/
-	function &getStatus() {
+	function getStatus() {
 		return (int) $this->status;
 	} // end function
 
@@ -714,7 +715,7 @@ class iCalBase {
 	* @see $interval
 	* @since 1.010 - 2002-10-26
 	*/
-	function &getInterval() {
+	function getInterval() {
 		return (int) $this->interval;
 	} // end function
 
@@ -727,7 +728,7 @@ class iCalBase {
 	* @see $exept_dates
 	* @since 1.010 - 2002-10-26
 	*/
-	function &getExeptDates() {
+	function getExeptDates() {
 		$return = (string) '';
 		foreach ($this->exept_dates as $date) {
 			$return .= (string) $date . ',';
@@ -744,7 +745,7 @@ class iCalBase {
 	* @see setClass()
 	* @see $class
 	*/
-	function &getClass() {
+	function getClass() {
 		return (int) $this->class;
 	} // end function
 
@@ -756,7 +757,7 @@ class iCalBase {
 	* @see setPriority()
 	* @see $priority
 	*/
-	function &getPriority() {
+	function getPriority() {
 		return (int) $this->priority;
 	} // end function
 
@@ -769,7 +770,7 @@ class iCalBase {
 	* @see $last_mod_ts
 	* @since 1.020 - 2002-12-24
 	*/
-	function &getLastModTS() {
+	function getLastModTS() {
 		return (int) $this->last_mod_ts;
 	} // end function
 
@@ -782,7 +783,7 @@ class iCalBase {
 	* @see $last_mod
 	* @since 1.020 - 2002-12-24
 	*/
-	function &getLastMod() {
+	function getLastMod() {
 		return (string) $this->last_mod;
 	} // end function
 	/**#@-*/

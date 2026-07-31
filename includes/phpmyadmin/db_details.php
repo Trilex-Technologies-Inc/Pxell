@@ -30,7 +30,7 @@ $err_url   = 'db_details.php'
 if (!isset($is_db) || !$is_db) {
     // Not a valid db name -> back to the welcome page
     if (!empty($db)) {
-        $is_db = @mysql_select_db($db);
+        $is_db = @mysqli_select_db($GLOBALS['userlink'], $db);
     }
     if (empty($db) || !$is_db) {
         header('Location: ' . $cfgPmaAbsoluteUri . 'main.php?lang=' . $lang . '&server=' . $server . (isset($message) ? '&message=' . urlencode($message) : '') . '&reload=1');
@@ -78,32 +78,32 @@ if (PMA_MYSQL_INT_VERSION >= 32303) {
     // Special speedup for newer MySQL Versions (in 4.0 format changed)
     if ($cfgSkipLockedTables == TRUE && PMA_MYSQL_INT_VERSION >= 32330) {
         $local_query  = 'SHOW OPEN TABLES FROM ' . PMA_backquote($db);
-        $result       = mysql_query($local_query) or PMA_mysqlDie('', $local_query, '', $err_url_0);
+        $result       = mysqli_query($GLOBALS['userlink'], $local_query) or PMA_mysqlDie('', $local_query, '', $err_url_0);
         // Blending out tables in use
-        if ($result != FALSE && mysql_num_rows($result) > 0) {
-            while ($tmp = mysql_fetch_row($result)) {
+        if ($result != FALSE && mysqli_num_rows($result) > 0) {
+            while ($tmp = mysqli_fetch_row($result)) {
                 // if in use memorize tablename
-                if (eregi('in_use=[1-9]+', $tmp[1])) {
+                if (preg_match('/in_use=[1-9]+/i', $tmp[1])) {
                     $sot_cache[$tmp[0]] = TRUE;
                 }
             }
-            mysql_free_result($result);
+            mysqli_free_result($result);
 
             if (isset($sot_cache)) {
                 $local_query = 'SHOW TABLES FROM ' . PMA_backquote($db);
-                $result      = mysql_query($local_query) or PMA_mysqlDie('', $local_query, '', $err_url_0);
-                if ($result != FALSE && mysql_num_rows($result) > 0) {
-                    while ($tmp = mysql_fetch_row($result)) {
+                $result      = mysqli_query($GLOBALS['userlink'], $local_query) or PMA_mysqlDie('', $local_query, '', $err_url_0);
+                if ($result != FALSE && mysqli_num_rows($result) > 0) {
+                    while ($tmp = mysqli_fetch_row($result)) {
                         if (!isset($sot_cache[$tmp[0]])) {
                             $local_query = 'SHOW TABLE STATUS FROM ' . PMA_backquote($db) . ' LIKE \'' . addslashes($tmp[0]) . '\'';
-                            $sts_result  = mysql_query($local_query) or PMA_mysqlDie('', $local_query, '', $err_url_0);
-                            $sts_tmp     = mysql_fetch_array($sts_result);
+                            $sts_result  = mysqli_query($GLOBALS['userlink'], $local_query) or PMA_mysqlDie('', $local_query, '', $err_url_0);
+                            $sts_tmp     = mysqli_fetch_array($sts_result);
                             $tables[]    = $sts_tmp;
                         } else { // table in use
                             $tables[]    = array('Name' => $tmp[0]);
                         }
                     }
-                    mysql_free_result($result);
+                    mysqli_free_result($result);
                     $sot_ready = TRUE;
                 }
             }
@@ -111,23 +111,23 @@ if (PMA_MYSQL_INT_VERSION >= 32303) {
     }
     if (!isset($sot_ready)) {
         $local_query = 'SHOW TABLE STATUS FROM ' . PMA_backquote($db);
-        $result      = mysql_query($local_query) or PMA_mysqlDie('', $local_query, '', $err_url_0);
-        if ($result != FALSE && mysql_num_rows($result) > 0) {
-            while ($sts_tmp = mysql_fetch_array($result)) {
+        $result      = mysqli_query($GLOBALS['userlink'], $local_query) or PMA_mysqlDie('', $local_query, '', $err_url_0);
+        if ($result != FALSE && mysqli_num_rows($result) > 0) {
+            while ($sts_tmp = mysqli_fetch_array($result)) {
                 $tables[] = $sts_tmp;
             }
-            mysql_free_result($result);
+            mysqli_free_result($result);
         }
     }
     $num_tables = (isset($tables) ? count($tables) : 0);
 } // end if (PMA_MYSQL_INT_VERSION >= 32303)
 else {
-    $result     = mysql_list_tables($db);
-    $num_tables = @mysql_numrows($result);
+    $result     = mysqli_query($GLOBALS['userlink'], 'SHOW TABLES FROM `' . $db . '`');
+    $num_tables = @mysqli_num_rows($result);
     for ($i = 0; $i < $num_tables; $i++) {
-        $tables[] = mysql_tablename($result, $i);
+        $tables[] = (function($r, $i) { mysqli_data_seek($r, $i); $row = mysqli_fetch_row($r); return $row[0]; })($result, $i);
     }
-    mysql_free_result($result);
+    mysqli_free_result($result);
 }
 
 
@@ -170,7 +170,7 @@ else if (PMA_MYSQL_INT_VERSION >= 32300) {
     <?php
     $i = $sum_entries = $sum_size = 0;
     $checked = (!empty($checkall) ? ' checked="checked"' : '');
-    while (list($keyname, $sts_data) = each($tables)) {
+    foreach ($tables as $keyname => $sts_data) {
         $table     = $sts_data['Name'];
         // Sets parameters for links
         $url_query = 'lang=' . $lang
@@ -244,7 +244,7 @@ else if (PMA_MYSQL_INT_VERSION >= 32300) {
         if (isset($sts_data['Type'])) {
             if ($sts_data['Type'] == 'MRG_MyISAM') {
                 $mergetable = TRUE;
-            } else if (!eregi('ISAM|HEAP', $sts_data['Type'])) {
+            } else if (!preg_match('/ISAM|HEAP/i', $sts_data['Type'])) {
                 $nonisam    = TRUE;
             }
         }
@@ -501,9 +501,6 @@ if (isset($show_query) && $show_query == 'y') {
         $query_to_display = $sql_query_cpy;
     }
     // Other cases
-    else if (get_magic_quotes_gpc()) {
-        $query_to_display = stripslashes($sql_query);
-    }
     else {
         $query_to_display = $sql_query;
     }
@@ -569,7 +566,7 @@ if ($cfgBookmark['db'] && $cfgBookmark['table']) {
         echo '            <div style="margin-bottom: 5px">' . "\n";
         echo '            <select name="id_bookmark">' . "\n";
         echo '                <option value=""></option>' . "\n";
-        while (list($key, $value) = each($bookmark_list)) {
+        foreach ($bookmark_list as $key => $value) {
             echo '                <option value="' . $value . '">' . htmlentities($key) . '</option>' . "\n";
         }
         echo '            </select>' . "\n";
@@ -608,7 +605,7 @@ if ($num_tables > 0) {
     <?php
     $colspan    = '';
     // loic1: already defined at the top of the script!
-    // $tables     = mysql_list_tables($db);
+    // $tables     = mysqli_query($GLOBALS['userlink'], 'SHOW TABLES FROM `' . $db . '`');
     // $num_tables = @mysql_numrows($tables);
     if ($num_tables > 1) {
         $colspan = ' colspan="2"';
@@ -760,8 +757,8 @@ echo '        ' . '&nbsp;<input type="submit" value="' . $strGo . '" />' . "\n";
 // Check if the user is a Superuser
 // TODO: set a global variable with this information
 // loic1: optimized query
-$result       = @mysql_query('USE mysql');
-$is_superuser = (!mysql_error());
+$result       = @mysqli_query($GLOBALS['userlink'], 'USE mysql');
+$is_superuser = (!mysqli_error($GLOBALS['userlink']));
 
 // Display the DROP DATABASE link only if allowed to do so
 if ($cfgAllowUserDropDatabase || $is_superuser) {

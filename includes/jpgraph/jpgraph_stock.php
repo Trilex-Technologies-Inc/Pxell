@@ -13,6 +13,7 @@
 //===================================================
 // CLASS StockPlot
 //===================================================
+#[\AllowDynamicProperties]
 class StockPlot extends Plot {
     var $iTupleSize = 4;
     var $iWidth=9;
@@ -20,11 +21,11 @@ class StockPlot extends Plot {
     var $iStockColor1='white',$iStockColor2='darkred',$iStockColor3='darkred';
 //---------------
 // CONSTRUCTOR
-    function StockPlot(&$datay,$datax=false) {
+    function __construct(&$datay,$datax=false) {
 	if( count($datay) % $this->iTupleSize ) {
 	    JpGraphError::Raise('Data values for Stock charts must contain an even multiple of '.$this->iTupleSize.' data points.');
 	}
-	$this->Plot($datay,$datax);
+	parent::__construct($datay,$datax);
 	$this->numpoints /= $this->iTupleSize;
     }
 //---------------
@@ -155,11 +156,12 @@ class StockPlot extends Plot {
 //===================================================
 // CLASS BoxPlot
 //===================================================
+#[\AllowDynamicProperties]
 class BoxPlot extends StockPlot {
     var $iPColor='black',$iNColor='white';
-    function BoxPlot($datay,$datax=false) {
+    function __construct($datay,$datax=false) {
 	$this->iTupleSize=5;
-	parent::StockPlot($datay,$datax);
+	parent::__construct($datay,$datax);
     }
 
     function SetMedianColor($aPos,$aNeg) {

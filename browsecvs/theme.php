@@ -12,6 +12,7 @@
  * (at your option) any later version.
  */
 
+#[\AllowDynamicProperties]
 class thememodule {
     var $themepath;
     var $bgcolor1;
@@ -20,7 +21,7 @@ class thememodule {
     var $textcolor1;
     var $textcolor2;
 
-    function thememodule($dir)
+    function __construct($dir)
     {
         $this->themepath = $dir;
         $this->bgcolor1 = "#FFFFFF";

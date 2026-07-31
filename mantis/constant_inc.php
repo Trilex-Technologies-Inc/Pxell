@@ -71,8 +71,8 @@
 	define( "BLOCK",    80 );
 
 	# project view_state
-	define( "PUBLIC",     10 );
-	define( "PRIVATE",    50 );
+	define( "MANTIS_PUBLIC",     10 );
+	define( "MANTIS_PRIVATE",    50 );
 
 	# direction
 	define( "ASC",    101 );

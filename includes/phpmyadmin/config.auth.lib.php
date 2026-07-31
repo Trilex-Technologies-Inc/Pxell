@@ -73,8 +73,9 @@ if (!defined('PMA_CONFIG_AUTH_INCLUDED')) {
         global $connect_func, $server_port, $server_socket, $cfgServer;
         global $right_font_family, $font_size, $font_bigger;
 
-        if (mysql_error()) {
-            $conn_error = mysql_error();
+        global $userlink;
+        if (isset($userlink) && mysqli_error($userlink)) {
+            $conn_error = mysqli_error($userlink);
         } else if (isset($php_errormsg)) {
             $conn_error = $php_errormsg;
         } else {

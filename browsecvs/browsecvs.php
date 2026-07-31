@@ -75,7 +75,7 @@ function drawtop($listing, $dir = '')
     $elements = count($listing);
     $color = ($color == $rgb_top) ? $rgb_sub : $rgb_top;
     if (preg_match('/\//', $dir)) {
-        $dirlist = split("/", $dir);
+        $dirlist = explode("/", $dir);
         $dirs = count($dirlist);
         for ($i = 0; $i < $dirs-2; $i++) {
             $link .= $dirlist[$i] . "/";
@@ -99,7 +99,7 @@ function drawtop($listing, $dir = '')
     } 
 } 
 
-function drawbottom($listing, $dir = '', $path)
+function drawbottom($listing, $dir, $path)
 {
     global $rgb_off, $rgb_sub, $theme, $color;
     global $modulehref, $moduledir, $textutil;

@@ -58,9 +58,6 @@ function updateUserConvertData($data)
     $data = str_replace('"', '&quot;', $data);
     $data = str_replace('<', '&lt;', $data);
     $data = str_replace('>', '&gt;', $data);
-    if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc() == 1) {
-        return $data;
-    }
     return addslashes($data);
 }
 

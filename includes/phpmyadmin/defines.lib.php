@@ -24,8 +24,10 @@ if (!defined('PMA_VERSION')) {
 
 // php version
 if (!defined('PMA_PHP_INT_VERSION')) {
-    if (!ereg('([0-9]{1,2}).([0-9]{1,2}).([0-9]{1,2})', phpversion(), $match)) {
-        $result = ereg('([0-9]{1,2}).([0-9]{1,2})', phpversion(), $match);
+    if (preg_match('/([0-9]{1,2})\.([0-9]{1,2})\.([0-9]{1,2})/', phpversion(), $match)) {
+        // three-part version matched
+    } else {
+        preg_match('/([0-9]{1,2})\.([0-9]{1,2})/', phpversion(), $match);
     }
     if (isset($match) && !empty($match[1])) {
         if (!isset($match[2])) {
@@ -43,7 +45,7 @@ if (!defined('PMA_PHP_INT_VERSION')) {
 
 // Whether the os php is running on is windows or not
 if (!defined('PMA_IS_WINDOWS')) {
-    if (defined('PHP_OS') && eregi('win', PHP_OS)) {
+    if (defined('PHP_OS') && preg_match('/win/i', PHP_OS)) {
         define('PMA_IS_WINDOWS', 1);
     } else {
         define('PMA_IS_WINDOWS', 0);
@@ -53,14 +55,14 @@ if (!defined('PMA_IS_WINDOWS')) {
 // MySQL Version
 if (!defined('PMA_MYSQL_INT_VERSION') && isset($userlink)) {
     if (!empty($server)) {
-        $result = mysql_query('SELECT VERSION() AS version');
-        if ($result != FALSE && @mysql_num_rows($result) > 0) {
-            $row   = mysql_fetch_array($result);
+        $result = mysqli_query($userlink, 'SELECT VERSION() AS version');
+        if ($result != FALSE && @mysqli_num_rows($result) > 0) {
+            $row   = mysqli_fetch_array($result);
             $match = explode('.', $row['version']);
         } else {
-            $result = @mysql_query('SHOW VARIABLES LIKE \'version\'');
-            if ($result != FALSE && @mysql_num_rows($result) > 0){
-                $row   = mysql_fetch_row($result);
+            $result = @mysqli_query($userlink, 'SHOW VARIABLES LIKE \'version\'');
+            if ($result != FALSE && @mysqli_num_rows($result) > 0){
+                $row   = mysqli_fetch_row($result);
                 $match = explode('.', $row[1]);
             }
         }
@@ -89,8 +91,8 @@ if (!defined('PMA_USR_OS')) {
     // php 4.1+
     if (!empty($_SERVER['HTTP_USER_AGENT'])) {
         $HTTP_USER_AGENT = $_SERVER['HTTP_USER_AGENT'];
-    } else if (!empty($HTTP_SERVER_VARS['HTTP_USER_AGENT'])) {
-        $HTTP_USER_AGENT = $HTTP_SERVER_VARS['HTTP_USER_AGENT'];
+    } else {
+        $HTTP_USER_AGENT = '';
     }
     // 1. Platform
     if (strstr($HTTP_USER_AGENT, 'Win')) {
@@ -107,19 +109,19 @@ if (!defined('PMA_USR_OS')) {
         define('PMA_USR_OS', 'Other');
     }
     // 2. browser and version
-    if (ereg('MSIE ([0-9].[0-9]{1,2})', $HTTP_USER_AGENT, $log_version)) {
+    if (preg_match('/MSIE ([0-9].[0-9]{1,2})/', $HTTP_USER_AGENT, $log_version)) {
         define('PMA_USR_BROWSER_VER', $log_version[1]);
         define('PMA_USR_BROWSER_AGENT', 'IE');
-    } else if (ereg('Opera(/| )([0-9].[0-9]{1,2})', $HTTP_USER_AGENT, $log_version)) {
+    } else if (preg_match('/Opera(\/| )([0-9].[0-9]{1,2})/', $HTTP_USER_AGENT, $log_version)) {
         define('PMA_USR_BROWSER_VER', $log_version[2]);
         define('PMA_USR_BROWSER_AGENT', 'OPERA');
-    } else if (ereg('OmniWeb/([0-9].[0-9]{1,2})', $HTTP_USER_AGENT, $log_version)) {
+    } else if (preg_match('/OmniWeb\/([0-9].[0-9]{1,2})/', $HTTP_USER_AGENT, $log_version)) {
         define('PMA_USR_BROWSER_VER', $log_version[1]);
         define('PMA_USR_BROWSER_AGENT', 'OMNIWEB');
-    } else if (ereg('Mozilla/([0-9].[0-9]{1,2})', $HTTP_USER_AGENT, $log_version)) {
+    } else if (preg_match('/Mozilla\/([0-9].[0-9]{1,2})/', $HTTP_USER_AGENT, $log_version)) {
         define('PMA_USR_BROWSER_VER', $log_version[1]);
         define('PMA_USR_BROWSER_AGENT', 'MOZILLA');
-    } else if (ereg('Konqueror/([0-9].[0-9]{1,2})', $HTTP_USER_AGENT, $log_version)) {
+    } else if (preg_match('/Konqueror\/([0-9].[0-9]{1,2})/', $HTTP_USER_AGENT, $log_version)) {
         define('PMA_USR_BROWSER_VER', $log_version[1]);
         define('PMA_USR_BROWSER_AGENT', 'KONQUEROR');
     } else {

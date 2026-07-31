@@ -17,6 +17,7 @@
  * @author Brent R. Matzelle
  * @copyright 2001 - 2003 Brent R. Matzelle
  */
+#[\AllowDynamicProperties]
 class PHPMailer
 {
     /////////////////////////////////////////////////
@@ -1190,11 +1191,12 @@ class PHPMailer
             $encoded .= $this->LE;
 
         // Replace every high ascii, control and = characters
-        $encoded = preg_replace('/([\000-\010\013\014\016-\037\075\177-\377])/e',
-                  "'='.sprintf('%02X', ord('\\1'))", $encoded);
+        $encoded = preg_replace_callback('/([\000-\010\013\014\016-\037\075\177-\377])/',
+                  static function ($matches) { return '='.sprintf('%02X', ord($matches[1])); }, $encoded);
         // Replace every spaces and tabs when it's the last character on a line
-        $encoded = preg_replace("/([\011\040])".$this->LE."/e",
-                  "'='.sprintf('%02X', ord('\\1')).'".$this->LE."'", $encoded);
+        $lineEnding = $this->LE;
+        $encoded = preg_replace_callback("/([\011\040])".preg_quote($lineEnding, '/')."/",
+                  static function ($matches) use ($lineEnding) { return '='.sprintf('%02X', ord($matches[1])).$lineEnding; }, $encoded);
 
         // Maximum line length of 76 characters before CRLF (74 + space + '=')
         $encoded = $this->WrapText($encoded, 74, true);
@@ -1213,15 +1215,17 @@ class PHPMailer
 
         switch (strtolower($position)) {
           case "phrase":
-            $encoded = preg_replace("/([^A-Za-z0-9!*+\/ -])/e", "'='.sprintf('%02X', ord('\\1'))", $encoded);
+            $encoded = preg_replace_callback("/([^A-Za-z0-9!*+\/ -])/",
+                static function ($matches) { return '='.sprintf('%02X', ord($matches[1])); }, $encoded);
             break;
           case "comment":
-            $encoded = preg_replace("/([\(\)\"])/e", "'='.sprintf('%02X', ord('\\1'))", $encoded);
+            $encoded = preg_replace_callback("/([\(\)\"])/",
+                static function ($matches) { return '='.sprintf('%02X', ord($matches[1])); }, $encoded);
           case "text":
           default:
             // Replace every high ascii, control =, ? and _ characters
-            $encoded = preg_replace('/([\000-\011\013\014\016-\037\075\077\137\177-\377])/e',
-                  "'='.sprintf('%02X', ord('\\1'))", $encoded);
+            $encoded = preg_replace_callback('/([\000-\011\013\014\016-\037\075\077\137\177-\377])/',
+                  static function ($matches) { return '='.sprintf('%02X', ord($matches[1])); }, $encoded);
             break;
         }
         
@@ -1417,16 +1421,6 @@ class PHPMailer
      * @return mixed
      */
     function ServerVar($varName) {
-        global $HTTP_SERVER_VARS;
-        global $HTTP_ENV_VARS;
-
-        if(!isset($_SERVER))
-        {
-            $_SERVER = $HTTP_SERVER_VARS;
-            if(!isset($_SERVER["REMOTE_ADDR"]))
-                $_SERVER = $HTTP_ENV_VARS; // must be Apache
-        }
-        
         if(isset($_SERVER[$varName]))
             return $_SERVER[$varName];
         else

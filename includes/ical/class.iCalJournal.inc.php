@@ -27,6 +27,7 @@ require_once 'class.iCalBase.inc.php';
 * @package iCalendar
 * @version 1.032
 */
+#[\AllowDynamicProperties]
 class iCalJournal extends iCalBase {
 
 	/*-------------------*/
@@ -140,12 +141,12 @@ class iCalJournal extends iCalBase {
 	* @uses iCalBase::setSequence()
 	* @uses setUID()
 	*/
-	function iCalJournal($summary, $description, $start, $created, $last_mod,
+	function __construct($summary, $description, $start, $created, $last_mod,
 						 $status, $class, $organizer, $attendees, $categories,
 						 $frequency, $rec_end, $interval, $days, $weekstart,
 						 $exept_dates, $url, $lang, $uid) {
 
-		parent::iCalBase();
+		parent::__construct();
 		parent::setSummary($summary);
 		parent::setDescription($description);
 		$this->setStartDate($start);

@@ -17,7 +17,7 @@ require_once("../includes/library.php");
 
 function _dayOfWeek($timestamp)
 {
-    return intval(strftime("%w", $timestamp) + 1);
+    return intval(date("w", $timestamp) + 1);
 }
 
 $year = date("Y");

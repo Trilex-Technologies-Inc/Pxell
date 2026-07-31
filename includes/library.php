@@ -84,17 +84,9 @@ require_once($base_dir . 'includes/settings.php');
 $url_array = parse_url($root);
 $base_uri = $url_array['path'] . '/';
 
-// PHP version check, force version greater than or equal to 4.1.0
+// PHP 8.3 is the supported runtime baseline.
 // if you take this out don't even think about asking for help with bugs!!
-$phpVersiondata = explode('.', phpversion());
-if ($phpVersiondata[0] >= 4) {
-    // only need to check subversion if this is php4
-    if ($phpVersiondata[0] == 4 && $phpVersiondata[1] < 1) {
-        header('Location: ' . $base_uri . 'general/error.php?type=phpversion');
-        exit;
-    }
-}
-else {
+if (version_compare(PHP_VERSION, '8.3.0', '<')) {
     header('Location: ' . $base_uri . 'general/error.php?type=phpversion');
     exit;
 }
@@ -106,15 +98,11 @@ ini_set('session.serialize_handler', 'php');// How to store data
 ini_set('session.use_cookies', 1); 			// Cookies store the session ID
 ini_set('session.cookie_path', $base_uri); 	// session cookie save path
 
-// if the phpversion is >= 4.3.0 then set the 'use_only_cookies' to true
-if (version_compare(phpversion(), '4.3.0', '>=')) {
-    ini_set('session.use_only_cookies', 1);
-}
+// Require session identifiers to be transported only via cookies.
+ini_set('session.use_only_cookies', 1);
 
 // set the cache pages expire time in minutes
-if(version_compare(phpversion(), '4.2.0', '>=')) {
-    session_cache_expire(180);
-}
+session_cache_expire(180);
 
 // more session settings
 ini_set('session.name', 'netOfficeSID'); // Name of the cookie
@@ -214,12 +202,13 @@ else {
 
 // language browser detection
 if ($langDefault == '') {
-    if (isset($HTTP_ACCEPT_LANGUAGE)) {
-        $plng = split(',', $HTTP_ACCEPT_LANGUAGE);
+    $acceptLang = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '';
+    if ($acceptLang !== '') {
+        $plng = explode(',', $acceptLang);
         if (count($plng) > 0) {
-            while (list($k, $v) = each($plng)) {
-                $k = split(';', $v, 1);
-                //$k = split('-', $k[0]);	// removed - it disallows locale variations
+            foreach ($plng as $v) {
+                $k = explode(';', $v, 2);
+                //$k = explode('-', $k[0]);	// removed - it disallows locale variations
                 // does the language file exists and is it in the array?
                 if (@file_exists('../languages/lang_' . $k[0] . '.php') &&
                         array_key_exists($k[0], $langValue)) {
@@ -487,8 +476,8 @@ function autoLinks($data) {
  * @access public
  */
 function diff_date($date1, $date2) {
-    list($an, $mois, $jour) = split('-', $date1, 3);
-    list($an2, $mois2, $jour2) = split('-', $date2, 3);
+    list($an, $mois, $jour) = explode('-', $date1, 3);
+    list($an2, $mois2, $jour2) = explode('-', $date2, 3);
     $timestamp1 = mktime(null, null, null, $mois, $jour, $an);
     $timestamp2 = mktime(null, null, null, $mois2, $jour2, $an2);
     $diff = ($timestamp1 - $timestamp2) / (3600 * 24);
@@ -946,18 +935,10 @@ function createDate($storedDate, $gmtUser)
  */
 function convertData($data)
 {
-    if (get_magic_quotes_gpc() == 1) {
-        $data = str_replace('"', '&quot;', $data);
-        $data = str_replace('<', '&lt;', $data);
-        $data = str_replace('>', '&gt;', $data);
-        return($data);
-    } else {
-        $data = str_replace('"', '&quot;', $data);
-        $data = str_replace('<', '&lt;', $data);
-        $data = str_replace('>', '&gt;', $data);
-        $data = addslashes($data);
-        return($data);
-    } 
+    $data = str_replace('"', '&quot;', $data);
+    $data = str_replace('<', '&lt;', $data);
+    $data = str_replace('>', '&gt;', $data);
+    return addslashes($data);
 }
 
 /**
@@ -1316,7 +1297,7 @@ function get_remote_addr()
  * @param string $date1 Date to transform
  */
 function date2timestamp($date1) {
-    list($an1, $mois1, $jour1) = split('-', $date1, 3);
+    list($an1, $mois1, $jour1) = explode('-', $date1, 3);
     $timestamp1 = mktime(0, 0, 0, $mois1, $jour1, $an1);
     return($timestamp1);
 }

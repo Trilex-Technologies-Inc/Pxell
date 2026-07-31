@@ -15,6 +15,7 @@
 // Description: Make it possible to add a (small) image
 // to the graph
 //===================================================
+#[\AllowDynamicProperties]
 class IconPlot {
     var $iHorAnchor='left',$iVertAnchor='top';
     var $iX=0,$iY=0;
@@ -24,7 +25,7 @@ class IconPlot {
     var $iCountryFlag='',$iCountryStdSize=3;
     var $iScalePosY=null,$iScalePosX=null;
 
-    function IconPlot($aFile="",$aX=0,$aY=0,$aScale=1.0,$aMix=100) {
+    function __construct($aFile="",$aX=0,$aY=0,$aScale=1.0,$aMix=100) {
 	$this->iFile = $aFile;
 	$this->iX=$aX;
 	$this->iY=$aY;
