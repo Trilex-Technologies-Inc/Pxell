@@ -16,6 +16,18 @@ $checkSession = false;
 require_once('../includes/library.php');
 $pageSection = 'login';
 
+// Request values are optional on the initial visit. Keep local, typed defaults
+// instead of relying on the old register_globals behaviour.
+$logout = $_GET['logout'] ?? '';
+$sessionStatus = $_GET['session'] ?? '';
+$redirectUrl = $_GET['url'] ?? ($_POST['url'] ?? '');
+$loginSubmit = $_POST['loginSubmit'] ?? '';
+$loginForm = $_POST['loginForm'] ?? '';
+$passwordForm = $_POST['passwordForm'] ?? '';
+$rememberForm = $_POST['rememberForm'] ?? '';
+$languageForm = $_POST['languageForm'] ?? ($langDefault ?? '');
+$auth = 'off';
+
 // DEBUG
 // foreach ($_POST as $k => $v) { print "<font color=blue>\$_POST[$k] => $v</font><br>"; }
 // foreach ($_GET as $k => $v) { print "<font color=green>\$_GET[$k] => $v</font><br>"; }
@@ -23,7 +35,7 @@ $pageSection = 'login';
 // foreach ($_COOKIE as $k => $v) { print "<font color=purple>\$_COOKIE[$k] => $v</font><br>"; }
 // foreach ($_SERVER as $k => $v) { print "<font color=purple>\$_SERVER[$k] => $v</font><br>"; }
 
-if (($_GET['logout'] == 'true') and (isset($_SESSION['loginSession']))) {
+if (($logout == 'true') and (isset($_SESSION['loginSession']))) {
     // update the logs table before logout
     $tmpquery1 = 'UPDATE ' . $tableCollab['logs'] . ' SET connected=NULL ';
     $tmpquery1 .= 'WHERE login="' . $_SESSION['loginSession'] . '"';
@@ -59,18 +71,18 @@ $ssl = false;
 // }
 // } else {
 // test blank fields in form
-if ($_POST['loginSubmit']) {
-    if ($_POST['loginForm'] == '' and $_POST['passwordForm'] == '') {
+if ($loginSubmit != '') {
+    if ($loginForm == '' and $passwordForm == '') {
         $error = $strings['login_username'] . '<br>' . $strings['login_password'];
-    } else if ($_POST['loginForm'] == '') {
+    } else if ($loginForm == '') {
         $error = $strings['login_username'];
-    } else if ($_POST['passwordForm'] == '') {
+    } else if ($passwordForm == '') {
         $error = $strings['login_password'];
     } else {
         $auth = 'on';
         if ($rememberForm == 'on') {
-            $storePwd = get_password($_POST['passwordForm']);
-            $cookie_value = base64_encode(serialize(array('loginForm' => $_POST['loginForm'], 'storePwd' => $storePwd, 'tokenSession' => md5($_POST['loginForm'] . $cryptKey))));
+            $storePwd = get_password($passwordForm);
+            $cookie_value = base64_encode(serialize(array('loginForm' => $loginForm, 'storePwd' => $storePwd, 'tokenSession' => md5($loginForm . $cryptKey))));
             setcookie('NetOfficeAuthCookie', $cookie_value, time() + 31536000, $base_uri);
         } else {
             setcookie('NetOfficeAuthCookie', '', time() - 3600, $base_uri);
@@ -79,26 +91,37 @@ if ($_POST['loginSubmit']) {
 }
 
 if ($forcedLogin == 'false') {
-    if (($auth == 'on') and (!$_POST['loginForm']) and (!$_POST['passwordForm'])) {
+    if (($auth == 'on') and ($loginForm == '') and ($passwordForm == '')) {
         $auth = 'off';
         $error = 'Detecting variables poisoning ;-)';
     }
 }
 // }
 
-// get cookie params
-$authCookie = unserialize(base64_decode($_COOKIE['NetOfficeAuthCookie']));
-$loginCookie = $authCookie['loginForm'];
-$passwordCookie = $authCookie['storePwd'];
-$tokenCookie = $authCookie['tokenSession'];
+// Get cookie params. A missing or malformed cookie simply means that the user
+// must log in normally.
+$authCookie = array();
+$encodedAuthCookie = $_COOKIE['NetOfficeAuthCookie'] ?? '';
+if ($encodedAuthCookie != '') {
+    $decodedAuthCookie = base64_decode($encodedAuthCookie, true);
+    if ($decodedAuthCookie !== false) {
+        $cookieData = @unserialize($decodedAuthCookie, array('allowed_classes' => false));
+        if (is_array($cookieData)) {
+            $authCookie = $cookieData;
+        }
+    }
+}
+$loginCookie = $authCookie['loginForm'] ?? '';
+$passwordCookie = $authCookie['storePwd'] ?? '';
+$tokenCookie = $authCookie['tokenSession'] ?? '';
 
 if ($loginCookie != '' && $passwordCookie != '' && $tokenCookie != '') {
     $auth = 'on';
 }
 
 if ($auth == 'on') {
-    $loginForm = strip_tags($_POST['loginForm']);
-    $passwordForm = strip_tags($_POST['passwordForm']);
+    $loginForm = strip_tags($loginForm);
+    $passwordForm = strip_tags($passwordForm);
 
     if ($loginCookie != '' && $passwordCookie != '' && $tokenCookie != '') {
         $loginForm = $loginCookie;
@@ -156,7 +179,7 @@ if ($auth == 'on') {
             $ip = SESS_REMOTE_ADDR;
 
             // set session variables
-            $_SESSION['browserSession'] = $HTTP_USER_AGENT;
+            $_SESSION['browserSession'] = $_SERVER['HTTP_USER_AGENT'] ?? '';
             $_SESSION['idSession'] = $loginUser->mem_id[0];
             $_SESSION['timezoneSession'] = $loginUser->mem_timezone[0];
             $_SESSION['languageSession'] = $languageForm;
@@ -193,12 +216,12 @@ if ($auth == 'on') {
                 connectSql($tmpquery1);
             }
             // redirect for external link to internal page
-            if ($_GET['url'] != '') {
+            if ($redirectUrl != '') {
                 if ($loginUser->mem_profil[0] == '3') {
-                    header('Location: ../' . $_GET['url'] . '&updateProject=true');
+                    header('Location: ../' . $redirectUrl . '&updateProject=true');
                     exit;
                 } else {
-                    header('Location: ../' . $_GET['url']);
+                    header('Location: ../' . $redirectUrl);
                     exit;
                 }
             } else if (($loginUser->mem_last_page[0] != '') and ($loginUser->mem_profil[0] != '3')) {
@@ -227,11 +250,11 @@ if ($auth == 'on') {
     }
 }
 
-if (($_GET['session'] == 'false') and ($_GET['url'] == '')) {
+if (($sessionStatus == 'false') and ($redirectUrl == '')) {
     $error = $strings['session_false'];
 }
 
-if ($_GET['logout'] == 'true') {
+if ($logout == 'true') {
     $msg = 'logout';
 }
 
@@ -565,8 +588,8 @@ require_once('../themes/' . THEME . '/header.php');
 
             <form method="POST" action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" name="loginForm">
                 <?php
-                if ($_GET['url'] != '') {
-                    echo '<input value="' . htmlspecialchars($_GET['url']) . '" type="hidden" name="url">';
+                if ($redirectUrl != '') {
+                    echo '<input value="' . htmlspecialchars($redirectUrl) . '" type="hidden" name="url">';
                 }
                 ?>
 
