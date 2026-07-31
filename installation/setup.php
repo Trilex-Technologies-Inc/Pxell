@@ -216,6 +216,14 @@ if ($step == "2") {
     $block1->form = "settings";
     $block1->openForm("../installation/setup.php?action=generate&amp;step=3");
 
+    $installCheckOffline = '';
+    $installCheckOnline = '';
+    $dbCheckMysql = '';
+    $checked1_a = '';
+    $checked2_a = '';
+    $checked1_b = '';
+    $checked2_b = '';
+
     if ($connexion == "off") {
         echo "<input value=\"false\" name=\"updatechecker\" type=\"hidden\">";
     } else if (is_readable(dirname(__DIR__) . '/version.txt')) {
@@ -273,7 +281,7 @@ if ($step == "2") {
         <input type="text" class="form-control" id="myprefix" name="myprefix" value="' . htmlspecialchars($myprefix) . '" maxlength="100">
     </div>';
 
-    $safemodeTest = ini_get(safe_mode);
+    $safemodeTest = ini_get('safe_mode');
     if ($safemodeTest == "1") {
         $checked1_a = "checked"; //false
         $safemode = "on";
@@ -386,16 +394,21 @@ if ($step == "2") {
         </select>
     </div>';
 
-    $url = $_SERVER['SERVER_NAME'];
-    if ($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) {
-        $url .= ":" . $_SERVER['SERVER_PORT'];
+    $serverName = $_SERVER['SERVER_NAME'] ?? 'localhost';
+    $serverPort = (int) ($_SERVER['SERVER_PORT'] ?? 80);
+    $httpsEnabled = strtolower((string) ($_SERVER['HTTPS'] ?? 'off')) === 'on';
+    $scriptName = $_SERVER['PHP_SELF'] ?? '/installation/setup.php';
+
+    $url = $serverName;
+    if ($serverPort !== 80 && $serverPort !== 443) {
+        $url .= ":" . $serverPort;
     } 
-    if ($_SERVER['HTTPS'] == "on") {
+    if ($httpsEnabled) {
         $protocol = "https://";
     } else {
         $protocol = "http://";
     } 
-    $root = $protocol . $url . dirname($_SERVER['PHP_SELF']);
+    $root = $protocol . $url . dirname($scriptName);
     $root = str_replace("installation", "", $root);
 
     echo '<div class="mb-3">

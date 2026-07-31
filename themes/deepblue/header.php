@@ -4,6 +4,10 @@
 $setDoctype = $setDoctype ?? '';
 $setCopyright = $setCopyright ?? '';
 $headBonus = $headBonus ?? '';
+$setCharset = $setCharset ?? 'UTF-8';
+$setTitle = $setTitle ?? 'TaskVibe';
+$setDescription = $setDescription ?? '';
+$setKeywords = $setKeywords ?? '';
 
 
 echo $setDoctype . "\n";
@@ -417,6 +421,17 @@ echo $setCopyright . "\n";
             max-height: 58px;
         }
 
+        .sidebar .installation-logo img {
+            width: 180px;
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .sidebar .installation-logo {
+            overflow: hidden;
+        }
+
         .sidebar.collapsed .logo img {
             max-width: 42px;
             max-height: 42px;
@@ -559,12 +574,14 @@ echo $setCopyright . "\n";
         </button>
 
         <div class="sidebar-content">
-            <div class="logo">
+            <div class="logo<?php echo defined('INSTALL') ? ' installation-logo' : ''; ?>">
                 <?php
                 //--- Client logo ---
                 $logoFile = null;
                 $logoAlt = 'TaskVibe';
-                if (!$blank && $version >= "2.0") {
+                if (defined('INSTALL')) {
+                    echo '<img src="../themes/deepblue/img/logo-sidebar.png?v=' . rawurlencode($version) . '" alt="TaskVibe">';
+                } else if (!$blank && $version >= "2.0") {
                     $tmpquery = "WHERE org.id = '1'";
                     $clientHeader = new request();
                     $clientHeader->openOrganizations($tmpquery);
@@ -575,9 +592,9 @@ echo $setCopyright . "\n";
                     }
                 }
 
-                if (!$blank && $logoFile !== null && file_exists($logoFile)) {
+                if (!defined('INSTALL') && !$blank && $logoFile !== null && file_exists($logoFile)) {
                     echo '<img src="' . htmlspecialchars($logoFile) . '" alt="' . htmlspecialchars($logoAlt) . '">';
-                } else {
+                } else if (!defined('INSTALL')) {
                     echo '<img src="../themes/deepblue/img/logo.png" alt="NetOffice">';
                 }
                 ?>
