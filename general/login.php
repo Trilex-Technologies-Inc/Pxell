@@ -203,7 +203,7 @@ if ($auth == 'on') {
             $tmpquery = "WHERE log.login = '$loginForm'";
             $registerLog = new request();
             $registerLog->openLogs($tmpquery);
-            $comptRegisterLog = count($registerLog->log_id);
+            $comptRegisterLog = count($registerLog->log_id ?? array());
             $session = session_id();
 
             if ($comptRegisterLog == '0') {

@@ -45,7 +45,7 @@ $tmpquery = 'ORDER BY last_visite DESC';
 
 $listLogs = new request();
 $listLogs->openLogs($tmpquery);
-$comptListLogs = count($listLogs->log_id);
+$comptListLogs = count($listLogs->log_id ?? array());
 
 $dateunix = date("U");
 

@@ -259,7 +259,7 @@ if ($checkSession && !$demoSession) {
     $tmpquery = "WHERE log.login = '" . $_SESSION['loginSession'] . "'";
     $checkLog = new request();
     $checkLog->openLogs($tmpquery);
-    $comptCheckLog = count($checkLog->log_id);
+    $comptCheckLog = count($checkLog->log_id ?? array());
 
     // make sure there is a row for them
     if ($comptCheckLog != '0') {
@@ -384,7 +384,12 @@ function openDatabase() {
         }
     }
     
-    $MY_DBH = @mysqli_connect($host, MYLOGIN, MYPASSWORD, MYDATABASE);
+    try {
+        $MY_DBH = @mysqli_connect($host, MYLOGIN, MYPASSWORD, MYDATABASE);
+    } catch (Throwable $exception) {
+        $MY_DBH = null;
+        return false;
+    }
     
     if (!$MY_DBH) {
         $error_msg = function_exists('mysqli_connect_error') ? mysqli_connect_error() : 'Connection failed';
@@ -499,20 +504,20 @@ function is_password_match($formUsername, $formPassword, $storedPassword) {
     if ($useLDAP == 'true') {
         if ($formUsername == 'admin') {
             switch ($loginMethod) {
-                case MD5:
+                case 'MD5':
                     if (md5($formPassword) == $storedPassword) {
                         return(true);
                     } else {
                         return(false);
                     } 
-                case CRYPT:
+                case 'CRYPT':
                     $salt = substr($storedPassword, 0, 2);
                     if (crypt($formPassword, $salt) == $storedPassword) {
                         return(true);
                     } else {
                         return(false);
                     } 
-                case PLAIN:
+                case 'PLAIN':
                     if ($formPassword == $storedPassword) {
                         return(true);
                     } else {
@@ -535,20 +540,20 @@ function is_password_match($formUsername, $formPassword, $storedPassword) {
         } 
     } else {
         switch ($loginMethod) {
-            case MD5:
+            case 'MD5':
                 if (md5($formPassword) == $storedPassword) {
                     return(true);
                 } else {
                     return(false);
                 } 
-            case CRYPT:
+            case 'CRYPT':
                 $salt = substr($storedPassword, 0, 2);
                 if (crypt($formPassword, $salt) == $storedPassword) {
                     return(true);
                 } else {
                     return(false);
                 } 
-            case PLAIN:
+            case 'PLAIN':
                 if ($formPassword == $storedPassword) {
                     return(true);
                 } else {
@@ -570,12 +575,12 @@ function get_password($newPassword) {
     global $loginMethod;
 
     switch ($loginMethod) {
-        case MD5:
+        case 'MD5':
             return(md5($newPassword));
-        case CRYPT:
+        case 'CRYPT':
             $salt = substr($newPassword, 0, 2);
             return(crypt($newPassword, $salt));
-        case PLAIN:
+        case 'PLAIN':
             return($newPassword);
 
             return($newPassword);
@@ -1042,14 +1047,66 @@ function write_csv($row)
 
 // This function is called by the session handler to initialize things
 // this NEEDS persistent database connections!!
+function _sess_mysql_connect()
+{
+    global $MY_DBH, $databaseCharset;
+
+    if ($MY_DBH instanceof mysqli) {
+        try {
+            $connectionCheck = @mysqli_query($MY_DBH, 'SELECT 1');
+            if ($connectionCheck instanceof mysqli_result) {
+                mysqli_free_result($connectionCheck);
+                return true;
+            }
+        } catch (Throwable $exception) {
+            // Other query helpers may have closed the shared connection.
+        }
+
+        $MY_DBH = null;
+    }
+
+    $host = MYSERVER;
+    if (DB_PCONNECT && strpos($host, 'p:') !== 0) {
+        $host = 'p:' . $host;
+    }
+
+    // A session callback must report failure instead of exiting. Exiting while
+    // PHP is saving a session at shutdown recursively invokes the handler.
+    try {
+        $MY_DBH = @mysqli_connect($host, MYLOGIN, MYPASSWORD, MYDATABASE);
+    } catch (Throwable $exception) {
+        $MY_DBH = null;
+        return false;
+    }
+    if (!$MY_DBH) {
+        return false;
+    }
+
+    if ($databaseCharset != '' && !_sess_mysql_query("SET NAMES '" . $databaseCharset . "'")) {
+        return false;
+    }
+
+    return true;
+}
+
+function _sess_mysql_query($query)
+{
+    global $MY_DBH;
+
+    if (!($MY_DBH instanceof mysqli)) {
+        return false;
+    }
+
+    try {
+        return @mysqli_query($MY_DBH, $query);
+    } catch (Throwable $exception) {
+        return false;
+    }
+}
+
 function _sess_mysql_open($save_path, $session_name)
 {
-    global $MY_DBH; 
-
-    // open database connection
-    $MY_DBH = openDatabase();
-
-    return(true);
+    return _sess_mysql_connect();
 }
 
 // This function is called when the page has finished executing and the session
@@ -1062,9 +1119,19 @@ function _sess_mysql_close()
     global $MY_DBH; 
 
     // Closes non-persistent database connections
-    if (@mysqli_close($MY_DBH) != true) {
-        return(false);
+    if (!($MY_DBH instanceof mysqli)) {
+        return true;
     }
+
+    try {
+        if (@mysqli_close($MY_DBH) != true) {
+            return(false);
+        }
+    } catch (Throwable $exception) {
+        // The application's query helpers may already have closed this handle.
+    }
+
+    $MY_DBH = null;
 
     return(true);
 }
@@ -1094,15 +1161,15 @@ function _sess_mysql_read($session_id)
 
     $select .= 'AND last_access > ' . $valid_session_time; 
 
-    // check database connection, reconnect if necessary
-    $MY_DBH = openDatabase();
+    // Check the database connection without exiting from the session callback.
+    if (!_sess_mysql_connect()) {
+        return '';
+    }
 
     // Execute the query
-    if (!$result = mysqli_query($MY_DBH, $select)) {
+    if (!$result = _sess_mysql_query($select)) {
         // error with query
-        print '<li>Unable to query the database ' . MYDATABASE;
-        print '<li>MySQL Error: ' . mysqli_error($MY_DBH);
-        exit;
+        return '';
     } 
 
     // Check for result, must only be one to return data
@@ -1151,14 +1218,16 @@ function _sess_mysql_write($session_id, $val)
 
     $update .= 'AND last_access > ' . $valid_session_time; 
 
-    // check database connection, reconnect if necessary
-    $MY_DBH = openDatabase();
+    // Check the database connection without exiting during request shutdown.
+    if (!_sess_mysql_connect()) {
+        return false;
+    }
 
     // First try the insert, if that doesn't succeed, it means the
     // session already exists and we need to update it instead.
-    if (!mysqli_query($MY_DBH, $insert)) {
+    if (!_sess_mysql_query($insert)) {
         // Insert failed, issue an update
-        if (!mysqli_query($MY_DBH, $update)) {
+        if (!_sess_mysql_query($update)) {
             // Everything faild, return false
             return(false);
         } 
@@ -1182,15 +1251,14 @@ function _sess_mysql_destroy($session_id)
         $select .= ' AND ipaddr="' . SESS_REMOTE_ADDR . '"';
     } 
 
-    // check database connection, reconnect if necessary
-    $MY_DBH = openDatabase();
+    if (!_sess_mysql_connect()) {
+        return false;
+    }
 
     // Execute the query
-    if (!$result = mysqli_query($MY_DBH, $select)) {
+    if (!$result = _sess_mysql_query($select)) {
         // error with query
-        print '<li>Unable to query the database ' . MYDATABASE;
-        print '<li>MySQL Error: ' . mysqli_error($MY_DBH);
-        exit;
+        return false;
     } 
 
     return($result);
@@ -1208,15 +1276,14 @@ function _sess_mysql_gc($max_lifetime)
     // Delete old values from the sessions table, greater than 48 hrs old
     $query = 'DELETE FROM ' . $tableCollab['sessions'] . ' WHERE last_access < ' . $valid_session_time; 
 
-    // check database connection, reconnect if necessary
-   $MY_DBH = openDatabase();
+    if (!_sess_mysql_connect()) {
+        return false;
+    }
 
     // Execute the query
-    if (!$result = mysqli_query($MY_DBH, $query)) {
+    if (!$result = _sess_mysql_query($query)) {
         // error with query
-        print '<li>Unable to query the database ' . MYDATABASE;
-        print '<li>MySQL Error: ' . mysqli_error($MY_DBH);
-        exit;
+        return false;
     } 
 
     return($result);

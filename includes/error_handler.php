@@ -38,11 +38,20 @@ function __customErrorHandler($errNo, $errStr, $errFile, $errLine)
         return;
     }
 
-    // PHP 8 promoted missing array-key notices to E_WARNING. NetOffice's
-    // legacy request handling intentionally permits optional keys, so retain
-    // the pre-PHP-8 behaviour without suppressing unrelated warnings.
-    if ($errNo == E_WARNING && str_starts_with($errStr, 'Undefined array key ')) {
-        return;
+    // PHP 8 promoted several notices used by NetOffice's legacy optional
+    // request/global handling to E_WARNING. Retain the pre-PHP-8 behaviour
+    // without suppressing unrelated warnings.
+    if ($errNo == E_WARNING) {
+        $legacyNotices = array(
+            'Undefined array key ',
+            'Undefined variable '
+        );
+
+        foreach ($legacyNotices as $legacyNotice) {
+            if (str_starts_with($errStr, $legacyNotice)) {
+                return;
+            }
+        }
     }
     
     // ignore E_STRICT warnings (PHP5 only)
