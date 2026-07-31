@@ -167,11 +167,11 @@ class iCalEvent extends iCalBase {
 	* @uses iCalBase::setURL()
 	* @uses setUID()
 	*/
-	function iCalEvent($organizer, $start, $end, $location, $transp, $categories,
+	function __construct($organizer, $start, $end, $location, $transp, $categories,
 					   $description, $summary, $class, $attendees, $prio, $frequency,
 					   $rec_end, $interval, $days, $weekstart, $exept_dates,
 					   $alarm, $status, $url, $language, $uid) {
-		parent::iCalBase();
+		parent::__construct();
 		parent::setLanguage($language);
 		parent::setOrganizer($organizer);
 		$this->setStartDate($start);

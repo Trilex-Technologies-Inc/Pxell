@@ -170,8 +170,8 @@ else {
  */
 // Gets the number of tables if a dump of a database has been required
 if (!isset($table)) {
-    $tables     = mysql_list_tables($db);
-    $num_tables = @mysql_numrows($tables);
+    $tables     = mysqli_query($GLOBALS['userlink'], 'SHOW TABLES FROM ' . PMA_backquote($db));
+    $num_tables = $tables ? mysqli_num_rows($tables) : 0;
 } else {
     $num_tables = 1;
     $single     = TRUE;
@@ -210,7 +210,9 @@ else {
         }
         while ($i < $num_tables) {
             if (!isset($single)) {
-                $table = mysql_tablename($tables, $i);
+                mysqli_data_seek($tables, $i);
+                $table_row = mysqli_fetch_row($tables);
+                $table = $table_row[0];
             }
             if (isset($tmp_select) && is_int(strpos($tmp_select, '|' . $table . '|')) == FALSE) {
                 $i++;
@@ -260,9 +262,6 @@ else {
         } else if (empty($add_character)) {
             $add_character = $GLOBALS['crlf'];
         } else {
-            if (get_magic_quotes_gpc()) {
-                $add_character = stripslashes($add_character);
-            }
             $add_character = str_replace('\\r', "\015", $add_character);
             $add_character = str_replace('\\n', "\012", $add_character);
             $add_character = str_replace('\\t', "\011", $add_character);

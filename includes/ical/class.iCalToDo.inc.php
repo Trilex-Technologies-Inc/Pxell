@@ -171,12 +171,12 @@ class iCalToDo extends iCalBase {
 	* @uses setUID()
 	* @since 1.020 - 2002-12-24
 	*/
-	function iCalToDo($summary, $description, $location, $start, $duration, $end,
+	function __construct($summary, $description, $location, $start, $duration, $end,
 					  $percent, $prio, $status, $class, $organizer, $attendees,
 					  $categories, $last_mod, $alarm, $frequency, $rec_end,
 					  $interval, $days, $weekstart, $exept_dates, $url, $lang, $uid) {
 
-        parent::iCalBase();
+        parent::__construct();
 		parent::setLanguage($lang);
 		parent::setOrganizer($organizer);
 		$this->setStartDate($start);

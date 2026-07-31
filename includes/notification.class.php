@@ -13,7 +13,7 @@
  */
 
 class notification extends phpmailer {
-    function notification()
+    function __construct()
     {
         global $strings, $root, $notificationMethod, $setCharset, $base_dir;
 

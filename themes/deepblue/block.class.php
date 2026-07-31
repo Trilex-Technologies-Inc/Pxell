@@ -13,7 +13,7 @@
  */
 
 class block {
-    function block() {
+    function __construct() {
         $this->iconWidth = "23";
         $this->iconHeight = "23";
         $this->bgColor = "#5B7F93";

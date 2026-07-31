@@ -205,7 +205,7 @@ class iCalBase {
 	* @return void
 	*/
 
-	function iCalBase() {
+	function __construct() {
 
 	} // end constructor
 

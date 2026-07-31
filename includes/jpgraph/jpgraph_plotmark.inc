@@ -55,11 +55,11 @@ $_gFlagCache=array(
 );
 // Only supposed to b called as statics
 class FlagCache {
-    function GetFlagImgByName($aSize,$aName) {
+    static function GetFlagImgByName($aSize,$aName) {
 	global $_gFlagCache;
 	require_once('jpgraph_flags.php');
 	if( $_gFlagCache[$aSize] === null ) {
-	    $_gFlagCache[$aSize] =& new FlagImages($aSize);
+	    $_gFlagCache[$aSize] = new FlagImages($aSize);
 	}
 	$f =& $_gFlagCache[$aSize];
 	$idx = $f->GetIdxByName($aName,$aFullName);
@@ -89,7 +89,7 @@ class PlotMark {
 
 //--------------
 // CONSTRUCTOR
-    function PlotMark() {
+    function __construct() {
 	$this->title = new Text();
 	$this->title->Hide();
 	$this->csimareas = '';

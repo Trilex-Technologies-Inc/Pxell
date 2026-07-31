@@ -58,7 +58,7 @@ class Htpasswd {
     // **************************************************************
     // An auto-constructor, can initilize the filename when
     // called from new()
-    function Htpasswd ($passwdFile = "")
+    function __construct ($passwdFile = "")
     {
         if (!empty($passwdFile)) {
             $this->initialize($passwdFile);

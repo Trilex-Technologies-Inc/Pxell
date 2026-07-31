@@ -14,7 +14,7 @@
 
 class request {
     // constructor
-    function request()
+    function __construct()
     {
     } 
     

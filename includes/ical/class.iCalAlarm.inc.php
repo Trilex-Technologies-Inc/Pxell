@@ -106,9 +106,9 @@ class iCalAlarm extends iCalBase {
 	* @uses setRepeat()
 	* @uses iCalBase::setLanguage()
 	*/
-	function iCalAlarm($action, $trigger, $summary, $description, $attendees,
+	function __construct($action, $trigger, $summary, $description, $attendees,
 					   $duration, $repeat, $lang) {
-        parent::iCalBase();
+        parent::__construct();
         $this->setAction($action);
 		$this->setTrigger($trigger);
 		parent::setSummary($summary);

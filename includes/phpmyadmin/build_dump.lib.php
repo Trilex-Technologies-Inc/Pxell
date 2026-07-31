@@ -172,7 +172,7 @@ if (!defined('PMA_BUILD_DUMP_LIB_INCLUDED')){
      *
      * @author  staybyte
      */
-    function PMA_getTableContentFast($db, $table, $add_query = '', $handler, $error_url)
+    function PMA_getTableContentFast($db, $table, $add_query, $handler, $error_url)
     {
         global $use_backquotes;
         global $rows_cnt;
@@ -289,7 +289,7 @@ if (!defined('PMA_BUILD_DUMP_LIB_INCLUDED')){
      *
      * @see     PMA_getTableContent()
      */
-    function PMA_getTableContentOld($db, $table, $add_query = '', $handler, $error_url)
+    function PMA_getTableContentOld($db, $table, $add_query, $handler, $error_url)
     {
         global $use_backquotes;
         global $rows_cnt;
@@ -397,7 +397,7 @@ if (!defined('PMA_BUILD_DUMP_LIB_INCLUDED')){
      *
      * @author  staybyte
      */
-    function PMA_getTableContent($db, $table, $limit_from = 0, $limit_to = 0, $handler, $error_url)
+    function PMA_getTableContent($db, $table, $limit_from, $limit_to, $handler, $error_url)
     {
         // Defines the offsets to use
         if ($limit_from > 0) {
@@ -443,7 +443,7 @@ if (!defined('PMA_BUILD_DUMP_LIB_INCLUDED')){
      *
      * @access  public
      */
-    function PMA_getTableCsv($db, $table, $limit_from = 0, $limit_to = 0, $sep, $enc_by, $esc_by, $handler, $error_url)
+    function PMA_getTableCsv($db, $table, $limit_from, $limit_to, $sep, $enc_by, $esc_by, $handler, $error_url)
     {
         global $what;
 
@@ -453,17 +453,12 @@ if (!defined('PMA_BUILD_DUMP_LIB_INCLUDED')){
         } else if (!isset($sep)) {
             $sep     = '';
         } else {
-            if (get_magic_quotes_gpc()) {
-                $sep = stripslashes($sep);
-            }
             $sep     = str_replace('\\t', "\011", $sep);
         }
         if ($what == 'excel') {
             $enc_by  = '"';
         } else if (!isset($enc_by)) {
             $enc_by  = '';
-        } else if (get_magic_quotes_gpc()) {
-            $enc_by  = stripslashes($enc_by);
         }
         if ($what == 'excel'
             || (empty($esc_by) && $enc_by != '')) {
@@ -471,8 +466,6 @@ if (!defined('PMA_BUILD_DUMP_LIB_INCLUDED')){
             $esc_by  = $enc_by;
         } else if (!isset($esc_by)) {
             $esc_by  = '';
-        } else if (get_magic_quotes_gpc()) {
-            $esc_by  = stripslashes($esc_by);
         }
 
         // Defines the offsets to use

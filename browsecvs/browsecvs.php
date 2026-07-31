@@ -99,7 +99,7 @@ function drawtop($listing, $dir = '')
     } 
 } 
 
-function drawbottom($listing, $dir = '', $path)
+function drawbottom($listing, $dir, $path)
 {
     global $rgb_off, $rgb_sub, $theme, $color;
     global $modulehref, $moduledir, $textutil;

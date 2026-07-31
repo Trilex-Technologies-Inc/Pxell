@@ -19,6 +19,22 @@ DEFINE("_JPG_DEBUG",false);
 DEFINE("_FORCE_IMGTOFILE",false);
 DEFINE("_FORCE_IMGDIR",'/tmp/jpgimg/');
 
+// strftime() was deprecated in PHP 8.1. This covers the format tokens used
+// by JpGraph while retaining the library's existing formatting API.
+function JpGraphDateFormat($format, $timestamp = null) {
+    $timestamp = $timestamp ?? time();
+    if ($format === '%j') {
+        return sprintf('%03d', ((int) date('z', $timestamp)) + 1);
+    }
+    $phpFormat = strtr($format, array(
+        '%%' => '\\%', '%a' => 'D', '%A' => 'l', '%b' => 'M', '%B' => 'F',
+        '%d' => 'd', '%e' => 'j', '%H' => 'H', '%I' => 'h', '%j' => 'z',
+        '%m' => 'm', '%M' => 'i', '%p' => 'A', '%S' => 's', '%w' => 'w',
+        '%W' => 'W', '%y' => 'y', '%Y' => 'Y'
+    ));
+    return date($phpFormat, $timestamp);
+}
+
 
 //------------------------------------------------------------------------
 // Automatic settings of path for cache and font directory
@@ -226,11 +242,11 @@ require_once 'jpgraph_gradient.php';
 //
 GLOBAL $__jpg_err;
 class JpGraphError {
-    function Install($aErrObject) {
+    static function Install($aErrObject) {
 	GLOBAL $__jpg_err;
 	$__jpg_err = $aErrObject;
     }
-    function Raise($aMsg,$aHalt=true){
+    static function Raise($aMsg,$aHalt=true){
 	GLOBAL $__jpg_err;
 	$tmp = new $__jpg_err;
 	$tmp->Raise($aMsg,$aHalt);
@@ -306,7 +322,7 @@ class JpGraphErrObject {
     var $iTitle = "JpGraph Error";
     var $iDest = false;
 
-    function JpGraphErrObject() {
+    function __construct() {
 	// Empty. Reserved for future use
     }
 
@@ -549,7 +565,7 @@ class JpgTimer {
     var $idx;	
 //---------------
 // CONSTRUCTOR
-    function JpgTimer() {
+    function __construct() {
 	$this->idx=0;
     }
 
@@ -589,7 +605,7 @@ class DateLocale {
 
 //---------------
 // CONSTRUCTOR	
-    function DateLocale() {
+    function __construct() {
 	settype($this->iDayAbb, 'array');
 	settype($this->iShortDay, 'array');
 	settype($this->iShortMonth, 'array');
@@ -616,15 +632,15 @@ class DateLocale {
  
 	$this->iLocale = $aLocale;
 
-	for ( $i = 0, $ofs = 0 - strftime('%w'); $i < 7; $i++, $ofs++ ){
-	    $day = strftime('%a', strtotime("$ofs day"));
+	for ( $i = 0, $ofs = 0 - JpGraphDateFormat('%w'); $i < 7; $i++, $ofs++ ){
+	    $day = JpGraphDateFormat('%a', strtotime("$ofs day"));
 	    $day[0] = strtoupper($day[0]);
 	    $this->iDayAbb[$aLocale][]= $day[0];
 	    $this->iShortDay[$aLocale][]= $day;
 	}
 
 	for($i=1; $i<=12; ++$i) {
-	    list($short ,$full) = explode('|', strftime("%b|%B",strtotime("2001-$i-01")));
+	    list($short ,$full) = explode('|', JpGraphDateFormat("%b|%B",strtotime("2001-$i-01")));
 	    $this->iShortMonth[$aLocale][] = ucfirst($short);
 	    $this->iMonthName [$aLocale][] = ucfirst($full);
 	}
@@ -673,7 +689,7 @@ $gJpgDateLocale = new DateLocale();
 class FuncGenerator {
     var $iFunc='',$iXFunc='',$iMin,$iMax,$iStepSize;
 	
-    function FuncGenerator($aFunc,$aXFunc='') {
+    function __construct($aFunc,$aXFunc='') {
 	$this->iFunc = $aFunc;
 	$this->iXFunc = $aXFunc;
     }
@@ -711,7 +727,7 @@ class Footer {
     var $iRightMargin = 3;
     var $iBottomMargin = 3;
 
-    function Footer() {
+    function __construct() {
 	$this->left = new Text();
 	$this->left->ParagraphAlign('left');
 	$this->center = new Text();
@@ -742,6 +758,8 @@ class Footer {
 // Description: Main class to handle graphs
 //===================================================
 class Graph {
+    var $legend;
+    var $ytick_factor;
     var $cache=null;		// Cache object (singleton)
     var $img=null;			// Img object (singleton)
     var $plots=array();	// Array of all plot object in the graph (for Y 1 axis)
@@ -815,7 +833,7 @@ class Graph {
     // aTimeOut		Timeout in minutes for image in cache
     // aInline		If true the image is streamed back in the call to Stroke()
     //			If false the image is just created in the cache
-    function Graph($aWidth=300,$aHeight=200,$aCachedName="",$aTimeOut=0,$aInline=true) {
+    function __construct($aWidth=300,$aHeight=200,$aCachedName="",$aTimeOut=0,$aInline=true) {
 	GLOBAL $gJpgBrandTiming;
 	// If timing is used create a new timing object
 	if( $gJpgBrandTiming ) {
@@ -1005,7 +1023,7 @@ class Graph {
 	    $cl = strtolower(get_class($aPlot));
 
 	if( $cl == 'text' || $cl == 'plotline' || $cl == 'plotband' )
-	  JpGraph::Raise('You can only add standard plots to multiple Y-axis');
+	  JpGraphError::Raise('You can only add standard plots to multiple Y-axis');
 	else
 	    $this->ynplots[$aN][] = &$aPlot;
     }
@@ -2257,9 +2275,9 @@ class Graph {
 
 
     // Private helper function for backgound image
-    function LoadBkgImage($aImgFormat='',$aFile='') {
+    static function LoadBkgImage($aImgFormat='',$aFile='') {
 	if( $aFile == '' )
-	    $aFile = $this->background_image;
+	    JpGraphError::Raise('A background image filename must be specified.');
 	// Remove case sensitivity and setup appropriate function to create image
 	// Get file extension. This should be the LAST '.' separated part of the filename
 	$e = explode('.',$aFile);
@@ -2344,7 +2362,7 @@ class Graph {
 	    JpGraphError::Raise('It is not possible to specify both a background image and a background country flag.');
 	}
 	if( $this->background_image != "" ) {
-	    $bkgimg = $this->LoadBkgImage($this->background_image_format);
+	    $bkgimg = self::LoadBkgImage($this->background_image_format, $this->background_image);
 	    $this->img->_AdjBrightContrast($bkgimg,$this->background_image_bright,
 					   $this->background_image_contr);
 	    $this->img->_AdjSat($bkgimg,$this->background_image_sat);
@@ -2853,7 +2871,7 @@ class TTF {
     var $font_files,$style_names;
 //---------------
 // CONSTRUCTOR
-    function TTF() {
+    function __construct() {
 	$this->style_names=array(FS_NORMAL=>'normal',FS_BOLD=>'bold',FS_ITALIC=>'italic',FS_BOLDITALIC=>'bolditalic');
 	// File names for available fonts
 	$this->font_files=array(
@@ -2979,7 +2997,7 @@ class Text {
 // CONSTRUCTOR
 
     // Create new text at absolute pixel coordinates
-    function Text($aTxt="",$aXAbsPos=0,$aYAbsPos=0) {
+    function __construct($aTxt="",$aXAbsPos=0,$aYAbsPos=0) {
 	if( ! is_string($aTxt) ) {
 	    JpGraphError::Raise('First argument to Text::Text() must be s atring.');
 	}
@@ -3215,7 +3233,7 @@ class GraphTabTitle extends Text{
     var $corner = 6 , $posx = 7, $posy = 4;
     var $color='darkred',$fillcolor='lightyellow',$bordercolor='black';
     var $align = 'left', $width=TABTITLE_WIDTHFIT;
-    function GraphTabTitle() {
+    function __construct() {
 	$this->t = '';
 	$this->font_style = FS_BOLD;
 	$this->hide = true;
@@ -3351,8 +3369,8 @@ class SuperScriptText extends Text {
     var $iSDir=0;
     var $iSimple=false;
 
-    function SuperScriptText($aTxt="",$aSuper="",$aXAbsPos=0,$aYAbsPos=0) {
-	parent::Text($aTxt,$aXAbsPos,$aYAbsPos);
+    function __construct($aTxt="",$aSuper="",$aXAbsPos=0,$aYAbsPos=0) {
+	parent::__construct($aTxt,$aXAbsPos,$aYAbsPos);
 	$this->iSuper = $aSuper;
     }
 
@@ -3529,7 +3547,7 @@ class Grid {
     var $fill=false,$fillcolor=array('#EFEFEF','#BBCCFF');
 //---------------
 // CONSTRUCTOR
-    function Grid(&$aAxis) {
+    function __construct(&$aAxis) {
 	$this->scale = &$aAxis->scale;
 	$this->img = &$aAxis->img;
     }
@@ -3692,7 +3710,7 @@ class Axis {
 
 //---------------
 // CONSTRUCTOR
-    function Axis(&$img,&$aScale,$color=array(0,0,0)) {
+    function __construct(&$img,&$aScale,$color=array(0,0,0)) {
 	$this->img = &$img;
 	$this->scale = &$aScale;
 	$this->color = $color;
@@ -4124,7 +4142,7 @@ class Ticks {
 
 //---------------
 // CONSTRUCTOR
-    function Ticks(&$aScale) {
+    function __construct(&$aScale) {
 	$this->scale=&$aScale;
 	$this->precision = -1;
     }
@@ -4246,7 +4264,7 @@ class LinearTicks extends Ticks {
     var $text_label_start=0;
 //---------------
 // CONSTRUCTOR
-    function LinearTicks() {
+    function __construct() {
 	$this->precision = -1;
     }
 
@@ -4516,7 +4534,7 @@ class LinearScale {
     var $name = 'lin';
 //---------------
 // CONSTRUCTOR
-    function LinearScale($aMin=0,$aMax=0,$aType="y") {
+    function __construct($aMin=0,$aMax=0,$aType="y") {
 	assert($aType=="x" || $aType=="y" );
 	assert($aMin<=$aMax);
 		
@@ -5059,7 +5077,7 @@ class LinearScale {
 class RGB {
     var $rgb_table;
     var $img;
-    function RGB($aImg=null) {
+    function __construct($aImg=null) {
 	$this->img = $aImg;
 		
 	// Conversion array between color names and RGB
@@ -5650,7 +5668,7 @@ class Image {
 
     //---------------
     // CONSTRUCTOR
-    function Image($aWidth,$aHeight,$aFormat=DEFAULT_GFORMAT) {
+    function __construct($aWidth,$aHeight,$aFormat=DEFAULT_GFORMAT) {
 	$this->CreateImgCanvas($aWidth,$aHeight);
 	$this->SetAutoMargin();		
 
@@ -5783,7 +5801,7 @@ class Image {
 	return imagesy($aImg);
     }
     
-    function CreateFromString($aStr) {
+    static function CreateFromString($aStr) {
 	return imagecreatefromstring($aStr);
     }
 
@@ -6007,7 +6025,7 @@ class Image {
     }
 	
 
-    function _StrokeBuiltinFont($x,$y,$txt,$dir=0,$paragraph_align="left",&$aBoundingBox,$aDebug=false) {
+    function _StrokeBuiltinFont($x,$y,$txt,$dir,$paragraph_align,&$aBoundingBox,$aDebug=false) {
 
 	if( is_numeric($dir) && $dir!=90 && $dir!=0) 
 	    JpGraphError::Raise(" Internal font does not support drawing text at arbitrary angle. Use TTF fonts instead.");
@@ -6157,7 +6175,7 @@ class Image {
 	return $box[2]-$box[0]+1;	
     }
 
-    function _StrokeTTF($x,$y,$txt,$dir=0,$paragraph_align="left",&$aBoundingBox,$debug=false) {
+    function _StrokeTTF($x,$y,$txt,$dir,$paragraph_align,&$aBoundingBox,$debug=false) {
 
 	// Setupo default inter line margin for paragraphs to
 	// 25% of the font height.
@@ -6623,7 +6641,7 @@ DEFINE(\"USE_APPROX_COLORS\",true);
     	$p[2*$i+1] = $yc;
 	if( $fillcolor != "" ) {
 	    $this->PushColor($fillcolor);
-	    imagefilledpolygon($this->img,$p,count($p)/2,$this->current_color);
+	    imagefilledpolygon($this->img,$p,$this->current_color);
 	    $this->PopColor();
 	}
     }
@@ -6711,7 +6729,7 @@ DEFINE(\"USE_APPROX_COLORS\",true);
 		$pts[] = round($xc + $r*cos($a));
 		$pts[] = round($yc - $r*sin($a));
 	    }
-	    imagepolygon($this->img,$pts,count($pts)/2,$this->current_color);
+	    imagepolygon($this->img,$pts,$this->current_color);
 	    */
 
 	    $this->Arc($xc,$yc,$r*2,$r*2,0,360);		
@@ -6898,7 +6916,7 @@ DEFINE(\"USE_APPROX_COLORS\",true);
 	    $dy=(cos($a)*$this->line_weight/2);
 
 	    $pnts = array($x2+$dx,$y2+$dy,$x2-$dx,$y2-$dy,$x1-$dx,$y1-$dy,$x1+$dx,$y1+$dy);
-	    imagefilledpolygon($this->img,$pnts,count($pnts)/2,$this->current_color);
+	    imagefilledpolygon($this->img,$pnts,$this->current_color);
 	}		
 	$this->lastx=$x2; $this->lasty=$y2;		
     }
@@ -6936,7 +6954,7 @@ DEFINE(\"USE_APPROX_COLORS\",true);
 	}
 	for($i=0; $i < $n; ++$i) 
 	    $pts[$i] = round($pts[$i]);
-	imagefilledpolygon($this->img,$pts,count($pts)/2,$this->current_color);
+	imagefilledpolygon($this->img,$pts,$this->current_color);
     }
 	
     function Rectangle($xl,$yu,$xr,$yl) {
@@ -7236,8 +7254,8 @@ class RotImage extends Image {
     var $a=0;
     var $dx=0,$dy=0,$transx=0,$transy=0; 
 	
-    function RotImage($aWidth,$aHeight,$a=0,$aFormat=DEFAULT_GFORMAT) {
-	$this->Image($aWidth,$aHeight,$aFormat);
+    function __construct($aWidth,$aHeight,$a=0,$aFormat=DEFAULT_GFORMAT) {
+	parent::__construct($aWidth,$aHeight,$aFormat);
 	$this->dx=$this->left_margin+$this->plotwidth/2;
 	$this->dy=$this->top_margin+$this->plotheight/2;
 	$this->SetAngle($a);	
@@ -7390,7 +7408,7 @@ class ImgStreamCache {
     var $timeout=0; 	// Infinite timeout
     //---------------
     // CONSTRUCTOR
-    function ImgStreamCache(&$aImg, $aCacheDir=CACHE_DIR) {
+    function __construct(&$aImg, $aCacheDir=CACHE_DIR) {
 	$this->img = &$aImg;
 	$this->cache_dir = $aCacheDir;
     }
@@ -7566,7 +7584,7 @@ class Legend {
     var $reverse = false ;
 //---------------
 // CONSTRUCTOR
-    function Legend() {
+    function __construct() {
 	// Empty
     }
 //---------------
@@ -8020,7 +8038,7 @@ class Plot {
     var $legendcsimalt='';
 //---------------
 // CONSTRUCTOR
-    function Plot(&$aDatay,$aDatax=false) {
+    function __construct(&$aDatay,$aDatax=false) {
 	$this->numpoints = count($aDatay);
 	if( $this->numpoints==0 )
 	    JpGraphError::Raise("Empty input data array specified for plot. Must have at least one data point.");
@@ -8196,7 +8214,7 @@ class PlotLine {
 
 //---------------
 // CONSTRUCTOR
-    function PlotLine($aDir=HORIZONTAL,$aPos=0,$aColor="black",$aWeight=1) {
+    function __construct($aDir=HORIZONTAL,$aPos=0,$aColor="black",$aWeight=1) {
 	$this->direction = $aDir;
 	$this->color=$aColor;
 	$this->weight=$aWeight;

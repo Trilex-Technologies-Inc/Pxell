@@ -275,9 +275,6 @@ if ($sql_file != 'none') {
         }
     }
 }
-else if (empty($id_bookmark) && get_magic_quotes_gpc() == 1) {
-    $sql_query = stripslashes($sql_query);
-}
 $sql_query = trim($sql_query);
 // $sql_query come from the query textarea, if it's a reposted query gets its
 // 'true' value
@@ -378,7 +375,7 @@ if ($goto == 'tbl_properties.php') {
     if (!isset($table)) {
         $goto     = 'db_details.php';
     } else {
-        $is_table = @mysql_query('SHOW TABLES LIKE \'' . PMA_sqlAddslashes($table, TRUE) . '\'');
+        $is_table = @mysqli_query($GLOBALS['userlink'], 'SHOW TABLES LIKE \'' . PMA_sqlAddslashes($table, TRUE) . '\'');
         if (!@mysqli_num_rows($is_table)) {
             $goto = 'db_details.php';
             unset($table);

@@ -935,18 +935,10 @@ function createDate($storedDate, $gmtUser)
  */
 function convertData($data)
 {
-    if (get_magic_quotes_gpc() == 1) {
-        $data = str_replace('"', '&quot;', $data);
-        $data = str_replace('<', '&lt;', $data);
-        $data = str_replace('>', '&gt;', $data);
-        return($data);
-    } else {
-        $data = str_replace('"', '&quot;', $data);
-        $data = str_replace('<', '&lt;', $data);
-        $data = str_replace('>', '&gt;', $data);
-        $data = addslashes($data);
-        return($data);
-    } 
+    $data = str_replace('"', '&quot;', $data);
+    $data = str_replace('<', '&lt;', $data);
+    $data = str_replace('>', '&gt;', $data);
+    return addslashes($data);
 }
 
 /**

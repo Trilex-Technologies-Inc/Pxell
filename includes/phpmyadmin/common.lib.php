@@ -224,7 +224,7 @@ if (!defined('PMA_COMMON_LIB_INCLUDED')){
         // username/password
         if (!empty($the_query) && !strstr($the_query, 'connect')) {
             $query_base = htmlspecialchars($the_query);
-        $query_base = ereg_replace("((\015\012)|(\015)|(\012)){3,}", "\n\n", $query_base);
+            $query_base = preg_replace("/((\015\012)|(\015)|(\012)){3,}/", "\n\n", $query_base);
             echo '<p>' . "\n";
             echo '    ' . $GLOBALS['strSQLQuery'] . '&nbsp;:&nbsp;' . "\n";
             if ($is_modify_link) {
@@ -237,7 +237,7 @@ if (!defined('PMA_COMMON_LIB_INCLUDED')){
         } // end if
         if (!empty($error_message)) {
             $error_message = htmlspecialchars($error_message);
-            $error_message = ereg_replace("((\015\012)|(\015)|(\012)){3,}", "\n\n", $error_message);
+            $error_message = preg_replace("/((\015\012)|(\015)|(\012)){3,}/", "\n\n", $error_message);
         }
         echo '<p>' . "\n";
         echo '    ' . $GLOBALS['strMySQLSaid'] . '<br />' . "\n";
@@ -264,7 +264,7 @@ if (!defined('PMA_COMMON_LIB_INCLUDED')){
      *
      * @access  public
      */
-    function PMA_isInto($toFind = '', &$in)
+    function PMA_isInto($toFind, &$in)
     {
         $max = count($in);
         for ($i = 0; $i < $max && ($toFind != $in[$i]); $i++) {
@@ -801,7 +801,7 @@ window.parent.frames['nav'].location.replace('<?php echo $reload_url; ?>');
             // xhtml1.0 statement before php4.0.5 ("<br>" and not "<br />")
             $new_line   = '<br />' . "\n" . '            ';
             $query_base = htmlspecialchars($GLOBALS['sql_query']);
-            $query_base = ereg_replace("((\015\012)|(\015)|(\012))+", $new_line, $query_base);
+            $query_base = preg_replace("/((\015\012)|(\015)|(\012))+/", $new_line, $query_base);
             if (!isset($GLOBALS['show_query']) || $GLOBALS['show_query'] != 'y') {
                 if (!isset($GLOBALS['goto'])) {
                     $edit_target = (isset($GLOBALS['table'])) ? 'tbl_properties.php' : 'db_details.php';
@@ -959,10 +959,15 @@ window.parent.frames['nav'].location.replace('<?php echo $reload_url; ?>');
             $timestamp = time();
         }
 
-        $date = preg_replace('/%[aA]/', $day_of_week[(int)strftime('%w', $timestamp)], $datefmt);
-        $date = preg_replace('/%[bB]/', $month[(int)strftime('%m', $timestamp)-1], $date);
+        $date = preg_replace('/%[aA]/', $day_of_week[(int)date('w', $timestamp)], $datefmt);
+        $date = preg_replace('/%[bB]/', $month[(int)date('m', $timestamp)-1], $date);
+        $date = strtr($date, array(
+            '%d' => 'd', '%e' => 'j', '%H' => 'H', '%I' => 'h',
+            '%m' => 'm', '%M' => 'i', '%p' => 'A', '%S' => 's',
+            '%w' => 'w', '%y' => 'y', '%Y' => 'Y', '%%' => '\\%'
+        ));
 
-        return strftime($date, $timestamp);
+        return date($date, $timestamp);
     } // end of the 'PMA_localisedDate()' function
 
 } // $__PMA_COMMON_LIB__

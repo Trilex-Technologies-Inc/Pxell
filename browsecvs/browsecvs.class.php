@@ -13,7 +13,7 @@
  */
 
 class browsecvs {
-    function browsecvs()
+    function __construct()
     {
     } 
     function getRevision($file, $rev = "")
