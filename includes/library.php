@@ -388,7 +388,6 @@ function openDatabase() {
         $MY_DBH = @mysqli_connect($host, MYLOGIN, MYPASSWORD, MYDATABASE);
     } catch (Throwable $exception) {
         $MY_DBH = null;
-        return false;
     }
     
     if (!$MY_DBH) {
@@ -400,7 +399,11 @@ function openDatabase() {
     }
 
 	if ( $databaseCharset != '' ) {
-        mysqli_query($MY_DBH, "SET NAMES '".$databaseCharset."'");
+        try {
+            mysqli_query($MY_DBH, "SET NAMES '".$databaseCharset."'");
+        } catch (Throwable $exception) {
+            // Keep the connection usable with its server-default charset.
+        }
     }
     return($MY_DBH);
 }
@@ -414,8 +417,14 @@ function openDatabase() {
 function updatechecker($iCV) {
     global $strings; 
 
+    $checkMsg = '';
+
     // get latest available version number
-    $iNV = trim(implode('', file('http://pxell.net/px/version.txt'))); 
+    $versionData = @file('http://pxell.net/px/version.txt');
+    if ($versionData === false) {
+        return $checkMsg;
+    }
+    $iNV = trim(implode('', $versionData));
 
     // version comparisions
     // version string order: dev < alpha = a < beta = b < RC < pl
@@ -450,6 +459,8 @@ function getmicrotime() {
 function autoLinks($data) {
     global $newText;
 
+    $newText = '';
+
     $lines = explode("\n", $data);
 
     foreach ($lines as $key => $line) {
@@ -483,8 +494,8 @@ function autoLinks($data) {
 function diff_date($date1, $date2) {
     list($an, $mois, $jour) = explode('-', $date1, 3);
     list($an2, $mois2, $jour2) = explode('-', $date2, 3);
-    $timestamp1 = mktime(null, null, null, $mois, $jour, $an);
-    $timestamp2 = mktime(null, null, null, $mois2, $jour2, $an2);
+    $timestamp1 = mktime(0, 0, 0, $mois, $jour, $an);
+    $timestamp2 = mktime(0, 0, 0, $mois2, $jour2, $an2);
     $diff = ($timestamp1 - $timestamp2) / (3600 * 24);
     $diff = intval($diff + 1);
     return($diff);
@@ -563,6 +574,8 @@ function is_password_match($formUsername, $formPassword, $storedPassword) {
                 return(false);
         } 
     }
+
+    return false;
 }
 
 /**
@@ -585,6 +598,8 @@ function get_password($newPassword) {
 
             return($newPassword);
     } 
+
+    return $newPassword;
 }
 
 /**
@@ -730,6 +745,7 @@ function createDir($path)
     global $mkdirMethod, $ftpRoot;
 
     $pathNew = explode('/', $path);
+    $create_dir = '';
 
     if ($mkdirMethod == 'FTP') {
         $ftp = ftp_connect(FTPSERVER);
@@ -794,7 +810,7 @@ function folder_info_size($path, $recursive = true)
 {
     $result = 0;
 
-    if (is_dir($path) || is_readable($path)) {
+    if (is_dir($path) && is_readable($path)) {
         $dir = opendir($path);
 
         while ($file = readdir($dir)) {
@@ -809,7 +825,9 @@ function folder_info_size($path, $recursive = true)
 
         closedir($dir);
         return($result);
-    } 
+    }
+
+    return 0;
 }
 
 /**
@@ -862,7 +880,7 @@ function file_info_dim($fichier)
 {
     global $dim;
     $temp = GetImageSize($fichier);
-    $dim = $temp[0] . 'x' . $temp[1];
+    $dim = is_array($temp) ? $temp[0] . 'x' . $temp[1] : '';
     return($dim);
 }
 
@@ -887,6 +905,8 @@ function file_info_date($fichier)
  */
 function recupFile($file)
 {
+    $content = '';
+
     if (!file_exists($file)) {
         echo 'File does not exist : ' . $file;
         return(false);
@@ -929,7 +949,9 @@ function createDate($storedDate, $gmtUser)
         } 
     } else {
         return($storedDate);
-    } 
+    }
+
+    return $storedDate;
 }
 
 /**
@@ -956,19 +978,23 @@ function compt($tmpsql)
 {
     global $tableCollab, $databaseType, $countEnregTotal, $comptRequest;
 
-    $comptRequest += 1;
+    $countEnreg = array();
+    $countEnregTotal = 0;
+    $comptRequest = (int) ($comptRequest ?? 0) + 1;
 
     if ($databaseType == 'mysql') {
         $res = openDatabase();
         $sql = $tmpsql;
         $index = mysqli_query($res, $sql);
 
-        while ($row = mysqli_fetch_row($index)) {
-            $countEnreg[] = ($row[0]);
-        } 
+        if ($index instanceof mysqli_result) {
+            while ($row = mysqli_fetch_row($index)) {
+                $countEnreg[] = ($row[0]);
+            }
 
-        $countEnregTotal = count($countEnreg);
-        @mysqli_free_result($index);
+            $countEnregTotal = count($countEnreg);
+            mysqli_free_result($index);
+        }
         @mysqli_close($res);
     } 
 
@@ -989,8 +1015,8 @@ function connectSql($tmpsql)
         $res = openDatabase();
         $sql = $tmpsql;
         $index = mysqli_query($res, $sql);
-        if ($index) {
-            @mysqli_free_result($index); //!!! index might be invalid
+        if ($index instanceof mysqli_result) {
+            mysqli_free_result($index);
         }
         @mysqli_close($res);
     } 
@@ -1006,19 +1032,24 @@ function last_id($tmpsql)
 {
     global $tableCollab, $databaseType;
 
+    $lastId = array();
+
     if ($databaseType == 'mysql') {
         $res = openDatabase();
-        global $lastId;
         $sql = 'SELECT id FROM ' . $tmpsql . ' ORDER BY id DESC';
         $index = mysqli_query($res, $sql);
 
-        while ($row = mysqli_fetch_row($index)) {
-            $lastId[] = $row[0];
-        } 
+        if ($index instanceof mysqli_result) {
+            while ($row = mysqli_fetch_row($index)) {
+                $lastId[] = $row[0];
+            }
 
-        @mysqli_free_result($index);
+            mysqli_free_result($index);
+        }
         @mysqli_close($res);
-    } 
+    }
+
+    return $lastId;
 }
 
 /**
@@ -1183,7 +1214,9 @@ function _sess_mysql_read($session_id)
     }
 
     // Free up the resources used by the statement
-    @mysqli_free_result($result);
+    if ($result instanceof mysqli_result) {
+        mysqli_free_result($result);
+    }
 
     return($data);
 }
@@ -1293,7 +1326,7 @@ function _sess_mysql_gc($max_lifetime)
 function get_http_host()
 { 
     // Get the refering host for security checks
-    $sess_host = $_SERVER['HTTP_HOST'];
+    $sess_host = $_SERVER['HTTP_HOST'] ?? '';
 
     if (empty($sess_host)) {
         $sess_host = getenv('HTTP_HOST');
@@ -1313,7 +1346,7 @@ function get_http_host()
 // the SID as the primary key in the database, security.
 function get_remote_addr()
 {
-    $ipaddr = $_SERVER['REMOTE_ADDR'];     //??? maybe undefined
+    $ipaddr = $_SERVER['REMOTE_ADDR'] ?? '';
 
     if (empty($ipaddr)) {
         $ipaddr = getenv('REMOTE_ADDR');
@@ -1381,7 +1414,7 @@ function diff_hour($date1, $date2) {
         $tmpquery = " WHERE hol.date='$currDate'";
         $listHoliday = new request();
         $listHoliday->openHoliday($tmpquery);
-        $comptListHoliday = count($listHoliday->hol_id);
+        $comptListHoliday = count($listHoliday->hol_id ?? array());
         if ($comptListHoliday == 0) {
             $weekDay = date("w", $timestamp1);
             $diff += $dayHourArray[$weekDay];
@@ -1408,7 +1441,7 @@ function hours_after($date1, $hour1) {
         $tmpquery = " WHERE hol.date='$currDate'";
         $listHoliday = new request();
         $listHoliday->openHoliday($tmpquery);
-        $comptListHoliday = count($listHoliday->hol_id);
+        $comptListHoliday = count($listHoliday->hol_id ?? array());
         if ($comptListHoliday == 0) {
             $weekDay = date("w", $timestamp1);
             $diff += $dayHourArray[$weekDay];
@@ -1437,7 +1470,7 @@ function hours_before($date1, $hour1) {
         $tmpquery = " WHERE hol.date='$currDate'";
         $listHoliday = new request();
         $listHoliday->openHoliday($tmpquery);
-        $comptListHoliday = count($listHoliday->hol_id);
+        $comptListHoliday = count($listHoliday->hol_id ?? array());
         if ($comptListHoliday == 0) {
             $weekDay = date("w", $timestamp1);
             $diff += $dayHourArray[$weekDay];

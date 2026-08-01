@@ -107,7 +107,9 @@ while ($row = mysqli_fetch_row($rows)) {
     $notice_name[$row[0]] = $row[2];
 } 
 
-@mysqli_free_result($rows);
+if ($rows instanceof mysqli_result) {
+    mysqli_free_result($rows);
+}
 // iterate through the list of resources and pull all their tasks
 foreach ($notice_list as $staffid => $email) {
     $recipient_name = $notice_name[$staffid];

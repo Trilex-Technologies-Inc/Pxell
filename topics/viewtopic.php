@@ -110,7 +110,7 @@ $block1->contentTitle($strings["info"]);
 
 $block1->contentRow($strings["project"], buildLink("../projects/viewproject.php?id=" . $detailProject->pro_id[0], $detailProject->pro_name[0] . " (#" . $detailProject->pro_id[0] . ")", LINK_INSIDE));
 $block1->contentRow($strings["organization"], $detailProject->pro_org_name[0]);
-$block1->contentRow($strings["owner"], buildLink("../users/viewuser.php?id=" . $detailProject->pro_mem_id[0], $detailProject->pro_mem_name[0], in) . " (" . buildLink($detailProject->pro_mem_email_work[0], $detailProject->pro_mem_login[0], LINK_MAIL) . ")");
+$block1->contentRow($strings["owner"], buildLink("../users/viewuser.php?id=" . $detailProject->pro_mem_id[0], $detailProject->pro_mem_name[0], LINK_INSIDE) . " (" . buildLink($detailProject->pro_mem_email_work[0], $detailProject->pro_mem_login[0], LINK_MAIL) . ")");
 
 if ($sitePublish == "true") {
     $block1->contentRow($strings["published"], $statusPublish[$idPublish]);

@@ -276,8 +276,8 @@ if ($comptListTasks != "0") {
         $idPublish = $listTasks->tas_published[$i];
         $block1->openRow($listTasks->tas_id[$i]);
         $block1->checkboxRow($listTasks->tas_id[$i]);
-        $block1->cellRow(buildLink("../tasks/viewtask.php?id=" . $listTasks->tas_id[$i], $listTasks->tas_id[$i], in));
-        $block1->cellRow(buildLink("../tasks/viewtask.php?id=" . $listTasks->tas_id[$i], $listTasks->tas_name[$i], in));
+        $block1->cellRow(buildLink("../tasks/viewtask.php?id=" . $listTasks->tas_id[$i], $listTasks->tas_id[$i], LINK_INSIDE));
+        $block1->cellRow(buildLink("../tasks/viewtask.php?id=" . $listTasks->tas_id[$i], $listTasks->tas_name[$i], LINK_INSIDE));
         $block1->cellRow('<img src="../themes/' . THEME . '/gfx_priority/' . $idPriority . '.gif" alt="' . $priority[$idPriority] . '">&nbsp;' . $priority[$idPriority], '', true);
         $block1->cellRow($status[$idStatus]);
         if ($listTasks->tas_due_date[$i] <= $date && $listTasks->tas_completion[$i] != "10") {
@@ -294,7 +294,7 @@ if ($comptListTasks != "0") {
         } else {
             $block1->cellRow(buildLink($listTasks->tas_mem_email_work[$i], $listTasks->tas_mem_login[$i], LINK_MAIL));
         } 
-        $block1->cellRow(buildLink("../projects/viewproject.php?id=" . $listTasks->tas_project[$i], $listTasks->tas_pro_name[$i], in));
+        $block1->cellRow(buildLink("../projects/viewproject.php?id=" . $listTasks->tas_project[$i], $listTasks->tas_pro_name[$i], LINK_INSIDE));
         if ($sitePublish == "true") {
             $block1->cellRow($statusPublish[$idPublish]);
         } 

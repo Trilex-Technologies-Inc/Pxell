@@ -58,12 +58,30 @@ class request {
     {
         global $MY_DBH, $databaseType;
         if ($databaseType == "mysql") {
-            if ($this->index) {
-                @mysqli_free_result($this->index);
+            if ($this->index instanceof mysqli_result) {
+                mysqli_free_result($this->index);
             }
-            @mysqli_close($MY_DBH);
+            if ($MY_DBH instanceof mysqli) {
+                try {
+                    @mysqli_close($MY_DBH);
+                } catch (Throwable $exception) {
+                    // The shared connection may already have been closed.
+                }
+                $MY_DBH = null;
+            }
         } 
     } 
+
+    function __isset($name)
+    {
+        return false;
+    }
+
+    function __get($name)
+    {
+        return array();
+    }
+
     // results sorting
     function openSorting($querymore, $start = "", $rows = "")
     {
@@ -370,6 +388,26 @@ class request {
         if (($databaseType == "mysql") && $start != "") {
             $sql .= " LIMIT $start,$rows";
         } 
+
+        $this->org_id = array();
+        $this->org_name = array();
+        $this->org_address1 = array();
+        $this->org_address2 = array();
+        $this->org_zip_code = array();
+        $this->org_city = array();
+        $this->org_country = array();
+        $this->org_phone = array();
+        $this->org_fax = array();
+        $this->org_url = array();
+        $this->org_email = array();
+        $this->org_comments = array();
+        $this->org_created = array();
+        $this->org_extension_logo = array();
+        $this->org_owner = array();
+        $this->org_mem_id = array();
+        $this->org_mem_login = array();
+        $this->org_mem_name = array();
+        $this->org_mem_email_work = array();
 
         $index = $this->query($sql);
         while ($this->fetch()) {

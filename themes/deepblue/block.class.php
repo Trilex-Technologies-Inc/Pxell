@@ -25,6 +25,7 @@ class block {
     public $highlightOff;
     public $theme;
     public $pathImg;
+    public $toggle = false;
 
     function __construct() {
         $this->iconWidth = "23";

@@ -350,7 +350,7 @@ require_once('../themes/' . THEME . '/header.php');
 	        for ($i = 0;$i < $comptListBookmarks;$i++) {
 	            $block6->openRow($listBookmarks->boo_id[$i]);
 	            $block6->checkboxRow($listBookmarks->boo_id[$i]);
-	            $block6->cellRow(buildLink("../bookmarks/viewbookmark.php?view=$view&amp;id=" . $listBookmarks->boo_id[$i], $listBookmarks->boo_name[$i], in) . ' ' . buildLink($listBookmarks->boo_url[$i], "(" . $strings["url"] . ")", LINK_OUT));
+	            $block6->cellRow(buildLink("../bookmarks/viewbookmark.php?view=$view&amp;id=" . $listBookmarks->boo_id[$i], $listBookmarks->boo_name[$i], LINK_INSIDE) . ' ' . buildLink($listBookmarks->boo_url[$i], "(" . $strings["url"] . ")", LINK_OUT));
 	            $block6->cellRow($listBookmarks->boo_boocat_name[$i]);
 
 	            if ($listBookmarks->boo_shared[$i] == "1") {
