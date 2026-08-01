@@ -588,7 +588,7 @@ echo $setCopyright . "\n";
                     $logoExtension = $clientHeader->org_extension_logo[0] ?? '';
                     $logoAlt = $clientHeader->org_name[0] ?? $logoAlt;
                     if ($logoExtension !== '') {
-                        $logoFile = "../logos_clients/1." . $logoExtension;
+                        $logoFile = $base_uri . 'logos_clients/1.' . rawurlencode($logoExtension);
                         $logoDiskFile = $base_dir . 'logos_clients/1.' . $logoExtension;
                     }
                 }
@@ -596,7 +596,7 @@ echo $setCopyright . "\n";
                 if (!defined('INSTALL') && !$blank && $logoFile !== null && isset($logoDiskFile) && is_file($logoDiskFile)) {
                     echo '<img src="' . htmlspecialchars($logoFile) . '" alt="' . htmlspecialchars($logoAlt) . '">';
                 } else if (!defined('INSTALL')) {
-                    echo '<img src="../themes/deepblue/img/logo.png" alt="NetOffice">';
+                    echo '<img src="' . htmlspecialchars($base_uri . 'themes/deepblue/img/logo-sidebar.png') . '" alt="TaskVibe">';
                 }
                 ?>
             </div>

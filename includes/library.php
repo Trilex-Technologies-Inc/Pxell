@@ -77,8 +77,36 @@ $base_dir = str_replace('\\', '/', dirname(dirname(__FILE__)) . '/');
 // load the custom error handler
 require_once($base_dir . 'includes/error_handler.php');
 
-// load configuration settings
-require_once($base_dir . 'includes/settings.php');
+// Redirect every application entry point to setup when the generated
+// configuration is absent or clearly incomplete. index.php already had a
+// similar check, but direct URLs such as general/login.php previously failed
+// with a fatal require error instead.
+$settingsFile = $base_dir . 'includes/settings.php';
+$installerFile = $base_dir . 'installation/setup.php';
+$settingsMissing = !is_file($settingsFile) || !is_readable($settingsFile) || filesize($settingsFile) <= 1024;
+
+if ($settingsMissing && is_file($installerFile)) {
+    $scriptFilename = str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME'] ?? '');
+    $relativeScript = ltrim(str_replace($base_dir, '', $scriptFilename), '/');
+    $scriptDepth = dirname($relativeScript) === '.' ? 0 : substr_count(dirname($relativeScript), '/') + 1;
+    header('Location: ' . str_repeat('../', $scriptDepth) . 'installation/setup.php');
+    exit;
+}
+
+require_once($settingsFile);
+
+// A partially written settings file can exist and still lack the values the
+// application requires. Treat it as an incomplete installation as well.
+$settingsComplete = defined('MYSERVER') && defined('MYLOGIN') &&
+    defined('MYPASSWORD') && defined('MYDATABASE') &&
+    isset($root, $databaseType, $tableCollab) && is_array($tableCollab);
+if (!$settingsComplete && is_file($installerFile)) {
+    $scriptFilename = str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME'] ?? '');
+    $relativeScript = ltrim(str_replace($base_dir, '', $scriptFilename), '/');
+    $scriptDepth = dirname($relativeScript) === '.' ? 0 : substr_count(dirname($relativeScript), '/') + 1;
+    header('Location: ' . str_repeat('../', $scriptDepth) . 'installation/setup.php');
+    exit;
+}
 
 // set base URI
 $url_array = parse_url($root);

@@ -12,8 +12,8 @@
  * (at your option) any later version.
  */
 
-if (file_exists('installation/setup.php') && 
-   (!file_exists('includes/settings.php') or filesize('includes/settings.php') <= 1024)) {
+if (file_exists('installation/setup.php') &&
+   (!is_readable('includes/settings.php') || filesize('includes/settings.php') <= 1024)) {
     header('Location: installation/setup.php');
     exit;
 }
