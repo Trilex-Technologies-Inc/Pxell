@@ -139,6 +139,12 @@ switch ($msg) {
 
     case 'blankProject':
         $msgLabel = "<b>" . $strings["attention"] . "</b> : " . $strings["blank_project"];
+        $projectFailureReason = $_GET['reason'] ?? '';
+        if ($projectFailureReason === 'missing_id') {
+            $msgLabel .= ' The project ID was missing or invalid in the request URL.';
+        } elseif ($projectFailureReason === 'id_not_found') {
+            $msgLabel .= ' The supplied project ID does not exist in the projects table.';
+        }
         break;
 
     case 'settingsNotwritable':

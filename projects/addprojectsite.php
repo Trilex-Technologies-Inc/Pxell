@@ -15,6 +15,13 @@
 $checkSession = true;
 require_once('../includes/library.php');
 
+$requestedProjectId = (string) ($_GET['id'] ?? '');
+if ($requestedProjectId === '' || !ctype_digit($requestedProjectId)) {
+    header('Location: ../projects/listprojects.php?msg=blankProject&reason=missing_id');
+    exit;
+}
+$id = $requestedProjectId;
+
 #$id = $_REQUEST['id'];
 #$action = $_REQUEST['action'];
 
@@ -24,7 +31,7 @@ $projectDetail->openProjects($tmpquery);
 $comptProjectDetail = count($projectDetail->pro_id);
 
 if ($comptProjectDetail == '0') {
-    header('Location: ../projects/listprojects.php?msg=blankProject');
+    header('Location: ../projects/listprojects.php?msg=blankProject&reason=id_not_found');
     exit;
 }
 

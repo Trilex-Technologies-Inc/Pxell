@@ -62,7 +62,7 @@ if ($id != '') {
     $comptProjectDetail = count($projectDetail->pro_id);
 
     if ($comptProjectDetail == '0') {
-        header('Location: ../projects/listprojects.php?msg=blankProject');
+        header('Location: ../projects/listprojects.php?msg=blankProject&reason=id_not_found');
         exit;
     }
 

@@ -62,10 +62,11 @@ if ($id != '') {
                 $tmpquery1 = 'INSERT INTO ' . $tableCollab['bookmarks_categories'] . "(name) VALUES('$category_new')";
                 connectSql($tmpquery1);
                 $tmpquery = $tableCollab['bookmarks_categories'];
-                last_id($tmpquery);
-                $num = $lastId[0];
-                unset($lastId);
-                $category = $num;
+                $categoryIds = last_id($tmpquery);
+                if (empty($categoryIds)) {
+                    throw new RuntimeException('The bookmark category was inserted, but its new ID could not be retrieved.');
+                }
+                $category = $categoryIds[0];
             } else {
                 $category = $listCategories->boocat_id[0];
             }
@@ -135,10 +136,11 @@ if ($id == '') {
                 $tmpquery1 = 'INSERT INTO ' . $tableCollab['bookmarks_categories'] . "(name) VALUES('$category_new')";
                 connectSql($tmpquery1);
                 $tmpquery = $tableCollab['bookmarks_categories'];
-                last_id($tmpquery);
-                $num = $lastId[0];
-                unset($lastId);
-                $category = $num;
+                $categoryIds = last_id($tmpquery);
+                if (empty($categoryIds)) {
+                    throw new RuntimeException('The bookmark category was inserted, but its new ID could not be retrieved.');
+                }
+                $category = $categoryIds[0];
             } else {
                 $category = $listCategories->boocat_id[0];
             }
