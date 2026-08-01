@@ -46,11 +46,8 @@ $block1->closePaletteIcon();
 
 $block1->sorting("users", $sortingUser->sor_users[0], "mem.name ASC", $sortingFields = array(0 => "mem.name", 1 => "mem.login", 2 => "mem.email_work", 3 => "mem.profil", 4 => "log.connected"));
 
-if ($demoMode == true) {
-    $tmpquery = "WHERE mem.id != '1' AND mem.profil != '3' ORDER BY $block1->sortingValue";
-} else {
-    $tmpquery = "WHERE mem.id != '1' AND mem.profil != '3' AND mem.id != '2' ORDER BY $block1->sortingValue";
-} 
+// This page is administrator-only, so its list should include every account.
+$tmpquery = "ORDER BY $block1->sortingValue";
 $listMembers = new request();
 $listMembers->openMembers($tmpquery);
 $comptListMembers = count($listMembers->mem_id);

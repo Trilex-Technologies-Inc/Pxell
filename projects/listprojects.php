@@ -119,21 +119,21 @@ $blockPage->bornesNumber = '1';
 	   );
 
 	if ($show == 'inactive') {
-	    if ($projectsFilter == 'true') {
+	    if ($projectsFilter == 'true' && ($_SESSION['profilSession'] ?? '') != '0') {
 	        $tmpquery = 'LEFT OUTER JOIN ' . $tableCollab['teams'] . ' teams ON teams.project = pro.id ';
 	        $tmpquery .= ' WHERE pro.status IN(1,4,6) AND teams.member = ' . $_SESSION['idSession'] . ' ORDER BY ' . $block1->sortingValue;
 	    } else {
 	        $tmpquery = 'WHERE pro.status IN(1,4,6) ORDER BY ' . $block1->sortingValue;
 	    }
 	} else if ($show == 'active') {
-	    if ($projectsFilter == 'true') {
+	    if ($projectsFilter == 'true' && ($_SESSION['profilSession'] ?? '') != '0') {
 	        $tmpquery = 'LEFT OUTER JOIN ' . $tableCollab['teams'] . ' teams ON teams.project = pro.id ';
 	        $tmpquery .= 'WHERE pro.status IN(0,2,3,5) AND teams.member = ' . $_SESSION['idSession'] . ' ORDER BY ' . $block1->sortingValue;
 	    } else {
 	        $tmpquery = 'WHERE pro.status IN(0,2,3,5) ORDER BY ' . $block1->sortingValue;
 	    }
 	} else if ($show == 'all') {
-	    if ($projectsFilter == 'true') {
+	    if ($projectsFilter == 'true' && ($_SESSION['profilSession'] ?? '') != '0') {
 	        $tmpquery = 'LEFT OUTER JOIN ' . $tableCollab['teams'] . ' teams ON teams.project = pro.id ';
 	        $tmpquery .= 'WHERE teams.member = ' . $_SESSION['idSession'] . ' ORDER BY ' . $block1->sortingValue;
 	    } else {

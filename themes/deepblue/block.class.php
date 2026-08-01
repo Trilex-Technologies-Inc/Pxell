@@ -26,6 +26,19 @@ class block {
     public $theme;
     public $pathImg;
     public $toggle = false;
+    public $form = '';
+    public $sortingRef = '';
+    public $sortingValue = '';
+    public $sortingDefault = '';
+    public $sortingFields = array();
+    public $sortingOrders = array();
+    public $sortingArrows = array();
+    public $sortingStyles = array();
+    public $borne = 0;
+    public $recordsTotal = 0;
+    public $rowsLimit = 0;
+    public $account = 0;
+    public $accountTotal = 0;
 
     function __construct() {
         $this->iconWidth = "23";

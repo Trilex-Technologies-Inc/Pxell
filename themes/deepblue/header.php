@@ -589,10 +589,11 @@ echo $setCopyright . "\n";
                     $logoAlt = $clientHeader->org_name[0] ?? $logoAlt;
                     if ($logoExtension !== '') {
                         $logoFile = "../logos_clients/1." . $logoExtension;
+                        $logoDiskFile = $base_dir . 'logos_clients/1.' . $logoExtension;
                     }
                 }
 
-                if (!defined('INSTALL') && !$blank && $logoFile !== null && file_exists($logoFile)) {
+                if (!defined('INSTALL') && !$blank && $logoFile !== null && isset($logoDiskFile) && is_file($logoDiskFile)) {
                     echo '<img src="' . htmlspecialchars($logoFile) . '" alt="' . htmlspecialchars($logoAlt) . '">';
                 } else if (!defined('INSTALL')) {
                     echo '<img src="../themes/deepblue/img/logo.png" alt="NetOffice">';

@@ -15,6 +15,9 @@
 $checkSession = true;
 require_once('../includes/library.php');
 
+$requestedView = (string) ($_GET['view'] ?? 'all');
+$view = in_array($requestedView, array('all', 'my', 'private'), true) ? $requestedView : 'all';
+$project = (string) ($_GET['project'] ?? '');
 
 $tmpquery = "WHERE pro.id = '$project'";
 $projectDetail = new request();
@@ -72,12 +75,59 @@ if ($view == 'my') {
     $tmpquery = "WHERE boo.owner = '" . $_SESSION['idSession'] . "' ORDER BY $block1->sortingValue";
 } else if ($view == 'private') {
     $tmpquery = "WHERE boo.users LIKE '%|" . $_SESSION['idSession'] . "|%' ORDER BY $block1->sortingValue";
+} else if (($_SESSION['profilSession'] ?? '') == '0') {
+    // For administrators, "All" means every row in the bookmarks table.
+    // Other users retain the privacy filter below.
+    $tmpquery = "ORDER BY $block1->sortingValue";
 } else {
     $tmpquery = "WHERE boo.shared = '1' OR boo.owner = '" . $_SESSION['idSession'] . "' ORDER BY $block1->sortingValue";
 }
 
 $listBookmarks = new request();
-$listBookmarks->openBookmarks($tmpquery);
+
+if ($view === 'all' && ($_SESSION['profilSession'] ?? '') == '0') {
+    // Use a focused query for the administrator's unfiltered view. The legacy
+    // request wrapper relies on SELECT * column positions and can silently
+    // produce an empty/misaligned result when an installed schema differs.
+    $bookmarkConnection = openDatabase();
+    $bookmarkTable = str_replace('`', '``', $tableCollab['bookmarks']);
+    $categoryTable = str_replace('`', '``', $tableCollab['bookmarks_categories']);
+    $memberTable = str_replace('`', '``', $tableCollab['members']);
+    $bookmarkSql = "SELECT boo.id, boo.owner, boo.category, boo.name, boo.url, " .
+        "boo.description, boo.shared, boo.home, boo.comments, boo.users, " .
+        "boo.created, boo.modified, mem.login AS owner_login, " .
+        "mem.email_work AS owner_email, boocat.name AS category_name " .
+        "FROM `$bookmarkTable` boo " .
+        "LEFT JOIN `$categoryTable` boocat ON boocat.id = boo.category " .
+        "LEFT JOIN `$memberTable` mem ON mem.id = boo.owner " .
+        "ORDER BY boo.name ASC";
+    $bookmarkResult = mysqli_query($bookmarkConnection, $bookmarkSql);
+    if (!($bookmarkResult instanceof mysqli_result)) {
+        throw new RuntimeException('Unable to load administrator bookmarks: ' . mysqli_error($bookmarkConnection));
+    }
+
+    while ($bookmarkRow = mysqli_fetch_assoc($bookmarkResult)) {
+        $listBookmarks->boo_id[] = $bookmarkRow['id'];
+        $listBookmarks->boo_owner[] = $bookmarkRow['owner'];
+        $listBookmarks->boo_category[] = $bookmarkRow['category'];
+        $listBookmarks->boo_name[] = $bookmarkRow['name'];
+        $listBookmarks->boo_url[] = $bookmarkRow['url'];
+        $listBookmarks->boo_description[] = $bookmarkRow['description'];
+        $listBookmarks->boo_shared[] = $bookmarkRow['shared'];
+        $listBookmarks->boo_home[] = $bookmarkRow['home'];
+        $listBookmarks->boo_comments[] = $bookmarkRow['comments'];
+        $listBookmarks->boo_users[] = $bookmarkRow['users'];
+        $listBookmarks->boo_created[] = $bookmarkRow['created'];
+        $listBookmarks->boo_modified[] = $bookmarkRow['modified'];
+        $listBookmarks->boo_mem_login[] = $bookmarkRow['owner_login'] ?? '';
+        $listBookmarks->boo_mem_email_work[] = $bookmarkRow['owner_email'] ?? '';
+        $listBookmarks->boo_boocat_name[] = $bookmarkRow['category_name'] ?? '';
+    }
+    mysqli_free_result($bookmarkResult);
+    mysqli_close($bookmarkConnection);
+} else {
+    $listBookmarks->openBookmarks($tmpquery);
+}
 
 $comptListBookmarks = count($listBookmarks->boo_id);
 

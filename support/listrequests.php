@@ -41,6 +41,9 @@ if ($comptMemberTest == "0") {
 } else {
     $teamMember = "true";
 } 
+if (($_SESSION['profilSession'] ?? '') == '0') {
+    $teamMember = 'true';
+}
 
 
 
