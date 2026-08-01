@@ -78,7 +78,12 @@ $base_dir = str_replace('\\', '/', dirname(dirname(__FILE__)) . '/');
 require_once($base_dir . 'includes/error_handler.php');
 
 // load configuration settings
-require_once($base_dir . 'includes/settings.php');
+$settingsFile = $base_dir . 'includes/settings.php';
+if (!is_file($settingsFile)) {
+    header('Location: ../installation/setup.php');
+    exit;
+}
+require_once($settingsFile);
 
 // set base URI
 $url_array = parse_url($root);
@@ -512,31 +517,25 @@ function diff_date($date1, $date2) {
 function is_password_match($formUsername, $formPassword, $storedPassword) {
     global $loginMethod, $useLDAP, $configLDAP;
 
+    // Settings can be changed after users have already been created. Detect
+    // the stored hash format so those users can still sign in and migrate
+    // without requiring their old passwords to be reset first.
+    $matchesStoredPassword = static function ($password, $stored) use ($loginMethod) {
+        if (preg_match('/^[a-f0-9]{32}$/i', $stored)) {
+            return hash_equals(strtolower($stored), md5($password));
+        }
+
+        if ((strlen($stored) === 13 || substr($stored, 0, 1) === '$') &&
+            $stored !== '*0' && $stored !== '*1') {
+            return hash_equals($stored, crypt($password, $stored));
+        }
+
+        return $loginMethod === 'PLAIN' && hash_equals($stored, $password);
+    };
+
     if ($useLDAP == 'true') {
         if ($formUsername == 'admin') {
-            switch ($loginMethod) {
-                case 'MD5':
-                    if (md5($formPassword) == $storedPassword) {
-                        return(true);
-                    } else {
-                        return(false);
-                    } 
-                case 'CRYPT':
-                    $salt = substr($storedPassword, 0, 2);
-                    if (crypt($formPassword, $salt) == $storedPassword) {
-                        return(true);
-                    } else {
-                        return(false);
-                    } 
-                case 'PLAIN':
-                    if ($formPassword == $storedPassword) {
-                        return(true);
-                    } else {
-                        return(false);
-                    } 
-
-                    return(false);
-            } 
+            return $matchesStoredPassword($formPassword, $storedPassword);
         } 
 
         $conn = ldap_connect($configLDAP['ldapserver']);
@@ -550,29 +549,7 @@ function is_password_match($formUsername, $formPassword, $storedPassword) {
             return(true);
         } 
     } else {
-        switch ($loginMethod) {
-            case 'MD5':
-                if (md5($formPassword) == $storedPassword) {
-                    return(true);
-                } else {
-                    return(false);
-                } 
-            case 'CRYPT':
-                $salt = substr($storedPassword, 0, 2);
-                if (crypt($formPassword, $salt) == $storedPassword) {
-                    return(true);
-                } else {
-                    return(false);
-                } 
-            case 'PLAIN':
-                if ($formPassword == $storedPassword) {
-                    return(true);
-                } else {
-                    return(false);
-                } 
-
-                return(false);
-        } 
+        return $matchesStoredPassword($formPassword, $storedPassword);
     }
 
     return false;

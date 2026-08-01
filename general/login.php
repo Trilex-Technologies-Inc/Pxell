@@ -115,6 +115,15 @@ $loginCookie = $authCookie['loginForm'] ?? '';
 $passwordCookie = $authCookie['storePwd'] ?? '';
 $tokenCookie = $authCookie['tokenSession'] ?? '';
 
+// An explicitly submitted login must always take precedence over a stale
+// remember-me cookie. Previously, the cookie silently replaced the username
+// and password path even when the user entered fresh credentials.
+if ($loginSubmit != '') {
+    $loginCookie = '';
+    $passwordCookie = '';
+    $tokenCookie = '';
+}
+
 if ($loginCookie != '' && $passwordCookie != '' && $tokenCookie != '') {
     $auth = 'on';
 }
