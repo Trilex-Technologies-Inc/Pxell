@@ -27,6 +27,16 @@ $passwordForm = $_POST['passwordForm'] ?? '';
 $rememberForm = $_POST['rememberForm'] ?? '';
 $languageForm = $_POST['languageForm'] ?? ($langDefault ?? '');
 $auth = 'off';
+$loginTraceEnabled = ($_GET['login_trace'] ?? '') === '1';
+$loginTrace = array();
+
+if ($loginTraceEnabled) {
+    $loginTrace[] = 'request_method=' . ($_SERVER['REQUEST_METHOD'] ?? 'unknown');
+    $loginTrace[] = 'form_submitted=' . ($loginSubmit != '' ? 'yes' : 'no');
+    $loginTrace[] = 'username_received=' . ($loginForm != '' ? 'yes' : 'no');
+    $loginTrace[] = 'password_received=' . ($passwordForm != '' ? 'yes' : 'no');
+    $loginTrace[] = 'configured_method=' . $loginMethod;
+}
 
 // DEBUG
 // foreach ($_POST as $k => $v) { print "<font color=blue>\$_POST[$k] => $v</font><br>"; }
@@ -80,6 +90,9 @@ if ($loginSubmit != '') {
         $error = $strings['login_password'];
     } else {
         $auth = 'on';
+        if ($loginTraceEnabled) {
+            $loginTrace[] = 'form_validation=passed';
+        }
         if ($rememberForm == 'on') {
             $storePwd = get_password($passwordForm);
             $cookie_value = base64_encode(serialize(array('loginForm' => $loginForm, 'storePwd' => $storePwd, 'tokenSession' => md5($loginForm . $cryptKey))));
@@ -115,6 +128,11 @@ $loginCookie = $authCookie['loginForm'] ?? '';
 $passwordCookie = $authCookie['storePwd'] ?? '';
 $tokenCookie = $authCookie['tokenSession'] ?? '';
 
+if ($loginTraceEnabled) {
+    $loginTrace[] = 'remember_cookie_present=' . ($encodedAuthCookie != '' ? 'yes' : 'no');
+    $loginTrace[] = 'remember_cookie_valid=' . (!empty($authCookie) ? 'yes' : 'no');
+}
+
 // An explicitly submitted login must always take precedence over a stale
 // remember-me cookie. Previously, the cookie silently replaced the username
 // and password path even when the user entered fresh credentials.
@@ -122,6 +140,9 @@ if ($loginSubmit != '') {
     $loginCookie = '';
     $passwordCookie = '';
     $tokenCookie = '';
+    if ($loginTraceEnabled) {
+        $loginTrace[] = 'authentication_source=form';
+    }
 }
 
 if ($loginCookie != '' && $passwordCookie != '' && $tokenCookie != '') {
@@ -129,28 +150,92 @@ if ($loginCookie != '' && $passwordCookie != '' && $tokenCookie != '') {
 }
 
 if ($auth == 'on') {
-    $loginForm = strip_tags($loginForm);
+    $submittedLoginLength = strlen($loginForm);
+    $loginForm = trim(strip_tags($loginForm));
     $passwordForm = strip_tags($passwordForm);
+
+    if ($loginTraceEnabled) {
+        $loginTrace[] = 'username_value=' . $loginForm;
+        $loginTrace[] = 'username_original_length=' . $submittedLoginLength;
+        $loginTrace[] = 'username_normalized_length=' . strlen($loginForm);
+        $loginTrace[] = 'configured_database=' . MYDATABASE;
+        $loginTrace[] = 'configured_members_table=' . $tableCollab['members'];
+    }
 
     if ($loginCookie != '' && $passwordCookie != '' && $tokenCookie != '') {
         $loginForm = $loginCookie;
     }
 
-    // query in members table (demo user not listed if demo mode false,
-    // to prohibit the access)
-    if ($demoMode != true) {
-        if ($ssl) {
-            $tmpquery = "WHERE mem.email_work = '$ssl_email' AND mem.login != 'demo' AND mem.profil != '4'";
-        } else {
-            $tmpquery = "WHERE mem.login = '$loginForm' AND mem.login != 'demo' AND mem.profil != '4'";
+    // Authentication only needs member fields. The generic openMembers()
+    // query also joins organizations and logs; on this installation that
+    // wrapper returns no row even though the member exists. Use a focused,
+    // prepared lookup so unrelated tables cannot prevent authentication.
+    $loginConnection = openDatabase();
+    $loginTable = str_replace('`', '``', $tableCollab['members']);
+    $loginColumn = $ssl ? 'email_work' : 'login';
+    $loginLookup = $ssl ? $ssl_email : $loginForm;
+    $demoCondition = $demoMode == true ? '' : " AND login != 'demo'";
+    $loginSql = "SELECT id, login, password, name, profil, logout_time, last_page, timezone " .
+        "FROM `$loginTable` WHERE `$loginColumn` = ?$demoCondition AND profil != '4' LIMIT 1";
+    $loginStatement = mysqli_prepare($loginConnection, $loginSql);
+    $loginUser = new stdClass();
+    $comptLoginUser = 0;
+
+    if ($loginStatement) {
+        mysqli_stmt_bind_param($loginStatement, 's', $loginLookup);
+        mysqli_stmt_execute($loginStatement);
+        mysqli_stmt_bind_result(
+            $loginStatement,
+            $memberId,
+            $memberLogin,
+            $memberPassword,
+            $memberName,
+            $memberProfile,
+            $memberLogoutTime,
+            $memberLastPage,
+            $memberTimezone
+        );
+        if (mysqli_stmt_fetch($loginStatement)) {
+            $loginUser->mem_id = array($memberId);
+            $loginUser->mem_login = array($memberLogin);
+            $loginUser->mem_password = array($memberPassword);
+            $loginUser->mem_name = array($memberName);
+            $loginUser->mem_profil = array($memberProfile);
+            $loginUser->mem_logout_time = array($memberLogoutTime);
+            $loginUser->mem_last_page = array($memberLastPage);
+            $loginUser->mem_timezone = array($memberTimezone);
+            $comptLoginUser = 1;
         }
-    } else {
-        $tmpquery = "WHERE mem.login = '$loginForm' AND mem.profil != '4'";
+        mysqli_stmt_close($loginStatement);
+    } else if ($loginTraceEnabled) {
+        $loginTrace[] = 'login_query_error=' . mysqli_error($loginConnection);
     }
 
-    $loginUser = new request();
-    $loginUser->openMembers($tmpquery);
-    $comptLoginUser = count($loginUser->mem_id);
+    if ($loginTraceEnabled) {
+        $loginTrace[] = 'matching_users=' . $comptLoginUser;
+
+        if ($comptLoginUser === 0) {
+            $traceConnection = openDatabase();
+            $traceTable = str_replace('`', '``', $tableCollab['members']);
+            $traceLogin = mysqli_real_escape_string($traceConnection, $loginForm);
+            $traceResult = mysqli_query(
+                $traceConnection,
+                "SELECT COUNT(*) AS total_members, " .
+                "SUM(login = 'admin') AS admin_members, " .
+                "SUM(login = '$traceLogin') AS submitted_login_members " .
+                "FROM `$traceTable`"
+            );
+            if ($traceResult) {
+                $traceCounts = mysqli_fetch_assoc($traceResult);
+                $loginTrace[] = 'database_total_members=' . (int) $traceCounts['total_members'];
+                $loginTrace[] = 'database_admin_members=' . (int) $traceCounts['admin_members'];
+                $loginTrace[] = 'database_submitted_login_members=' . (int) $traceCounts['submitted_login_members'];
+                mysqli_free_result($traceResult);
+            } else {
+                $loginTrace[] = 'diagnostic_query_error=' . mysqli_error($traceConnection);
+            }
+        }
+    }
 
     // test if user exits
     if ($comptLoginUser == '0') {
@@ -172,8 +257,21 @@ if ($auth == 'on') {
                 }
             }
         } else {
+            $passwordMatches = is_password_match($loginForm, $passwordForm, $loginUser->mem_password[0]);
+            if ($loginTraceEnabled) {
+                $storedPassword = (string) $loginUser->mem_password[0];
+                if (preg_match('/^[a-f0-9]{32}$/i', $storedPassword)) {
+                    $storedFormat = 'MD5';
+                } else if (strlen($storedPassword) === 13 || substr($storedPassword, 0, 1) === '$') {
+                    $storedFormat = 'CRYPT';
+                } else {
+                    $storedFormat = 'unknown';
+                }
+                $loginTrace[] = 'stored_password_format=' . $storedFormat;
+                $loginTrace[] = 'password_comparison=' . ($passwordMatches ? 'passed' : 'failed');
+            }
 
-            if ((!is_password_match($loginForm, $passwordForm, $loginUser->mem_password[0]))) {
+            if (!$passwordMatches) {
                 $error = $strings['invalid_login'];
             } else {
                 $match = true;
@@ -225,6 +323,7 @@ if ($auth == 'on') {
                 connectSql($tmpquery1);
             }
             // redirect for external link to internal page
+            $traceQuery = $loginTraceEnabled ? '?login_trace=1' : '';
             if ($redirectUrl != '') {
                 if ($loginUser->mem_profil[0] == '3') {
                     header('Location: ../' . $redirectUrl . '&updateProject=true');
@@ -245,13 +344,13 @@ if ($auth == 'on') {
             } else {
                 // redirect to home or admin page (if user is administrator)
                 if ($loginUser->mem_profil[0] == '3') {
-                    header('Location: ../projects_site/home.php');
+                    header('Location: ../projects_site/home.php' . $traceQuery);
                     exit;
                 } else if ($loginUser->mem_profil[0] == '0') {
-                    header('Location: ../administration/admin.php');
+                    header('Location: ../administration/admin.php' . $traceQuery);
                     exit;
                 } else {
-                    header('Location: ../general/home.php');
+                    header('Location: ../general/home.php' . $traceQuery);
                     exit;
                 }
             }
@@ -592,6 +691,15 @@ require_once('../themes/' . THEME . '/header.php');
                 <div class="alert alert-danger login-error" role="alert">
                     <strong><?php echo $strings['errors']; ?></strong><br>
                     <?php echo $error; ?>
+                </div>
+            <?php } ?>
+
+            <?php if ($loginTraceEnabled) { ?>
+                <div class="alert alert-info" role="status">
+                    <strong>Temporary login trace</strong><br>
+                    <?php foreach ($loginTrace as $traceLine) { ?>
+                        <code><?php echo htmlspecialchars($traceLine); ?></code><br>
+                    <?php } ?>
                 </div>
             <?php } ?>
 

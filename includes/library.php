@@ -231,6 +231,56 @@ if ($langDefault == '') {
 
 // check session validity, except for demo user
 if ($checkSession && !$demoSession) {
+    $sessionTraceEnabled = ($_GET['login_trace'] ?? '') === '1';
+    $showSessionTrace = static function ($reason, $extra = array()) use ($sessionTraceEnabled) {
+        if (!$sessionTraceEnabled) {
+            return;
+        }
+
+        global $tableCollab;
+        $trace = array(
+            'failure=' . $reason,
+            'session_cookie_present=' . (isset($_COOKIE[session_name()]) ? 'yes' : 'no'),
+            'session_data_loaded=' . (!empty($_SESSION) ? 'yes' : 'no'),
+            'login_session_loaded=' . (!empty($_SESSION['loginSession']) ? 'yes' : 'no'),
+            'token_session_loaded=' . (!empty($_SESSION['tokenSession']) ? 'yes' : 'no'),
+            'remote_address_length=' . strlen(SESS_REMOTE_ADDR),
+        );
+
+        if (_sess_mysql_connect()) {
+            $sessionId = mysqli_real_escape_string($GLOBALS['MY_DBH'], session_id());
+            $remoteAddress = mysqli_real_escape_string($GLOBALS['MY_DBH'], SESS_REMOTE_ADDR);
+            $sessionTable = str_replace('`', '``', $tableCollab['sessions']);
+            $result = _sess_mysql_query(
+                "SELECT COUNT(*) AS id_rows, " .
+                "SUM(ipaddr = '$remoteAddress') AS matching_ip_rows " .
+                "FROM `$sessionTable` WHERE id = '$sessionId'"
+            );
+            if ($result) {
+                $row = mysqli_fetch_assoc($result);
+                $trace[] = 'database_session_rows=' . (int) $row['id_rows'];
+                $trace[] = 'database_matching_ip_rows=' . (int) $row['matching_ip_rows'];
+                mysqli_free_result($result);
+            } else {
+                $trace[] = 'session_diagnostic_query=failed';
+            }
+        } else {
+            $trace[] = 'session_database_connection=failed';
+        }
+
+        foreach ($extra as $line) {
+            $trace[] = $line;
+        }
+
+        header('Content-Type: text/html; charset=UTF-8');
+        echo '<h1>Temporary session trace</h1><pre>';
+        foreach ($trace as $line) {
+            echo htmlspecialchars($line) . "\n";
+        }
+        echo '</pre>';
+        exit;
+    };
+
     // a client user trying to get outside of the "client project site"
     if (($_SESSION['profilSession'] == 3) && (!strstr($_SERVER['PHP_SELF'], 'projects_site'))) {
         header('Location: ../index.php?session=false');
@@ -256,6 +306,7 @@ if ($checkSession && !$demoSession) {
 
     // verify they have logged in, if not redirect to the login page
     if ($_SESSION['tokenSession'] != md5($_SESSION['loginSession'] . $cryptKey)) {
+        $showSessionTrace('token_validation_failed');
         header('Location: ../index.php?session=false');
         exit;
     }
@@ -269,10 +320,12 @@ if ($checkSession && !$demoSession) {
     // make sure there is a row for them
     if ($comptCheckLog != '0') {
         if (session_id() != $checkLog->log_session[0]) {
+            $showSessionTrace('log_session_mismatch', array('log_row_found=yes'));
             header('Location: ../index.php?session=false');
             exit;
         }
     } else {
+        $showSessionTrace('log_row_missing');
         header('Location: ../index.php?session=false');
         exit;
     }
