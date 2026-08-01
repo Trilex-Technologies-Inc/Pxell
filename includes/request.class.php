@@ -32,11 +32,21 @@ class request {
     {
         global $MY_DBH, $databaseType, $comptRequest;
 
-        $comptRequest = $comptRequest + 1;
+        $comptRequest = (int) ($comptRequest ?? 0) + 1;
 
         if ($databaseType == 'mysql') {
-            $this->index = mysqli_query($MY_DBH, $sql);
+            try {
+                $this->index = mysqli_query($MY_DBH, $sql);
+            } catch (mysqli_sql_exception $exception) {
+                throw new RuntimeException(
+                    'Database SELECT failed: ' . $exception->getMessage() . ' [query: ' . $sql . ']',
+                    0,
+                    $exception
+                );
+            }
         } 
+
+        return $this->index ?? false;
     } 
 
     function fetch()

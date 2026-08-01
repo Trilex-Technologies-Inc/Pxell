@@ -246,6 +246,7 @@ document." . $this->form . "Form.buttons = new Array();\n";
      * Define sorting to apply on a list block
      */
     function sorting($sortingRef, $sortingValue, $sortingDefault, $sortingFields) {
+        $providedSortingFields = is_array($sortingFields) ? array_values($sortingFields) : array();
         if ($sortingRef != "") {
             $this->sortingRef = $sortingRef;
         }
@@ -264,12 +265,42 @@ document." . $this->form . "Form.buttons = new Array();\n";
 
         global $sortingOrders, $sortingFields, $sortingArrows, $sortingStyles, $explode;
 
-        if (isset($this->sortingValue) != "") {
-            $explode = explode(" ", $this->sortingValue);
-        } else {
-            $this->sortingValue = $this->sortingDefault;
-            $explode = explode(" ", $this->sortingValue);
+        $sortingFields = $providedSortingFields;
+        $allowedSortingFields = $providedSortingFields;
+        $normalizeSorting = static function ($candidate) use ($allowedSortingFields) {
+            $candidate = trim((string) $candidate);
+            if (!preg_match('/^([A-Za-z_][A-Za-z0-9_.]*)(?:\\s+(ASC|DESC))?$/i', $candidate, $matches)) {
+                return null;
+            }
+
+            $field = $matches[1];
+            if (!in_array($field, $allowedSortingFields, true)) {
+                return null;
+            }
+
+            return $field . ' ' . strtoupper($matches[2] ?? 'ASC');
+        };
+
+        // Saved per-user sorting values are database data and may be blank,
+        // obsolete, or malformed. Only permit a field supplied by this page
+        // and a known direction, then fall back to the page default/first
+        // field. This guarantees a complete, safe ORDER BY on every caller.
+        $validSorting = $normalizeSorting($this->sortingValue);
+        if ($validSorting === null) {
+            $validSorting = $normalizeSorting($this->sortingDefault);
         }
+        if ($validSorting === null && count($allowedSortingFields) > 0) {
+            $validSorting = $allowedSortingFields[0] . ' ASC';
+        }
+        if ($validSorting === null) {
+            throw new LogicException('A sortable block must define at least one valid sorting field.');
+        }
+
+        $this->sortingValue = $validSorting;
+        $explode = explode(' ', $validSorting, 2);
+        $sortingOrders = array();
+        $sortingArrows = array();
+        $sortingStyles = array();
 
         for ($i = 0; $i < count($sortingFields); $i++) {
             if ($sortingFields[$i] == $explode[0] && $explode[1] == "DESC") {
