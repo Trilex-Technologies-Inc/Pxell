@@ -84,12 +84,22 @@ class request {
 
     function __isset($name)
     {
-        return false;
+        $properties = get_object_vars($this);
+        return array_key_exists($name, $properties) && $properties[$name] !== null;
     }
 
-    function __get($name)
+    function &__get($name)
     {
-        return array();
+        // Legacy loaders append with $this->field[]. Returning a temporary
+        // array here silently discarded every fetched row. Organizations
+        // appeared to work only because that loader initialized its arrays.
+        // Create the real dynamic property and return it by reference so all
+        // request loaders retain their results under PHP 8.
+        if (!property_exists($this, $name)) {
+            $this->{$name} = array();
+        }
+
+        return $this->{$name};
     }
 
     // results sorting
@@ -271,35 +281,48 @@ class request {
     {
         global $tableCollab, $strings, $MY_DBH, $row, $databaseType, $initrequest;
         $this->connectClass();
-        global $sql;
-        $sql = $initrequest["members"];
+        $memberTable = str_replace('`', '``', $tableCollab['members']);
+        $organizationTable = str_replace('`', '``', $tableCollab['organizations']);
+        $logTable = str_replace('`', '``', $tableCollab['logs']);
+        $sql = "SELECT
+            mem.id AS mem_id, mem.organization AS mem_organization,
+            mem.login AS mem_login, mem.password AS mem_password,
+            mem.name AS mem_name, mem.title AS mem_title,
+            mem.email_work AS mem_email_work, mem.email_home AS mem_email_home,
+            mem.phone_work AS mem_phone_work, mem.phone_home AS mem_phone_home,
+            mem.mobile AS mem_mobile, mem.fax AS mem_fax,
+            mem.comments AS mem_comments, mem.profil AS mem_profil,
+            mem.created AS mem_created, mem.logout_time AS mem_logout_time,
+            mem.last_page AS mem_last_page, mem.timezone AS mem_timezone,
+            org.name AS mem_org_name, log.connected AS mem_log_connected
+          FROM `$memberTable` mem
+          LEFT JOIN `$organizationTable` org ON org.id = mem.organization
+          LEFT JOIN (
+              SELECT login, MAX(connected) AS connected
+              FROM `$logTable` GROUP BY login
+          ) log ON log.login = mem.login";
         $sql .= ' ' . $querymore;
         if ($databaseType == "mysql" && $start != "") {
             $sql .= " LIMIT $start,$rows";
         } 
 
-        $index = $this->query($sql);
-        while ($this->fetch()) {
-            $this->mem_id[] = ($row[0]);
-            $this->mem_organization[] = ($row[1]);
-            $this->mem_login[] = ($row[2]);
-            $this->mem_password[] = ($row[3]);
-            $this->mem_name[] = ($row[4]);
-            $this->mem_title[] = ($row[5]);
-            $this->mem_email_work[] = ($row[6]);
-            $this->mem_email_home[] = ($row[7]);
-            $this->mem_phone_work[] = ($row[8]);
-            $this->mem_phone_home[] = ($row[9]);
-            $this->mem_mobile[] = ($row[10]);
-            $this->mem_fax[] = ($row[11]);
-            $this->mem_comments[] = ($row[12]);
-            $this->mem_profil[] = ($row[13]);
-            $this->mem_created[] = ($row[14]);
-            $this->mem_logout_time[] = ($row[15]);
-            $this->mem_last_page[] = ($row[16]);
-            $this->mem_timezone[] = ($row[17]);
-            $this->mem_org_name[] = ($row[18]);
-            $this->mem_log_connected[] = ($row[19]);
+        $properties = array(
+            'mem_id', 'mem_organization', 'mem_login', 'mem_password',
+            'mem_name', 'mem_title', 'mem_email_work', 'mem_email_home',
+            'mem_phone_work', 'mem_phone_home', 'mem_mobile', 'mem_fax',
+            'mem_comments', 'mem_profil', 'mem_created', 'mem_logout_time',
+            'mem_last_page', 'mem_timezone', 'mem_org_name',
+            'mem_log_connected'
+        );
+        foreach ($properties as $property) {
+            $this->{$property} = array();
+        }
+
+        $this->query($sql);
+        while (($member = mysqli_fetch_assoc($this->index)) !== null) {
+            foreach ($properties as $property) {
+                $this->{$property}[] = $member[$property];
+            }
         } 
         $this->close();
     } 
@@ -309,37 +332,47 @@ class request {
         global $tableCollab, $strings, $MY_DBH, $row, $databaseType, $initrequest;
 
         $this->connectClass();
-        $sql = $initrequest["projects"];
+        $projectTable = str_replace('`', '``', $tableCollab['projects']);
+        $organizationTable = str_replace('`', '``', $tableCollab['organizations']);
+        $memberTable = str_replace('`', '``', $tableCollab['members']);
+        $sql = "SELECT
+            pro.id AS pro_id, pro.organization AS pro_organization,
+            pro.owner AS pro_owner, pro.priority AS pro_priority,
+            pro.status AS pro_status, pro.name AS pro_name,
+            pro.description AS pro_description, pro.url_dev AS pro_url_dev,
+            pro.url_prod AS pro_url_prod, pro.created AS pro_created,
+            pro.modified AS pro_modified, pro.published AS pro_published,
+            pro.upload_max AS pro_upload_max, pro.phase_set AS pro_phase_set,
+            pro.type AS pro_type, org.id AS pro_org_id,
+            org.name AS pro_org_name, mem.id AS pro_mem_id,
+            mem.login AS pro_mem_login, mem.name AS pro_mem_name,
+            mem.email_work AS pro_mem_email_work
+          FROM `$projectTable` pro
+          LEFT JOIN `$organizationTable` org ON org.id = pro.organization
+          LEFT JOIN `$memberTable` mem ON mem.id = pro.owner";
         $sql .= " " . $querymore;
 
         if ($databaseType == "mysql" && $start != "") {
             $sql .= " LIMIT $start,$rows";
         } 
 
-        $index = $this->query($sql);
+        $properties = array(
+            'pro_id', 'pro_organization', 'pro_owner', 'pro_priority',
+            'pro_status', 'pro_name', 'pro_description', 'pro_url_dev',
+            'pro_url_prod', 'pro_created', 'pro_modified', 'pro_published',
+            'pro_upload_max', 'pro_phase_set', 'pro_type', 'pro_org_id',
+            'pro_org_name', 'pro_mem_id', 'pro_mem_login', 'pro_mem_name',
+            'pro_mem_email_work'
+        );
+        foreach ($properties as $property) {
+            $this->{$property} = array();
+        }
 
-        while ($this->fetch()) {
-            $this->pro_id[] = ($row[0]);
-            $this->pro_organization[] = ($row[1]);
-            $this->pro_owner[] = ($row[2]);
-            $this->pro_priority[] = ($row[3]);
-            $this->pro_status[] = ($row[4]);
-            $this->pro_name[] = ($row[5]);
-            $this->pro_description[] = ($row[6]);
-            $this->pro_url_dev[] = ($row[7]);
-            $this->pro_url_prod[] = ($row[8]);
-            $this->pro_created[] = ($row[9]);
-            $this->pro_modified[] = ($row[10]);
-            $this->pro_published[] = ($row[11]);
-            $this->pro_upload_max[] = ($row[12]);
-            $this->pro_phase_set[] = ($row[13]);
-            $this->pro_type[] = ($row[14]);
-            $this->pro_org_id[] = ($row[15]);
-            $this->pro_org_name[] = ($row[16]);
-            $this->pro_mem_id[] = ($row[17]);
-            $this->pro_mem_login[] = ($row[18]);
-            $this->pro_mem_name[] = ($row[19]);
-            $this->pro_mem_email_work[] = ($row[20]);
+        $this->query($sql);
+        while (($project = mysqli_fetch_assoc($this->index)) !== null) {
+            foreach ($properties as $property) {
+                $this->{$property}[] = $project[$property];
+            }
         } 
 
         $this->close();

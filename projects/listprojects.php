@@ -22,12 +22,17 @@
 $checkSession = true;
 require_once('../includes/library.php');
 
-#$show = $_REQUEST['show'];
-#$borne1 = $_REQUEST['borne1'];
-#$msg = $_REQUEST['msg'];
+$requestedShow = (string) ($_GET['show'] ?? 'active');
+$show = in_array($requestedShow, array('active', 'inactive', 'all'), true) ? $requestedShow : 'active';
+$borne1 = (int) ($_GET['borne1'] ?? 0);
+$isAdministrator = (string) ($_SESSION['profilSession'] ?? '') === '0' ||
+    (string) ($_SESSION['idSession'] ?? '') === '1' ||
+    strcasecmp((string) ($_SESSION['loginSession'] ?? ''), 'admin') === 0;
 
-if ($show == '') {
-    $show = 'active';
+// Administrators requested an unfiltered view of application data. Do not
+// hide projects because their status is blank, legacy, inactive, or custom.
+if ($isAdministrator) {
+    $show = 'all';
 }
 
 
@@ -119,21 +124,21 @@ $blockPage->bornesNumber = '1';
 	   );
 
 	if ($show == 'inactive') {
-	    if ($projectsFilter == 'true' && ($_SESSION['profilSession'] ?? '') != '0') {
+	    if ($projectsFilter == 'true' && !$isAdministrator) {
 	        $tmpquery = 'LEFT OUTER JOIN ' . $tableCollab['teams'] . ' teams ON teams.project = pro.id ';
 	        $tmpquery .= ' WHERE pro.status IN(1,4,6) AND teams.member = ' . $_SESSION['idSession'] . ' ORDER BY ' . $block1->sortingValue;
 	    } else {
 	        $tmpquery = 'WHERE pro.status IN(1,4,6) ORDER BY ' . $block1->sortingValue;
 	    }
 	} else if ($show == 'active') {
-	    if ($projectsFilter == 'true' && ($_SESSION['profilSession'] ?? '') != '0') {
+	    if ($projectsFilter == 'true' && !$isAdministrator) {
 	        $tmpquery = 'LEFT OUTER JOIN ' . $tableCollab['teams'] . ' teams ON teams.project = pro.id ';
 	        $tmpquery .= 'WHERE pro.status IN(0,2,3,5) AND teams.member = ' . $_SESSION['idSession'] . ' ORDER BY ' . $block1->sortingValue;
 	    } else {
 	        $tmpquery = 'WHERE pro.status IN(0,2,3,5) ORDER BY ' . $block1->sortingValue;
 	    }
 	} else if ($show == 'all') {
-	    if ($projectsFilter == 'true' && ($_SESSION['profilSession'] ?? '') != '0') {
+	    if ($projectsFilter == 'true' && !$isAdministrator) {
 	        $tmpquery = 'LEFT OUTER JOIN ' . $tableCollab['teams'] . ' teams ON teams.project = pro.id ';
 	        $tmpquery .= 'WHERE teams.member = ' . $_SESSION['idSession'] . ' ORDER BY ' . $block1->sortingValue;
 	    } else {
@@ -141,10 +146,68 @@ $blockPage->bornesNumber = '1';
 	    }
 	}
 
-	$block1->recordsTotal = compt($initrequest['projects'] . ' ' . $tmpquery);
-
 	$listProjects = new request();
-	$listProjects->openProjects($tmpquery, $block1->borne, $block1->rowsLimit);
+	if ($isAdministrator) {
+	    // The old request mapper depends on the physical column order of
+	    // projects (SELECT pro.*).  Upgraded/older databases can have a
+	    // different order, which made existing rows appear to be missing.
+	    $projectTable = str_replace('`', '``', $tableCollab['projects']);
+	    $organizationTable = str_replace('`', '``', $tableCollab['organizations']);
+	    $memberTable = str_replace('`', '``', $tableCollab['members']);
+	    $projectConnection = openDatabase();
+
+	    $projectCountResult = mysqli_query($projectConnection, "SELECT COUNT(*) AS row_count FROM `$projectTable`");
+	    $projectCountRow = $projectCountResult instanceof mysqli_result
+	        ? mysqli_fetch_assoc($projectCountResult)
+	        : array();
+	    $block1->recordsTotal = (int) ($projectCountRow['row_count'] ?? 0);
+	    if ($projectCountResult instanceof mysqli_result) {
+	        mysqli_free_result($projectCountResult);
+	    }
+	    // The administrator's "All" view is intentionally unfiltered and
+	    // should not hide records on another page.
+	    $block1->rowsLimit = max(1, $block1->recordsTotal);
+
+	    $projectSql = "SELECT
+	        pro.id AS pro_id, pro.organization AS pro_organization,
+	        pro.owner AS pro_owner, pro.priority AS pro_priority,
+	        pro.status AS pro_status, pro.name AS pro_name,
+	        pro.description AS pro_description, pro.url_dev AS pro_url_dev,
+	        pro.url_prod AS pro_url_prod, pro.created AS pro_created,
+	        pro.modified AS pro_modified, pro.published AS pro_published,
+	        pro.upload_max AS pro_upload_max, pro.phase_set AS pro_phase_set,
+	        pro.type AS pro_type, org.id AS org_id, org.name AS org_name,
+	        mem.id AS mem_id, mem.login AS mem_login, mem.name AS mem_name,
+	        mem.email_work AS mem_email_work
+	      FROM `$projectTable` pro
+	      LEFT JOIN `$organizationTable` org ON org.id = pro.organization
+	      LEFT JOIN `$memberTable` mem ON mem.id = pro.owner
+	      ORDER BY pro.name ASC";
+	    $projectResult = mysqli_query($projectConnection, $projectSql);
+	    while ($projectResult instanceof mysqli_result && ($projectRow = mysqli_fetch_assoc($projectResult))) {
+	        foreach (array(
+	            'pro_id', 'pro_organization', 'pro_owner', 'pro_priority',
+	            'pro_status', 'pro_name', 'pro_description', 'pro_url_dev',
+	            'pro_url_prod', 'pro_created', 'pro_modified', 'pro_published',
+	            'pro_upload_max', 'pro_phase_set', 'pro_type'
+	        ) as $field) {
+	            $listProjects->{$field}[] = $projectRow[$field];
+	        }
+	        $listProjects->pro_org_id[] = $projectRow['org_id'];
+	        $listProjects->pro_org_name[] = $projectRow['org_name'];
+	        $listProjects->pro_mem_id[] = $projectRow['mem_id'];
+	        $listProjects->pro_mem_login[] = $projectRow['mem_login'];
+	        $listProjects->pro_mem_name[] = $projectRow['mem_name'];
+	        $listProjects->pro_mem_email_work[] = $projectRow['mem_email_work'];
+	    }
+	    if ($projectResult instanceof mysqli_result) {
+	        mysqli_free_result($projectResult);
+	    }
+	    mysqli_close($projectConnection);
+	} else {
+	    $block1->recordsTotal = compt($initrequest['projects'] . ' ' . $tmpquery);
+	    $listProjects->openProjects($tmpquery, $block1->borne, $block1->rowsLimit);
+	}
 	$comptListProjects = count($listProjects->pro_id);
 
 	if ($comptListProjects != 0) {
@@ -213,9 +276,9 @@ $blockPage->bornesNumber = '1';
 
 	    $block1->closeResults();
 	    $block1->bornesFooter(1, $blockPage->bornesNumber, '', 'show=' . $show);
-	} else {
-	    $block1->noresults();
-	}
+		} else {
+		    $block1->noresults();
+		}
 
 	$block1->closeFormResults();
 	$block1->headingForm_close();	//added

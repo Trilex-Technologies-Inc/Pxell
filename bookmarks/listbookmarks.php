@@ -18,6 +18,17 @@ require_once('../includes/library.php');
 $requestedView = (string) ($_GET['view'] ?? 'all');
 $view = in_array($requestedView, array('all', 'my', 'private'), true) ? $requestedView : 'all';
 $project = (string) ($_GET['project'] ?? '');
+$isAdministrator = (string) ($_SESSION['profilSession'] ?? '') === '0' ||
+    (string) ($_SESSION['idSession'] ?? '') === '1' ||
+    strcasecmp((string) ($_SESSION['loginSession'] ?? ''), 'admin') === 0;
+$bookmarkDiagnostic = '';
+
+// The built-in administrator must always land on the complete bookmark list.
+// My/Private are user privacy views and previously sent some admin sessions
+// back through the filtered legacy query.
+if ($isAdministrator) {
+    $view = 'all';
+}
 
 $tmpquery = "WHERE pro.id = '$project'";
 $projectDetail = new request();
@@ -75,7 +86,7 @@ if ($view == 'my') {
     $tmpquery = "WHERE boo.owner = '" . $_SESSION['idSession'] . "' ORDER BY $block1->sortingValue";
 } else if ($view == 'private') {
     $tmpquery = "WHERE boo.users LIKE '%|" . $_SESSION['idSession'] . "|%' ORDER BY $block1->sortingValue";
-} else if (($_SESSION['profilSession'] ?? '') == '0') {
+} else if ($isAdministrator) {
     // For administrators, "All" means every row in the bookmarks table.
     // Other users retain the privacy filter below.
     $tmpquery = "ORDER BY $block1->sortingValue";
@@ -85,7 +96,7 @@ if ($view == 'my') {
 
 $listBookmarks = new request();
 
-if ($view === 'all' && ($_SESSION['profilSession'] ?? '') == '0') {
+if ($view === 'all' && $isAdministrator) {
     // Use a focused query for the administrator's unfiltered view. The legacy
     // request wrapper relies on SELECT * column positions and can silently
     // produce an empty/misaligned result when an installed schema differs.
@@ -122,6 +133,23 @@ if ($view === 'all' && ($_SESSION['profilSession'] ?? '') == '0') {
         $listBookmarks->boo_mem_login[] = $bookmarkRow['owner_login'] ?? '';
         $listBookmarks->boo_mem_email_work[] = $bookmarkRow['owner_email'] ?? '';
         $listBookmarks->boo_boocat_name[] = $bookmarkRow['category_name'] ?? '';
+    }
+
+    if (empty($listBookmarks->boo_id)) {
+        $databaseResult = mysqli_query($bookmarkConnection, 'SELECT DATABASE() AS database_name');
+        $databaseRow = $databaseResult instanceof mysqli_result ? mysqli_fetch_assoc($databaseResult) : array();
+        if ($databaseResult instanceof mysqli_result) {
+            mysqli_free_result($databaseResult);
+        }
+        $countResult = mysqli_query($bookmarkConnection, "SELECT COUNT(*) AS row_count FROM `$bookmarkTable`");
+        $countRow = $countResult instanceof mysqli_result ? mysqli_fetch_assoc($countResult) : array();
+        if ($countResult instanceof mysqli_result) {
+            mysqli_free_result($countResult);
+        }
+        $bookmarkDiagnostic = 'Administrator diagnostic: connected database <strong>' .
+            htmlspecialchars((string) ($databaseRow['database_name'] ?? MYDATABASE)) .
+            '</strong>, configured table <strong>' . htmlspecialchars($tableCollab['bookmarks']) .
+            '</strong>, rows found <strong>' . (int) ($countRow['row_count'] ?? 0) . '</strong>.';
     }
     mysqli_free_result($bookmarkResult);
     mysqli_close($bookmarkConnection);
@@ -169,6 +197,9 @@ if ($comptListBookmarks != '0') {
 }
 else {
     $block1->noresults();
+    if ($isAdministrator && $bookmarkDiagnostic !== '') {
+        echo '<div class="alert alert-info">' . $bookmarkDiagnostic . '</div>';
+    }
 }
 
 $block1->closeFormResults();
