@@ -15,9 +15,14 @@
 $checkSession = true;
 require_once("../includes/library.php");
 
+$id = (string) ($_GET['id'] ?? '');
+$action = (string) ($_GET['action'] ?? '');
+$project = (string) ($_GET['project'] ?? ($_POST['project'] ?? ''));
+$noteDetail = new request();
+$noteDetail->note_project = array($project);
+
 if ($id != "" && $action != "add") {
     $tmpquery = "WHERE note.id = '$id'";
-    $noteDetail = new request();
     $noteDetail->openNotes($tmpquery);
     $tmpquery = "WHERE pro.id = '" . $noteDetail->note_project[0] . "'";
     $project = $noteDetail->note_project[0];

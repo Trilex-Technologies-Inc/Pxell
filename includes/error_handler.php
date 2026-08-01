@@ -38,6 +38,12 @@ function __customErrorHandler($errNo, $errStr, $errFile, $errLine)
         return;
     }
 
+    // PHP 8 deprecations are non-fatal and must not be injected into the page
+    // as an "Unknown PHP Condition".
+    if ($errNo == E_DEPRECATED || $errNo == E_USER_DEPRECATED) {
+        return;
+    }
+
     // PHP 8 promoted several notices used by NetOffice's legacy optional
     // request/global handling to E_WARNING. Retain the pre-PHP-8 behaviour
     // without suppressing unrelated warnings.
@@ -75,6 +81,9 @@ function __customErrorHandler($errNo, $errStr, $errFile, $errLine)
             break;
         case E_WARNING:
             $errMsg = 'PHP Warning [PHP]:';
+            break;
+        case E_RECOVERABLE_ERROR:
+            $errMsg = 'PHP Recoverable Error:';
             break;
         default:
             $errMsg = 'Unknown PHP Condition [' . $errNo . ']:';

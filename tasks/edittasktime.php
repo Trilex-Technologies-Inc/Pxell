@@ -15,6 +15,20 @@
 $checkSession = true;
 require_once("../includes/library.php");
 
+$id = (string) ($_GET['id'] ?? '');
+$task = (string) ($_GET['task'] ?? '');
+$action = (string) ($_GET['action'] ?? '');
+$msgLabel = '';
+
+// Load the task before using it in the team permission query.
+$tmpquery = "WHERE tas.id = '$task'";
+$taskDetail = new request();
+$taskDetail->openTasks($tmpquery);
+if (count($taskDetail->tas_id) === 0) {
+    header('Location: ../projects/listprojects.php?msg=blankTask');
+    exit;
+}
+
 // Make sure this person has the right to log hours for this task
 $teamMember = "false";
 $tmpquery = "WHERE tea.project = '" . $taskDetail->tas_project[0] . "' AND tea.member = '" . $_SESSION['idSession'] . "'";
@@ -33,11 +47,6 @@ if ($teamMember == "false" && $projectsFilter == "true") {
     exit;
 } 
 
-// Task Detail
-$tmpquery = "WHERE tas.id = '$task'";
-$taskDetail = new request();
-$taskDetail->openTasks($tmpquery);
-
 if ($taskDetail->tas_estimated_time[0] < 1) {
     $taskDetail->tas_estimated_time[0] = 0;
 } 
@@ -53,7 +62,7 @@ $taskTimeDetail = new request();
 $taskTimeDetail->openTaskTime($tmpquery);
 
 // Check field values
-if ($_GET['action'] == 'edit') {
+if ($action == 'edit') {
     $msgLabel .= ''; // init
      
     // make sure we have the required information

@@ -1032,8 +1032,10 @@ function connectSql($tmpsql)
  */
 function last_id($tmpsql)
 {
-    global $tableCollab, $databaseType;
+    global $tableCollab, $databaseType, $lastId;
 
+    // Keep the historical global for legacy callers while also returning the
+    // value for modern, explicit callers.
     $lastId = array();
 
     if ($databaseType == 'mysql') {

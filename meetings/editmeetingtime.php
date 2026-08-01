@@ -15,13 +15,18 @@
 $checkSession = true;
 require_once("../includes/library.php");
 
+$id = (string) ($_GET['id'] ?? '');
+$action = (string) ($_GET['action'] ?? '');
+$project = (string) ($_GET['project'] ?? ($_POST['project'] ?? ''));
+$cpy = ($_GET['cpy'] ?? '') === 'true' ? 'true' : 'false';
+$meetingDetail = new request();
+$attendantDetail = new request();
+
 if ($id != "" && $action != "update" && $action != "add") {
     $tmpquery = "WHERE mee.id = '$id'";
-    $meetingDetail = new request();
     $meetingDetail->openMeetings($tmpquery);
 
     $tmpquery = "WHERE att.meeting = '$id'";
-    $attendantDetail = new request();
     $attendantDetail->openAttendants($tmpquery);
     $comptAttendantDetail = count($attendantDetail->att_id);
 
@@ -30,6 +35,9 @@ if ($id != "" && $action != "update" && $action != "add") {
 } else {
     $tmpquery = "WHERE pro.id = '$project'";
     $comptAttendantDetail = "0" ;
+    $meetingDetail->mee_priority = array('3');
+    $meetingDetail->mee_status = array('2');
+    $attendantDetail->att_mem_id = array();
 }
 
 $projectDetail = new request();
@@ -500,7 +508,7 @@ if ($id != "") {
     echo "<input type=\"hidden\" name=\"old_pr\" value=\"" . $meetingDetail->mee_priority[0] . "\" class=\"form-control\">";
     echo "<input type=\"hidden\" name=\"old_st\" value=\"" . $meetingDetail->mee_status[0] . "\" class=\"form-control\">";
     echo "<input type=\"hidden\" name=\"old_project\" value=\"" . $meetingDetail->mee_project[0] . "\" class=\"form-control\">";
-    echo "<input type=\"hidden\" name=\"old_org_id\" value=\"" . $$projectDetail->pro_org_id[0] . "\" class=\"form-control\">";
+    echo "<input type=\"hidden\" name=\"old_org_id\" value=\"" . $projectDetail->pro_org_id[0] . "\" class=\"form-control\">";
     echo "<input type=\"hidden\" name=\"old_location\" value=\"" . $meetingDetail->mee_location[0] . "\" class=\"form-control\">";
     echo "<input type=\"hidden\" name=\"old_date\" value=\"" . $meetingDetail->mee_date[0] . "\" class=\"form-control\">";
     echo "<input type=\"hidden\" name=\"old_start_time\" value=\"" . $meetingDetail->mee_start_time[0] . "\" class=\"form-control\">";

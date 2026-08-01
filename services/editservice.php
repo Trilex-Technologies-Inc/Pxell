@@ -15,6 +15,13 @@
 $checkSession = true;
 require_once("../includes/library.php");
 
+$id = (string) ($_GET['id'] ?? '');
+$action = (string) ($_GET['action'] ?? '');
+$n = (string) ($_POST['n'] ?? '');
+$np = (string) ($_POST['np'] ?? '');
+$hr = (string) ($_POST['hr'] ?? '');
+$error = '';
+
 if ($_SESSION['profilSession'] != "0") {
     header("Location: ../general/permissiondenied.php");
     exit;
@@ -35,6 +42,10 @@ if ($id != "") {
     $detailService = new request();
     $detailService->openServices($tmpquery);
     $comptDetailService = count($detailService->serv_id);
+    if ($comptDetailService === 0) {
+        header('Location: ../services/listservices.php?msg=blankService');
+        exit;
+    }
     // set values in form
     $n = $detailService->serv_name[0];
     $np = $detailService->serv_name_print[0];

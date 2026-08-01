@@ -15,9 +15,27 @@
 $checkSession = true;
 require_once('../includes/library.php');
 
+$id = (string) ($_GET['id'] ?? '');
+$action = (string) ($_GET['action'] ?? '');
+$name = (string) ($_POST['name'] ?? '');
+$url = (string) ($_POST['url'] ?? '');
+$description = (string) ($_POST['description'] ?? '');
+$category = (string) ($_POST['category'] ?? '0');
+$category_new = (string) ($_POST['category_new'] ?? '');
+$shared = (string) ($_POST['shared'] ?? '');
+$home = (string) ($_POST['home'] ?? '');
+$comments = (string) ($_POST['comments'] ?? '');
+$piecesNew = $_POST['piecesNew'] ?? array();
+$users = '';
+$error = '';
+$bookmarkDetail = new request();
+if ($id === '') {
+    $bookmarkDetail->boo_category = array($category);
+    $bookmarkDetail->boo_users = array('');
+}
+
 if ($id != '' && $action != 'add') {
     $tmpquery = "WHERE boo.id = '$id'";
-    $bookmarkDetail = new request();
     $bookmarkDetail->openBookmarks($tmpquery);
 
     if ($bookmarkDetail->boo_owner[0] != $_SESSION['idSession']) {
