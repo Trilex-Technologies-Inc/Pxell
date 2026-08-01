@@ -78,12 +78,7 @@ $base_dir = str_replace('\\', '/', dirname(dirname(__FILE__)) . '/');
 require_once($base_dir . 'includes/error_handler.php');
 
 // load configuration settings
-$settingsFile = $base_dir . 'includes/settings.php';
-if (!is_file($settingsFile)) {
-    header('Location: ../installation/setup.php');
-    exit;
-}
-require_once($settingsFile);
+require_once($base_dir . 'includes/settings.php');
 
 // set base URI
 $url_array = parse_url($root);
@@ -231,72 +226,30 @@ if ($langDefault == '') {
 
 // check session validity, except for demo user
 if ($checkSession && !$demoSession) {
-    $sessionTraceEnabled = ($_GET['login_trace'] ?? '') === '1';
-    $showSessionTrace = static function ($reason, $extra = array()) use ($sessionTraceEnabled) {
-        if (!$sessionTraceEnabled) {
-            return;
-        }
-
-        global $tableCollab;
-        $trace = array(
-            'failure=' . $reason,
-            'session_cookie_present=' . (isset($_COOKIE[session_name()]) ? 'yes' : 'no'),
-            'session_data_loaded=' . (!empty($_SESSION) ? 'yes' : 'no'),
-            'login_session_loaded=' . (!empty($_SESSION['loginSession']) ? 'yes' : 'no'),
-            'token_session_loaded=' . (!empty($_SESSION['tokenSession']) ? 'yes' : 'no'),
-            'remote_address_length=' . strlen(SESS_REMOTE_ADDR),
-        );
-
-        if (_sess_mysql_connect()) {
-            $sessionId = mysqli_real_escape_string($GLOBALS['MY_DBH'], session_id());
-            $remoteAddress = mysqli_real_escape_string($GLOBALS['MY_DBH'], SESS_REMOTE_ADDR);
-            $sessionTable = str_replace('`', '``', $tableCollab['sessions']);
-            $result = _sess_mysql_query(
-                "SELECT COUNT(*) AS id_rows, " .
-                "SUM(ipaddr = '$remoteAddress') AS matching_ip_rows " .
-                "FROM `$sessionTable` WHERE id = '$sessionId'"
-            );
-            if ($result) {
-                $row = mysqli_fetch_assoc($result);
-                $trace[] = 'database_session_rows=' . (int) $row['id_rows'];
-                $trace[] = 'database_matching_ip_rows=' . (int) $row['matching_ip_rows'];
-                mysqli_free_result($result);
-            } else {
-                $trace[] = 'session_diagnostic_query=failed';
-            }
-        } else {
-            $trace[] = 'session_database_connection=failed';
-        }
-
-        foreach ($extra as $line) {
-            $trace[] = $line;
-        }
-
-        header('Content-Type: text/html; charset=UTF-8');
-        echo '<h1>Temporary session trace</h1><pre>';
-        foreach ($trace as $line) {
-            echo htmlspecialchars($line) . "\n";
-        }
-        echo '</pre>';
+    // Keep the reason machine-readable so the login page can explain why the
+    // session was rejected. These values contain no credentials or IDs.
+    $rejectSession = static function ($reason) use ($base_uri) {
+        header('Location: ' . $base_uri . 'general/login.php?session=false&reason=' . rawurlencode($reason));
         exit;
     };
 
+    if (empty($_SESSION['loginSession']) || empty($_SESSION['tokenSession'])) {
+        $rejectSession(isset($_COOKIE[session_name()]) ? 'session_data_missing' : 'session_cookie_missing');
+    }
+
     // a client user trying to get outside of the "client project site"
-    if (($_SESSION['profilSession'] == 3) && (!strstr($_SERVER['PHP_SELF'], 'projects_site'))) {
-        header('Location: ../index.php?session=false');
-        exit;
+    if (($_SESSION['profilSession'] ?? null) == 3 && !strstr($_SERVER['PHP_SELF'], 'projects_site')) {
+        $rejectSession('client_area_restricted');
     }
 
     // if auto logout feature used, check the idle time
-    if ($_SESSION['profilSession'] != '3') {
-        if ($_SESSION['logouttimeSession'] != '0' && $_SESSION['logouttimeSession'] != '') {
+    if (($_SESSION['profilSession'] ?? null) != '3') {
+        if (!empty($_SESSION['logouttimeSession'])) {
             $dateunix = date('U');
             $diff = $dateunix - $_SESSION['dateunixSession'];
 
             if ($diff > $_SESSION['logouttimeSession']) {
-                // the defined idle time as passed, log'em out
-                header('Location: ../general/login.php?logout=true');
-                exit;
+                $rejectSession('idle_timeout');
             } else {
                 // update the last activity time in the session
                 $_SESSION['dateunixSession'] = $dateunix;
@@ -306,28 +259,48 @@ if ($checkSession && !$demoSession) {
 
     // verify they have logged in, if not redirect to the login page
     if ($_SESSION['tokenSession'] != md5($_SESSION['loginSession'] . $cryptKey)) {
-        $showSessionTrace('token_validation_failed');
-        header('Location: ../index.php?session=false');
-        exit;
+        $rejectSession('token_invalid');
     }
 
-    // query the logs table
-    $tmpquery = "WHERE log.login = '" . $_SESSION['loginSession'] . "'";
-    $checkLog = new request();
-    $checkLog->openLogs($tmpquery);
-    $comptCheckLog = count($checkLog->log_id ?? array());
+    // Validate the exact login/session pair. Do not use the generic logs
+    // wrapper or rely on the first row when legacy duplicate rows exist.
+    $logConnection = openDatabase();
+    $logTable = str_replace('`', '``', $tableCollab['logs']);
+    $checkLog = mysqli_prepare(
+        $logConnection,
+        "SELECT 1 FROM `$logTable` WHERE login = ? AND session = ? LIMIT 1"
+    );
+    $loginSession = $_SESSION['loginSession'];
+    $currentSessionId = session_id();
+    $validLogSession = false;
+    $logLookupFailed = false;
 
-    // make sure there is a row for them
-    if ($comptCheckLog != '0') {
-        if (session_id() != $checkLog->log_session[0]) {
-            $showSessionTrace('log_session_mismatch', array('log_row_found=yes'));
-            header('Location: ../index.php?session=false');
-            exit;
-        }
+    if ($checkLog) {
+        mysqli_stmt_bind_param($checkLog, 'ss', $loginSession, $currentSessionId);
+        mysqli_stmt_execute($checkLog);
+        mysqli_stmt_store_result($checkLog);
+        $validLogSession = mysqli_stmt_num_rows($checkLog) === 1;
+        mysqli_stmt_close($checkLog);
     } else {
-        $showSessionTrace('log_row_missing');
-        header('Location: ../index.php?session=false');
-        exit;
+        $logLookupFailed = true;
+    }
+
+    if (!$validLogSession) {
+        if ($logLookupFailed) {
+            $rejectSession('session_registry_error');
+        }
+
+        $findLogin = mysqli_prepare($logConnection, "SELECT 1 FROM `$logTable` WHERE login = ? LIMIT 1");
+        $loginLogExists = false;
+        if ($findLogin) {
+            mysqli_stmt_bind_param($findLogin, 's', $loginSession);
+            mysqli_stmt_execute($findLogin);
+            mysqli_stmt_store_result($findLogin);
+            $loginLogExists = mysqli_stmt_num_rows($findLogin) > 0;
+            mysqli_stmt_close($findLogin);
+        }
+
+        $rejectSession($loginLogExists ? 'session_replaced' : 'log_row_missing');
     }
 }
 
@@ -570,19 +543,18 @@ function diff_date($date1, $date2) {
 function is_password_match($formUsername, $formPassword, $storedPassword) {
     global $loginMethod, $useLDAP, $configLDAP;
 
-    // Settings can be changed after users have already been created. Detect
-    // the stored hash format so those users can still sign in and migrate
-    // without requiring their old passwords to be reset first.
+    // Existing users may have been created under a previous loginMethod.
+    // Detect the stored representation instead of rejecting a correct
+    // password solely because the setting later changed.
     $matchesStoredPassword = static function ($password, $stored) use ($loginMethod) {
+        $stored = (string) $stored;
         if (preg_match('/^[a-f0-9]{32}$/i', $stored)) {
             return hash_equals(strtolower($stored), md5($password));
         }
-
         if ((strlen($stored) === 13 || substr($stored, 0, 1) === '$') &&
             $stored !== '*0' && $stored !== '*1') {
             return hash_equals($stored, crypt($password, $stored));
         }
-
         return $loginMethod === 'PLAIN' && hash_equals($stored, $password);
     };
 

@@ -74,12 +74,7 @@ class request {
 
     function __isset($name)
     {
-        // Null-coalescing checks such as `$request->log_id ?? array()` call
-        // __isset(). Returning false unconditionally hid properties that had
-        // been populated by a successful query, making existing rows appear
-        // missing to authentication and session validation.
-        $properties = get_object_vars($this);
-        return array_key_exists($name, $properties) && $properties[$name] !== null;
+        return false;
     }
 
     function __get($name)
