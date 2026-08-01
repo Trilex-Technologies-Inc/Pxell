@@ -825,29 +825,42 @@ class request {
     {
         global $tableCollab, $strings, $MY_DBH, $row, $databaseType, $initrequest;
         $this->connectClass();
-        $sql = $initrequest["bookmarks"];
+        $bookmarkTable = str_replace('`', '``', $tableCollab['bookmarks']);
+        $categoryTable = str_replace('`', '``', $tableCollab['bookmarks_categories']);
+        $memberTable = str_replace('`', '``', $tableCollab['members']);
+        $sql = "SELECT
+            boo.id AS boo_id, boo.owner AS boo_owner,
+            boo.category AS boo_category, boo.name AS boo_name,
+            boo.url AS boo_url, boo.description AS boo_description,
+            boo.shared AS boo_shared, boo.home AS boo_home,
+            boo.comments AS boo_comments, boo.users AS boo_users,
+            boo.created AS boo_created, boo.modified AS boo_modified,
+            mem.login AS boo_mem_login,
+            mem.email_work AS boo_mem_email_work,
+            boocat.name AS boo_boocat_name
+          FROM `$bookmarkTable` boo
+          LEFT JOIN `$categoryTable` boocat ON boocat.id = boo.category
+          LEFT JOIN `$memberTable` mem ON mem.id = boo.owner";
         $sql .= ' ' . $querymore;
         if ($databaseType == "mysql" && $start != "") {
             $sql .= " LIMIT $start,$rows";
         } 
 
-        $index = $this->query($sql);
-        while ($this->fetch()) {
-            $this->boo_id[] = ($row[0]);
-            $this->boo_owner[] = ($row[1]);
-            $this->boo_category[] = ($row[2]);
-            $this->boo_name[] = ($row[3]);
-            $this->boo_url[] = ($row[4]);
-            $this->boo_description[] = ($row[5]);
-            $this->boo_shared[] = ($row[6]);
-            $this->boo_home[] = ($row[7]);
-            $this->boo_comments[] = ($row[8]);
-            $this->boo_users[] = ($row[9]);
-            $this->boo_created[] = ($row[10]);
-            $this->boo_modified[] = ($row[11]);
-            $this->boo_mem_login[] = ($row[12]);
-            $this->boo_mem_email_work[] = ($row[13]);
-            $this->boo_boocat_name[] = ($row[14]);
+        $properties = array(
+            'boo_id', 'boo_owner', 'boo_category', 'boo_name', 'boo_url',
+            'boo_description', 'boo_shared', 'boo_home', 'boo_comments',
+            'boo_users', 'boo_created', 'boo_modified', 'boo_mem_login',
+            'boo_mem_email_work', 'boo_boocat_name'
+        );
+        foreach ($properties as $property) {
+            $this->{$property} = array();
+        }
+
+        $this->query($sql);
+        while (($bookmark = mysqli_fetch_assoc($this->index)) !== null) {
+            foreach ($properties as $property) {
+                $this->{$property}[] = $bookmark[$property];
+            }
         } 
         $this->close();
     } 

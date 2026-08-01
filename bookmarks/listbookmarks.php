@@ -97,62 +97,8 @@ if ($view == 'my') {
 $listBookmarks = new request();
 
 if ($view === 'all' && $isAdministrator) {
-    // Use a focused query for the administrator's unfiltered view. The legacy
-    // request wrapper relies on SELECT * column positions and can silently
-    // produce an empty/misaligned result when an installed schema differs.
-    $bookmarkConnection = openDatabase();
-    $bookmarkTable = str_replace('`', '``', $tableCollab['bookmarks']);
-    $categoryTable = str_replace('`', '``', $tableCollab['bookmarks_categories']);
-    $memberTable = str_replace('`', '``', $tableCollab['members']);
-    $bookmarkSql = "SELECT boo.id, boo.owner, boo.category, boo.name, boo.url, " .
-        "boo.description, boo.shared, boo.home, boo.comments, boo.users, " .
-        "boo.created, boo.modified, mem.login AS owner_login, " .
-        "mem.email_work AS owner_email, boocat.name AS category_name " .
-        "FROM `$bookmarkTable` boo " .
-        "LEFT JOIN `$categoryTable` boocat ON boocat.id = boo.category " .
-        "LEFT JOIN `$memberTable` mem ON mem.id = boo.owner " .
-        "ORDER BY boo.name ASC";
-    $bookmarkResult = mysqli_query($bookmarkConnection, $bookmarkSql);
-    if (!($bookmarkResult instanceof mysqli_result)) {
-        throw new RuntimeException('Unable to load administrator bookmarks: ' . mysqli_error($bookmarkConnection));
-    }
-
-    while ($bookmarkRow = mysqli_fetch_assoc($bookmarkResult)) {
-        $listBookmarks->boo_id[] = $bookmarkRow['id'];
-        $listBookmarks->boo_owner[] = $bookmarkRow['owner'];
-        $listBookmarks->boo_category[] = $bookmarkRow['category'];
-        $listBookmarks->boo_name[] = $bookmarkRow['name'];
-        $listBookmarks->boo_url[] = $bookmarkRow['url'];
-        $listBookmarks->boo_description[] = $bookmarkRow['description'];
-        $listBookmarks->boo_shared[] = $bookmarkRow['shared'];
-        $listBookmarks->boo_home[] = $bookmarkRow['home'];
-        $listBookmarks->boo_comments[] = $bookmarkRow['comments'];
-        $listBookmarks->boo_users[] = $bookmarkRow['users'];
-        $listBookmarks->boo_created[] = $bookmarkRow['created'];
-        $listBookmarks->boo_modified[] = $bookmarkRow['modified'];
-        $listBookmarks->boo_mem_login[] = $bookmarkRow['owner_login'] ?? '';
-        $listBookmarks->boo_mem_email_work[] = $bookmarkRow['owner_email'] ?? '';
-        $listBookmarks->boo_boocat_name[] = $bookmarkRow['category_name'] ?? '';
-    }
-
-    if (empty($listBookmarks->boo_id)) {
-        $databaseResult = mysqli_query($bookmarkConnection, 'SELECT DATABASE() AS database_name');
-        $databaseRow = $databaseResult instanceof mysqli_result ? mysqli_fetch_assoc($databaseResult) : array();
-        if ($databaseResult instanceof mysqli_result) {
-            mysqli_free_result($databaseResult);
-        }
-        $countResult = mysqli_query($bookmarkConnection, "SELECT COUNT(*) AS row_count FROM `$bookmarkTable`");
-        $countRow = $countResult instanceof mysqli_result ? mysqli_fetch_assoc($countResult) : array();
-        if ($countResult instanceof mysqli_result) {
-            mysqli_free_result($countResult);
-        }
-        $bookmarkDiagnostic = 'Administrator diagnostic: connected database <strong>' .
-            htmlspecialchars((string) ($databaseRow['database_name'] ?? MYDATABASE)) .
-            '</strong>, configured table <strong>' . htmlspecialchars($tableCollab['bookmarks']) .
-            '</strong>, rows found <strong>' . (int) ($countRow['row_count'] ?? 0) . '</strong>.';
-    }
-    mysqli_free_result($bookmarkResult);
-    mysqli_close($bookmarkConnection);
+    // Administrators should see every bookmark row.
+    $listBookmarks->openBookmarks("ORDER BY $block1->sortingValue");
 } else {
     $listBookmarks->openBookmarks($tmpquery);
 }
