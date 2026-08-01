@@ -20,7 +20,7 @@ if ($task == "") {
     $task = "0";
 }
 
-if ($action == "add") {
+if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if ($maxCustom != "") {
         $maxFileSize = $maxCustom;
     }

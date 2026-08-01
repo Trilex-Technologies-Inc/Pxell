@@ -15,7 +15,7 @@
 $checkSession = true;
 require_once("../includes/library.php");
 
-if ($action == "add") {
+if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $topicField = convertData($topicField);
     $messageField = convertData($messageField);
     $tmpquery1 = "INSERT INTO " . $tableCollab["topics"] . "(project,owner,subject,status,last_post,posts,published) VALUES('" . $_SESSION['projectSession'] . "','" . $_SESSION['idSession'] . "','$topicField','1','$dateheure','1','0')";

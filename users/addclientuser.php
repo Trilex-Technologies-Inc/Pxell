@@ -23,7 +23,7 @@ $clientDetail = new request();
 $clientDetail->openOrganizations($tmpquery);
 
 // case add client user
-if ($action == "add") {
+if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if (!preg_match('/^[A-Za-z0-9]+$/', $un)) {
         $error = $strings["alpha_only"];
     } else {

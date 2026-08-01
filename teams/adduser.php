@@ -29,7 +29,7 @@ if ($comptProjectDetail == "0") {
     exit;
 } 
 
-if ($action == "add") {
+if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $pieces = explode("**", $id);
     $id = str_replace("**", ",", $id);
 

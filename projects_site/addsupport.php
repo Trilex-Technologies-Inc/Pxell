@@ -24,7 +24,7 @@ $listRequests = new request();
 $listRequests->openSupportRequests($tmpquery);
 $comptListRequests = count($listRequests->sr_id);
 
-if ($action == "add") {
+if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $sub = convertData($sub);
     $mes = convertData($mes);
 

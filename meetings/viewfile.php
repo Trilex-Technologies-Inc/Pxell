@@ -65,7 +65,7 @@ $displayname = $fileDetail->mat_name[0];
 
 // ---------------------------------------------------------------------------------------------------
 // Update file code
-if ($action == "update") {
+if ($action == "update" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if ($maxCustom != "") {
         $maxFileSize = $maxCustom;
     }
@@ -147,7 +147,7 @@ if ($action == "update") {
 }
 // ---------------------------------------------------------------------------------------------------
 // Add new revision code
-if ($action == "add") {
+if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if ($maxCustom != "") {
         $maxFileSize = $maxCustom;
     }

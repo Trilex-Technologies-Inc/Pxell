@@ -374,7 +374,7 @@ function reschedule($date1) {
 }
 */
 
-if ($action == "add") {
+if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $tmpquery = "INSERT INTO " . $tableCollab["holiday"] . " (date,comments) VALUES ('$d','$c')";
     connectSql("$tmpquery");
     #reschedule($d);

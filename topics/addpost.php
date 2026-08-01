@@ -23,7 +23,7 @@ $tmpquery = "WHERE pro.id = '" . $detailTopic->top_project[0] . "'";
 $projectDetail = new request();
 $projectDetail->openProjects($tmpquery);
 
-if ($action == "add") {
+if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $tpm = convertData($tpm);
     autoLinks($tpm);
     $detailTopic->top_posts[0] = $detailTopic->top_posts[0] + 1;

@@ -50,7 +50,7 @@ if ($comptMemberTest == "0") {
 // case update note entry
 if ($id != "") {
     // case update note entry
-    if ($action == "update") {
+    if ($action == "update" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         $subject = convertData($subject);
         $description = convertData($description);
         $tmpquery5 = "UPDATE " . $tableCollab["notes"] . " SET project='$projectMenu',topic='$topic',subject='$subject',description='$description',date='$dd',owner='" . $_SESSION['idSession'] . "' WHERE id = '$id'";
@@ -68,7 +68,7 @@ if ($id != "") {
 // case add note entry
 if ($id == "") {
     // case add note entry
-    if ($action == "add") {
+    if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         $subject = convertData($subject);
         $description = convertData($description);
         $tmpquery1 = "INSERT INTO " . $tableCollab["notes"] . "(project,topic,subject,description,date,owner,published) VALUES('$projectMenu','$topic','$subject','$description','$dd','" . $_SESSION['idSession'] . "','1')";

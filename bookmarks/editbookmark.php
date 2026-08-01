@@ -47,7 +47,7 @@ if ($id != '' && $action != 'add') {
 // case update bookmark entry
 if ($id != '') {
     // case update bookmark entry
-    if ($action == 'update') {
+    if ($action == 'update' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         if ($piecesNew != '') {
             $users = '|' . implode('|', $piecesNew) . '|';
         }
@@ -120,7 +120,7 @@ if ($id == '') {
     $checkedShared = 'checked';
     $checkedComments = 'checked';
     // case add note entry
-    if ($action == 'add') {
+    if ($action == 'add' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         if ($piecesNew != '') {
             $users = '|' . implode('|', $piecesNew) . '|';
         }

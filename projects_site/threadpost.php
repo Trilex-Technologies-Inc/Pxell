@@ -24,7 +24,7 @@ if ($detailTopic->top_published[0] == "1" || $detailTopic->top_project[0] != $_S
     exit;
 } 
 
-if ($action == "add") {
+if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $detailTopic->top_posts[0] = $detailTopic->top_posts[0] + 1;
     $messageField = convertData($messageField);
     autoLinks($messageField);

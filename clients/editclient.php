@@ -57,7 +57,7 @@ if ($id != '') {
 }
 // case update client organization
 if ($id != '') {
-    if ($action == 'update') {
+    if ($action == 'update' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         if ($logoDel == 'on') {
             $tmpquery = 'UPDATE ' . $tableCollab['organizations'] . " SET extension_logo='' WHERE id='$id'";
             connectSql($tmpquery);
@@ -93,7 +93,7 @@ if ($id != '') {
 }
 // case add client organization
 if ($id == '') {
-    if ($action == 'add') {
+    if ($action == 'add' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         // test if name blank
         if ($cn == '') {
             $error = $strings['blank_organization_field'];

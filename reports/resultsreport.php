@@ -15,7 +15,7 @@
 $checkSession = true;
 require_once("../includes/library.php");
 
-if ($action == "add") {
+if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $S_SAVENAME = convertData($S_SAVENAME);
     $tmpquery1 = "INSERT INTO " . $tableCollab["reports"] . "(owner,name,projects,clients,members,priorities,status,date_due_start,date_due_end,date_complete_start,date_complete_end,created) VALUES('" . $_SESSION['idSession'] . "','$S_SAVENAME','$S_PRJSEL','$S_ORGSEL','$S_ATSEL','$S_PRIOSEL','$S_STATSEL','$S_SDATE','$S_EDATE','$S_SDATE2','$S_EDATE2','$dateheure')";
     connectSql("$tmpquery1");

@@ -64,7 +64,7 @@ if ($stm != "" && $etm != "" && $stm > $etm) {
 // case update meeting
 if ($id != "") {
     // case update meeting
-    if ($action == "update") {
+    if ($action == "update" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         // concat values from date selector and replace quotes by html code in name
         $mn = convertData($mn);
         $ma = convertData($ma);
@@ -363,7 +363,7 @@ if ($id != "") {
 // case add meeting
 if ($id == "") {
     // case add meeting
-    if ($action == "add") {
+    if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         // concat values from date selector and replace quotes by html code in name
         $mn = convertData($mn);
         $ma = convertData($ma);

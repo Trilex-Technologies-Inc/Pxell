@@ -29,7 +29,7 @@ if ($_SESSION['profilSession'] != "0") {
 // case update user
 if ($id != "") {
     // case update user
-    if ($action == "update") {
+    if ($action == "update" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         // replace quotes by html code in name and address
         $n = convertData($n);
         $np = convertData($np);
@@ -53,7 +53,7 @@ if ($id != "") {
 } 
 // case add user
 if ($id == "") {
-    if ($action == "add") {
+    if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         // replace quotes by html code in name and address
         $n = convertData($n);
         $np = convertData($np);

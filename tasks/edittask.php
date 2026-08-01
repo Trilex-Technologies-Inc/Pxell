@@ -63,7 +63,7 @@ if ($teamMember == 'false' && $_SESSION['profilSession'] != '5') {
 // case update or copy task
 if ($id != '') {
     // case update or copy task
-    if ($action == 'update') {
+    if ($action == 'update' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         // concat values from date selector and replace quotes by html code in name
         $tn = convertData($tn);
         $d = convertData($d);
@@ -354,7 +354,7 @@ if ($id != '') {
 // case add task
 if ($id == "") {
     // case add task
-    if ($action == "add") {
+    if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         // concat values from date selector and replace quotes by html code in name
         $tn = convertData($tn);
         $d = convertData($d);

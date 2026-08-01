@@ -1011,17 +1011,38 @@ function compt($tmpsql)
  */
 function connectSql($tmpsql)
 {
-    global $tableCollab, $databaseType;
+    global $tableCollab, $databaseType, $lastInsertId, $lastSqlError;
+
+    $lastInsertId = null;
+    $lastSqlError = '';
 
     if ($databaseType == 'mysql') {
         $res = openDatabase();
         $sql = $tmpsql;
-        $index = mysqli_query($res, $sql);
+        try {
+            $index = mysqli_query($res, $sql);
+        } catch (Throwable $exception) {
+            $lastSqlError = $exception->getMessage();
+            @mysqli_close($res);
+            throw new RuntimeException('Database query failed: ' . $lastSqlError, 0, $exception);
+        }
+        if ($index === false) {
+            $lastSqlError = mysqli_error($res);
+            @mysqli_close($res);
+            throw new RuntimeException('Database query failed: ' . $lastSqlError);
+        }
+        $insertId = mysqli_insert_id($res);
+        if ($insertId > 0) {
+            $lastInsertId = $insertId;
+        }
         if ($index instanceof mysqli_result) {
             mysqli_free_result($index);
         }
         @mysqli_close($res);
+        return true;
     } 
+
+    return false;
 }
 
 /**
@@ -1032,11 +1053,23 @@ function connectSql($tmpsql)
  */
 function last_id($tmpsql)
 {
-    global $tableCollab, $databaseType, $lastId;
+    global $tableCollab, $databaseType, $lastId, $lastInsertId, $lastSqlError;
 
     // Keep the historical global for legacy callers while also returning the
     // value for modern, explicit callers.
     $lastId = array();
+
+    // connectSql() captured this from the same connection that performed the
+    // INSERT. This is concurrency-safe and cannot select another user's row.
+    if ($lastInsertId !== null) {
+        $lastId[] = $lastInsertId;
+        $lastInsertId = null;
+        return $lastId;
+    }
+
+    if ($lastSqlError !== '') {
+        throw new RuntimeException('Database INSERT failed: ' . $lastSqlError);
+    }
 
     if ($databaseType == 'mysql') {
         $res = openDatabase();

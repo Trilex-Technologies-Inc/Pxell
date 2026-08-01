@@ -95,7 +95,7 @@ if ($firstday == 0) {
 }
 
 if ($type == "calendEdit") {
-    if ($action == "update") {
+    if ($action == "update" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         if ($recurring == "") {
             $recurring = "0";
         } else {
@@ -111,7 +111,7 @@ if ($type == "calendEdit") {
         header("Location: ../calendar/viewcalendar.php?viewCalend=$viewCalend&dateEnreg=$dateEnreg&dateCalend=$dateCalend&type=calendDetail&msg=update");
         exit;
     }
-    if ($action == "add") {
+    if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         if ($shortname == "") {
             $error = $strings["blank_fields"];
         } else {
