@@ -365,49 +365,121 @@ if ($type == "calendDetail") {
     require_once("../themes/" . THEME . "/header.php");
 
     //--- content -----
-    $block1 = new block();
+    $eventSubject = htmlspecialchars($detailCalendar->cal_subject[0], ENT_QUOTES, 'UTF-8');
+    $eventShortName = htmlspecialchars($detailCalendar->cal_shortname[0], ENT_QUOTES, 'UTF-8');
+    $eventDescription = nl2br(htmlspecialchars($detailCalendar->cal_description[0], ENT_QUOTES, 'UTF-8'));
+    $eventStartDate = htmlspecialchars($detailCalendar->cal_date_start[0], ENT_QUOTES, 'UTF-8');
+    $eventEndDate = htmlspecialchars($detailCalendar->cal_date_end[0], ENT_QUOTES, 'UTF-8');
+    $eventStartTime = htmlspecialchars($detailCalendar->cal_time_start[0], ENT_QUOTES, 'UTF-8');
+    $eventEndTime = htmlspecialchars($detailCalendar->cal_time_end[0], ENT_QUOTES, 'UTF-8');
+    $eventTimestamp = strtotime($detailCalendar->cal_date_start[0]);
+    $eventDay = $eventTimestamp ? date('d', $eventTimestamp) : '&ndash;';
+    $eventMonth = $eventTimestamp ? date('M', $eventTimestamp) : '';
+    $calendarLabel = $viewCalend != 0
+        ? htmlspecialchars($listTeam->tea_pro_name[0], ENT_QUOTES, 'UTF-8')
+        : htmlspecialchars($strings['cal_personal'] . $strings['calendar'], ENT_QUOTES, 'UTF-8');
+?>
+    <style>
+        .event-detail-page { max-width: 1100px; margin: 0 auto 2rem; }
+        .event-detail-hero {
+            display: flex; justify-content: space-between; gap: 1.5rem;
+            padding: 1.75rem; color: #fff; border-radius: 1rem 1rem 0 0;
+            background: linear-gradient(135deg, #2457a7 0%, #3478d4 58%, #4c91e8 100%);
+        }
+        .event-detail-heading { display: flex; gap: 1rem; align-items: center; min-width: 0; }
+        .event-date-tile {
+            width: 72px; min-width: 72px; overflow: hidden; text-align: center;
+            border-radius: .8rem; color: #17365f; background: #fff;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .16);
+        }
+        .event-date-tile__month { padding: .25rem; color: #fff; background: #dc3545; font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+        .event-date-tile__day { padding: .35rem; font-size: 1.8rem; font-weight: 750; line-height: 1.2; }
+        .event-detail-kicker { margin-bottom: .3rem; opacity: .78; font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+        .event-detail-title { margin: 0; font-size: clamp(1.35rem, 3vw, 2rem); overflow-wrap: anywhere; }
+        .event-detail-subject { margin: .4rem 0 0; opacity: .86; }
+        .event-detail-actions { display: flex; flex-wrap: wrap; align-content: flex-start; justify-content: flex-end; gap: .5rem; }
+        .event-detail-actions .btn { white-space: nowrap; }
+        .event-detail-body { padding: 1.75rem; border: 1px solid #dfe7f1; border-top: 0; border-radius: 0 0 1rem 1rem; background: #fff; box-shadow: 0 14px 36px rgba(34, 49, 72, .09); }
+        .event-schedule { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: center; padding: 1.25rem; border-radius: .85rem; background: #f5f8fc; }
+        .event-schedule__item { min-width: 0; }
+        .event-schedule__label { margin-bottom: .3rem; color: #6c7887; font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+        .event-schedule__date { color: #172b4d; font-size: 1.05rem; font-weight: 700; }
+        .event-schedule__time { margin-top: .2rem; color: #526174; }
+        .event-schedule__arrow { color: #8ca0b8; font-size: 1.2rem; }
+        .event-info-card { height: 100%; padding: 1.2rem; border: 1px solid #e2e8f0; border-radius: .85rem; }
+        .event-info-label { margin-bottom: .35rem; color: #6c7887; font-size: .78rem; font-weight: 700; text-transform: uppercase; }
+        .event-description { color: #34445a; line-height: 1.7; overflow-wrap: anywhere; }
+        @media (max-width: 767px) {
+            .event-detail-hero { flex-direction: column; padding: 1.25rem; }
+            .event-detail-actions { justify-content: flex-start; }
+            .event-detail-body { padding: 1.1rem; }
+            .event-schedule { grid-template-columns: 1fr; }
+            .event-schedule__arrow { transform: rotate(90deg); justify-self: center; }
+        }
+    </style>
 
-    $block1->form = "calend";
-    $block1->openForm("../calendar/viewcalendar.php#" . $block1->form . "Anchor");
+    <div class="event-detail-page" id="calendAnchor">
+        <?php if ($error != ""): ?>
+            <div class="alert alert-danger" role="alert"><?php echo $error; ?></div>
+        <?php endif; ?>
 
-    if ($error != "") {
-        $block1->headingError($strings["errors"]);
-        $block1->contentError($error);
-    }
+        <section class="event-detail-hero">
+            <div class="event-detail-heading">
+                <div class="event-date-tile" aria-hidden="true">
+                    <div class="event-date-tile__month"><?php echo $eventMonth; ?></div>
+                    <div class="event-date-tile__day"><?php echo $eventDay; ?></div>
+                </div>
+                <div>
+                    <div class="event-detail-kicker"><i class="fa-regular fa-calendar me-1"></i><?php echo $calendarLabel; ?></div>
+                    <h1 class="event-detail-title"><?php echo $eventShortName; ?></h1>
+                    <?php if ($eventSubject !== ''): ?><p class="event-detail-subject"><?php echo $eventSubject; ?></p><?php endif; ?>
+                </div>
+            </div>
+            <div class="event-detail-actions">
+                <a class="btn btn-light" href="../calendar/viewcalendar.php?viewCalend=<?php echo (int) $viewCalend; ?>&amp;id=<?php echo (int) $dateEnreg; ?>&amp;type=calendEdit&amp;dateCalend=<?php echo urlencode($dateCalend); ?>"><i class="fa-solid fa-pen me-1"></i><?php echo $strings["edit"]; ?></a>
+                <a class="btn btn-outline-light" href="../calendar/exportcalendar.php?id=<?php echo (int) $dateEnreg; ?>"><i class="fa-solid fa-download me-1"></i><?php echo $strings["export"]; ?></a>
+                <a class="btn btn-outline-light" href="../calendar/deletecalendar.php?id=<?php echo (int) $dateEnreg; ?>"><i class="fa-regular fa-trash-can me-1"></i><?php echo $strings["delete"]; ?></a>
+            </div>
+        </section>
 
-    $block1->heading($detailCalendar->cal_shortname[0]);
+        <section class="event-detail-body">
+            <div class="event-schedule mb-4">
+                <div class="event-schedule__item">
+                    <div class="event-schedule__label"><?php echo $strings["date_start"]; ?></div>
+                    <div class="event-schedule__date"><?php echo $eventStartDate; ?></div>
+                    <div class="event-schedule__time"><i class="fa-regular fa-clock me-1"></i><?php echo $eventStartTime ?: '&ndash;'; ?></div>
+                </div>
+                <i class="fa-solid fa-arrow-right event-schedule__arrow" aria-hidden="true"></i>
+                <div class="event-schedule__item">
+                    <div class="event-schedule__label"><?php echo $strings["date_end"]; ?></div>
+                    <div class="event-schedule__date"><?php echo $eventEndDate; ?></div>
+                    <div class="event-schedule__time"><i class="fa-regular fa-clock me-1"></i><?php echo $eventEndTime ?: '&ndash;'; ?></div>
+                </div>
+            </div>
 
-    $block1->openPaletteIcon();
-    $block1->paletteIcon(0, "remove", $strings["delete"]);
-    $block1->paletteIcon(1, "edit", $strings["edit"]);
-    $block1->paletteIcon(2, "export", $strings["export"]);
-    $block1->closePaletteIcon();
-
-    $block1->openContent();
-    $block1->contentTitle($strings["details"]);
-
-    if ($viewCalend != 0) {
-        echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings['project'] . " :</td><td>" . $listTeam->tea_pro_name[0] . "</td></tr>";
-    }
-
-    echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["subject"] . " :</td><td>" . $detailCalendar->cal_subject[0] . "</td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["description"] . " :</td><td>" . nl2br($detailCalendar->cal_description[0]) . "&nbsp;</td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["shortname"] . $template->printHelp("calendar_shortname") . " :</td><td>" . $detailCalendar->cal_shortname[0] . "&nbsp;</td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["date_start"] . " :</td><td>" . $detailCalendar->cal_date_start[0] . "</td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["date_end"] . " :</td><td>" . $detailCalendar->cal_date_end[0] . "</td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["time_start"] . " :</td><td>" . $detailCalendar->cal_time_start[0] . "</td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["time_end"] . " :</td><td>" . $detailCalendar->cal_time_end[0] . "</td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["calendar_reminder"] . " :</td><td>$reminder</td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["calendar_recurring"] . " :</td><td>$recurring</td></tr>";
-
-    $block1->closeContent();
-    $block1->closeForm();
-
-    $block1->openPaletteScript();
-    $block1->paletteScript(0, "remove", "../calendar/deletecalendar.php?id=$dateEnreg", "true,true,true", $strings["delete"]);
-    $block1->paletteScript(1, "edit", "../calendar/viewcalendar.php?viewCalend=$viewCalend&id=$dateEnreg&type=calendEdit&dateCalend=$dateCalend", "true,true,true", $strings["edit"]);
-    $block1->paletteScript(2, "export", "../calendar/exportcalendar.php?id=$dateEnreg", "true,true,true", $strings["export"]);
-    $block1->closePaletteScript("", "");
+            <div class="row g-3">
+                <div class="col-lg-8">
+                    <div class="event-info-card">
+                        <div class="event-info-label"><?php echo $strings["description"]; ?></div>
+                        <div class="event-description"><?php echo $eventDescription !== '' ? $eventDescription : '&ndash;'; ?></div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="event-info-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted"><i class="fa-regular fa-bell me-2"></i><?php echo $strings["calendar_reminder"]; ?></span>
+                            <span class="badge <?php echo $detailCalendar->cal_reminder[0] == '0' ? 'text-bg-secondary' : 'text-bg-primary'; ?>"><?php echo $reminder; ?></span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted"><i class="fa-solid fa-rotate me-2"></i><?php echo $strings["calendar_recurring"]; ?></span>
+                            <span class="badge <?php echo $detailCalendar->cal_recurring[0] == '0' ? 'text-bg-secondary' : 'text-bg-primary'; ?>"><?php echo $recurring; ?></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+<?php
 }
 else if ($type == "dayList") {
 
