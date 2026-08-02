@@ -26,7 +26,7 @@ $projectDetail->openProjects($tmpquery);
 if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $tpm = convertData($tpm);
     autoLinks($tpm);
-    $detailTopic->top_posts[0] = $detailTopic->top_posts[0] + 1;
+    $detailTopic->top_posts[0] = (int) ($detailTopic->top_posts[0] ?? 0) + 1;
     $tmpquery1 = "INSERT INTO " . $tableCollab["posts"] . "(topic,member,created,message) VALUES('$id','" . $_SESSION['idSession'] . "','$dateheure','$newText')";
     connectSql("$tmpquery1");
     $tmpquery2 = "UPDATE " . $tableCollab["topics"] . " SET last_post='$dateheure',posts='" . $detailTopic->top_posts[0] . "' WHERE id = '$id'";

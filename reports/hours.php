@@ -160,7 +160,7 @@ if ($comptListHours != "0") {
         $block1->cellRow($listHours->tim_hours[$i]);
         $block1->closeRow();
         // add to total hours
-        $totalMemHours += $listHours->tim_hours[$i];
+        $totalMemHours += (float) ($listHours->tim_hours[$i] ?? 0);
     }
     // print the totals
     $block1->openRow();

@@ -109,7 +109,7 @@ if ($action == "update" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         $extension = strtolower(strrev($tab[0]));
     } 
 
-    $newversion = $fileDetail->fil_vc_version[0] + $change_file_version;
+    $newversion = (int) ($fileDetail->fil_vc_version[0] ?? 0) + (int) $change_file_version;
     if ($cpy == "true") {
         $name = "$upload_name";
         $tmpquery = "UPDATE " . $tableCollab["files"] . " SET date='$dateheure',size='$size',comments='$c',status='$statusField',vc_version='$newversion' WHERE id = '$id'";

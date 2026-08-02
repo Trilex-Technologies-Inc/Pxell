@@ -328,7 +328,12 @@ if ($comptListHours != "0") {
             $mem_name = $listHours->tim_mem_name[$i];
         } 
         // increment the grand total
-        $grand_total_member_hours [$listHours->tim_owner[$i]] += $listHours->tim_hours[$i];
+        $memberId = $listHours->tim_owner[$i];
+        if (!isset($grand_total_member_hours[$memberId])) {
+            $grand_total_member_hours[$memberId] = 0;
+        }
+        $hours = (float) ($listHours->tim_hours[$i] ?? 0);
+        $grand_total_member_hours[$memberId] += $hours;
 
         if ($displayMemHourItems) {
             $block1->openRow();
@@ -341,9 +346,9 @@ if ($comptListHours != "0") {
             $block1->closeRow();
         } 
 
-        $total_mem_hours += $listHours->tim_hours[$i];
-        $total_org_hours += $listHours->tim_hours[$i];
-        $total_project_hours += $listHours->tim_hours[$i];
+        $total_mem_hours += $hours;
+        $total_org_hours += $hours;
+        $total_project_hours += $hours;
     } 
     // pick up the last straggler
     if ($displayMemTotals) {

@@ -103,6 +103,10 @@ $listHours->openTaskTime($tmpquery);
 $comptListHours = count($listHours->tim_id);
 
 $dump_buffer = $reportHeader . $crlf;
+$total_project_hours = 0;
+$total_org_hours = 0;
+$project_name = "";
+$org_name = "";
 
 if ($comptListHours != "0") {
     /**
@@ -177,8 +181,9 @@ if ($comptListHours != "0") {
         $dump_buffer .= "\"" . $nice_print . "\",";
         $dump_buffer .= $crlf;
 
-        $total_org_hours += $listHours->tim_hours[$i];
-        $total_project_hours += $listHours->tim_hours[$i];
+        $hours = (float) ($listHours->tim_hours[$i] ?? 0);
+        $total_org_hours += $hours;
+        $total_project_hours += $hours;
     } 
     // pick up the last straggler
     $dump_buffer .= "\"\",";

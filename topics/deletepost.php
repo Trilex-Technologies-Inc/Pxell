@@ -20,7 +20,7 @@ $detailTopic = new request();
 $detailTopic->openTopics($tmpquery);
 
 if ($action == "delete") {
-    $detailTopic->top_posts[0] = $detailTopic->top_posts[0] - 1;
+    $detailTopic->top_posts[0] = max(0, (int) ($detailTopic->top_posts[0] ?? 0) - 1);
     $tmpquery = "DELETE FROM " . $tableCollab["posts"] . " WHERE id = '$id'";
     connectSql("$tmpquery");
     $tmpquery2 = "UPDATE " . $tableCollab["topics"] . " SET posts='" . $detailTopic->top_posts[0] . "' WHERE id = '$topic'";

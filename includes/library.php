@@ -1482,7 +1482,7 @@ function diff_hour($date1, $date2) {
         $comptListHoliday = count($listHoliday->hol_id ?? array());
         if ($comptListHoliday == 0) {
             $weekDay = date("w", $timestamp1);
-            $diff += $dayHourArray[$weekDay];
+            $diff += (float) ($dayHourArray[$weekDay] ?? 0);
         }
         $timestamp1 += (3600 * 24);
     }
@@ -1509,7 +1509,7 @@ function hours_after($date1, $hour1) {
         $comptListHoliday = count($listHoliday->hol_id ?? array());
         if ($comptListHoliday == 0) {
             $weekDay = date("w", $timestamp1);
-            $diff += $dayHourArray[$weekDay];
+            $diff += (float) ($dayHourArray[$weekDay] ?? 0);
             if ($diff >= $hour1)
                 break;
         }
@@ -1538,7 +1538,7 @@ function hours_before($date1, $hour1) {
         $comptListHoliday = count($listHoliday->hol_id ?? array());
         if ($comptListHoliday == 0) {
             $weekDay = date("w", $timestamp1);
-            $diff += $dayHourArray[$weekDay];
+            $diff += (float) ($dayHourArray[$weekDay] ?? 0);
             if ($diff >= $hour1)
                 break;
         }

@@ -25,7 +25,7 @@ if ($detailTopic->top_published[0] == "1" || $detailTopic->top_project[0] != $_S
 } 
 
 if ($action == "delete") {
-    $detailTopic->top_posts[0] = $detailTopic->top_posts[0] - 1;
+    $detailTopic->top_posts[0] = max(0, (int) ($detailTopic->top_posts[0] ?? 0) - 1);
     $tmpquery = "DELETE FROM " . $tableCollab["posts"] . " WHERE id = '$post'";
     connectSql("$tmpquery");
     $tmpquery2 = "UPDATE " . $tableCollab["topics"] . " SET posts='" . $detailTopic->top_posts[0] . "' WHERE id = '$id'";

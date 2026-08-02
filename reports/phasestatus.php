@@ -123,7 +123,7 @@ if ($comptListProjects != "0") {
                         } 
                     } 
                     // determine overall completion of phase
-                    $phaseCompleted += $countPhaseTasks->tas_completion[$k];
+                    $phaseCompleted += (float) ($countPhaseTasks->tas_completion[$k] ?? 0);
                 } 
                 // calculate overall percentage completion for all task(s) within this phase
                 if ($phaseCompleted > 0) {

@@ -25,7 +25,7 @@ if ($detailTopic->top_published[0] == "1" || $detailTopic->top_project[0] != $_S
 } 
 
 if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
-    $detailTopic->top_posts[0] = $detailTopic->top_posts[0] + 1;
+    $detailTopic->top_posts[0] = (int) ($detailTopic->top_posts[0] ?? 0) + 1;
     $messageField = convertData($messageField);
     autoLinks($messageField);
     $tmpquery1 = "INSERT INTO " . $tableCollab["posts"] . "(topic,member,created,message) VALUES('$id','" . $_SESSION['idSession'] . "','$dateheure','$newText')";

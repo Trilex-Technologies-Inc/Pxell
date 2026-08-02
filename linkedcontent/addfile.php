@@ -208,7 +208,7 @@ $block1->form = "filedetails";
                             <input class="form-control" type="file" name="upload" required>
                             <div class="form-text">
                                 <?php
-                                $maxFileSizeKB = $projectDetail->pro_upload_max[0] / 1024;
+                                $maxFileSizeKB = (float) ($projectDetail->pro_upload_max[0] ?? 0) / 1024;
                                 echo sprintf($strings["max_file_size"], $maxFileSizeKB, $byteUnits[1]);
                                 ?>
                                 <?php if ($allowPhp == "false"): ?>

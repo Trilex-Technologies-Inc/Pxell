@@ -100,8 +100,9 @@ $ms_cnt = 0;
 for ($i = 0; $i < $comptListTasks; $i++) {
     $listTasks->tas_name[$i] = str_replace('&quot;', '"', $listTasks->tas_name[$i]);
     $listTasks->tas_name[$i] = str_replace("&#39;", "'", $listTasks->tas_name[$i]);
-    $progress = round($listTasks->tas_completion[$i] / 10, 2);
-    $printProgress = $listTasks->tas_completion[$i] * 10;
+    $completion = (float) ($listTasks->tas_completion[$i] ?? 0);
+    $progress = round($completion / 10, 2);
+    $printProgress = $completion * 10;
 
     // get the duration in days for this task
     $duration = diff_date($listTasks->tas_due_date[$i], $listTasks->tas_start_date[$i]);
