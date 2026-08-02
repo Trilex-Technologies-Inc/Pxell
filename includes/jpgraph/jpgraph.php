@@ -972,7 +972,7 @@ class Graph {
     }
 
     // Add a plot object to the graph
-    function Add(&$aPlot) {
+    function Add($aPlot) {
 	if( $aPlot == null )
 	    JpGraphError::Raise("Graph::Add() You tried to add a null plot to the graph.");
 	if( is_array($aPlot) && count($aPlot) > 0 )

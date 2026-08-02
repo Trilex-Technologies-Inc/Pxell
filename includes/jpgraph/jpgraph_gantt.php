@@ -509,7 +509,7 @@ class GanttGraph extends Graph {
     }
 
     // Override inherit method from Graph and give a warning message
-    function SetScale() {
+    function SetScale($aAxisType = null, $aYMin = 1, $aYMax = 1, $aXMin = 1, $aXMax = 1) {
 	JpGraphError::Raise("SetScale() is not meaningfull with Gantt charts.");
     }
 

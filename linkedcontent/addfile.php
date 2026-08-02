@@ -20,6 +20,11 @@ if ($task == "") {
     $task = "0";
 }
 
+// Project-level uploads have no phase. Strict SQL modes reject an empty
+// string for this integer column.
+$phase = (isset($phase) && ctype_digit((string) $phase)) ? (int) $phase : 0;
+$task = (isset($task) && ctype_digit((string) $task)) ? (int) $task : 0;
+
 if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if ($maxCustom != "") {
         $maxFileSize = $maxCustom;

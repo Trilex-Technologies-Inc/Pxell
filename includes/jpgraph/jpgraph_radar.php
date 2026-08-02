@@ -22,7 +22,7 @@ class RadarLogTicks extends Ticks {
 // PUBLIC METHODS	
 
     // TODO: Add Argument grid
-    function Stroke(&$aImg,&$grid,$aPos,$aAxisAngle,&$aScale,&$aMajPos,&$aMajLabel) {
+    function Stroke(&$aImg, &$grid, $aPos, $aAxisAngle = null, &$aScale = null, &$aMajPos = null, &$aMajLabel = null) {
 	$start = $aScale->GetMinVal();
 	$limit = $aScale->GetMaxVal();
 	$nextMajor = 10*$start;
@@ -94,7 +94,7 @@ class RadarLinearTicks extends LinearTicks {
 // PUBLIC METHODS	
 
     // TODO: Add argument grid
-    function Stroke(&$aImg,&$grid,$aPos,$aAxisAngle,&$aScale,&$aMajPos,&$aMajLabel) {
+    function Stroke(&$aImg, &$grid, $aPos, $aAxisAngle = null, &$aScale = null, &$aMajPos = null, &$aMajLabel = null) {
 	// Prepare to draw linear ticks
 	$maj_step_abs = abs($aScale->scale_factor*$this->major_step);	
 	$min_step_abs = abs($aScale->scale_factor*$this->minor_step);	
@@ -164,7 +164,7 @@ class RadarAxis extends Axis {
     }
 //---------------
 // PUBLIC METHODS	
-    function SetTickLabels($l) {
+    function SetTickLabels($l, $aLabelColorArray = null) {
 	$this->ticks_label = $l;
     }
 	
@@ -174,7 +174,7 @@ class RadarAxis extends Axis {
     // $aAxisAngle = Axis angle
     // $grid			= Returns an array with positions used to draw the grid
     //	$lf			= Label flag, TRUE if the axis should have labels
-    function Stroke($pos,$aAxisAngle,&$grid,$title,$lf) {
+    function Stroke($pos, $aAxisAngle = true, &$grid = null, $title = null, $lf = null) {
 	$majpos = array();
 	$majlabel = array();
 	$this->img->SetColor($this->color);
@@ -259,7 +259,7 @@ class RadarGrid extends Grid {
 
 //----------------
 // PRIVATE METHODS	
-    function Stroke(&$img,&$grid) {
+    function Stroke(&$img = null, &$grid = null) {
 	if( !$this->show ) return;
 	$nbrticks = count($grid[0])/2;
 	$nbrpnts = count($grid);
@@ -448,7 +448,7 @@ class RadarGraph extends Graph {
     	$this->yscale->ticks->SupressMinorTickMarks(!$aFlag);
     }
 	
-    function SetScale($axtype,$ymin=1,$ymax=1) {
+    function SetScale($axtype, $ymin = 1, $ymax = 1, $xmin = 1, $xmax = 1) {
 	if( $axtype != "lin" && $axtype != "log" ) {
 	    JpGraphError::Raise("Illegal scale for spiderplot ($axtype). Must be \"lin\" or \"log\"");
 	}
@@ -476,7 +476,7 @@ class RadarGraph extends Graph {
 	$this->SetSize($aSize);
     }
 
-    function SetTickDensity($densy=TICKD_NORMAL) {
+    function SetTickDensity($densy = TICKD_NORMAL, $densx = TICKD_NORMAL) {
 	$this->ytick_factor=25;		
 	switch( $densy ) {
 	    case TICKD_DENSE:
@@ -514,11 +514,11 @@ class RadarGraph extends Graph {
 	$this->axis_title = $title;
     }
 
-    function Add(&$splot) {
+    function Add($splot) {
 	$this->plots[]=$splot;
     }
 	
-    function GetPlotsYMinMax() {
+    function GetPlotsYMinMax(&$aPlots = null) {
 	$min=$this->plots[0]->Min();
 	$max=$this->plots[0]->Max();
 	foreach( $this->plots as $p ) {
