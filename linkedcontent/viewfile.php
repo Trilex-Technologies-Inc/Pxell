@@ -271,6 +271,7 @@ require_once("../themes/" . THEME . "/header.php");
 	$block1->form = "vdC";
 	$block1->openForm("../files/viewfile.php?id=$id#" . $block1->form . "Anchor");
 
+	echo '<div class="card mb-4 shadow-sm border-0">';
 	$block1->heading($strings["document"]);
 
 	if ($fileDetail->fil_owner[0] == $_SESSION['idSession']) {
@@ -289,98 +290,94 @@ require_once("../themes/" . THEME . "/header.php");
 	}
 
 	$block1->openContent();
-	$block1->contentTitle($strings["details"]);
-
-	echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["type"] . " :</td><td><img src=\"../interface/icones/$type\" border=\"0\" alt=\"\"></td></tr>
-	<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["name"] . " :</td><td>" . $fileDetail->fil_name[0] . "</td></tr>
-	<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["vc_version"] . " :</td><td>" . $fileDetail->fil_vc_version[0] . "</td></tr>
-	<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["ifc_last_date"] . " :</td><td>" . $fileDetail->fil_date[0] . "</td></tr>
-	<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["size"] . ":</td><td>" . convertSize($fileDetail->fil_size[0]) . "</td></tr>
-	<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["owner"] . " :</td><td>" . buildLink("../users/viewuser.php?id=" . $fileDetail->fil_mem_id[0], $fileDetail->fil_mem_name[0], LINK_INSIDE) . " (" . buildLink($fileDetail->fil_mem_email_work[0], $fileDetail->fil_mem_login[0], LINK_MAIL) . ")</td></tr>";
-
-	if ($fileDetail->fil_comments[0] != "") {
-	    echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["comments"] . " :</td><td>" . nl2br($fileDetail->fil_comments[0]) . "&nbsp;</td></tr>";
-	}
-
 	$idPublish = $fileDetail->fil_published[0];
-	echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["published"] . " :</td><td>$statusPublish[$idPublish]</td></tr>";
-
 	$idStatus = $fileDetail->fil_status[0];
-	echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["approval_tracking"] . " :</td><td>$statusFile[$idStatus]</td></tr>";
+	$fileName = htmlspecialchars($fileDetail->fil_name[0], ENT_QUOTES, 'UTF-8');
+	$fileComments = nl2br(htmlspecialchars($fileDetail->fil_comments[0], ENT_QUOTES, 'UTF-8'));
+	$publishClass = $idPublish == '0' ? 'text-bg-success' : 'text-bg-secondary';
+	$statusClass = $idStatus == '1' ? 'text-bg-success' : ($idStatus == '2' ? 'text-bg-warning' : 'text-bg-secondary');
 
-	if ($fileDetail->fil_mem2_id[0] != "") {
-	    echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["approver"] . " :</td><td>" . buildLink("../users/viewuser.php?id=" . $fileDetail->fil_mem2_id[0], $fileDetail->fil_mem2_name[0], LINK_INSIDE) . " (" . buildLink($fileDetail->fil_mem2_email_work[0], $fileDetail->fil_mem2_login[0], LINK_MAIL) . ")&nbsp;</td></tr>";
-	    echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["approval_date"] . " :</td><td>" . $fileDetail->fil_date_approval[0] . "&nbsp;</td></tr>";
-	}
+	echo '<div class="row g-4 align-items-start">';
+	echo '<div class="col-lg-8">';
+	echo '<div class="d-flex align-items-center gap-3 mb-4">';
+	echo '<div class="bg-light border rounded-3 p-3 flex-shrink-0"><img src="../interface/icones/' . htmlspecialchars($type, ENT_QUOTES, 'UTF-8') . '" width="48" height="48" alt=""></div>';
+	echo '<div class="min-w-0"><h3 class="h5 mb-1 text-break">' . $fileName . '</h3>';
+	echo '<div class="text-muted small">' . $strings["vc_version"] . ' ' . htmlspecialchars($fileDetail->fil_vc_version[0], ENT_QUOTES, 'UTF-8') . ' &middot; ' . convertSize($fileDetail->fil_size[0]) . '</div></div></div>';
 
-	if ($fileDetail->fil_comments_approval[0] != "") {
-	    echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["approval_comments"] . " :</td><td>" . nl2br($fileDetail->fil_comments_approval[0]) . "&nbsp;</td></tr>";
+	echo '<dl class="row mb-0">';
+	echo '<dt class="col-sm-4 text-muted fw-normal mb-2">' . $strings["owner"] . '</dt><dd class="col-sm-8 mb-2">' . buildLink("../users/viewuser.php?id=" . $fileDetail->fil_mem_id[0], $fileDetail->fil_mem_name[0], LINK_INSIDE) . ' <span class="text-muted">(' . buildLink($fileDetail->fil_mem_email_work[0], $fileDetail->fil_mem_login[0], LINK_MAIL) . ')</span></dd>';
+	echo '<dt class="col-sm-4 text-muted fw-normal mb-2">' . $strings["ifc_last_date"] . '</dt><dd class="col-sm-8 mb-2">' . htmlspecialchars($fileDetail->fil_date[0], ENT_QUOTES, 'UTF-8') . '</dd>';
+	if ($fileDetail->fil_comments[0] != '') {
+	    echo '<dt class="col-sm-4 text-muted fw-normal mb-2">' . $strings["comments"] . '</dt><dd class="col-sm-8 mb-2">' . $fileComments . '</dd>';
 	}
+	echo '</dl></div>';
+
+	echo '<div class="col-lg-4"><div class="bg-light rounded-3 p-3">';
+	echo '<div class="d-flex justify-content-between align-items-center mb-3"><span class="text-muted">' . $strings["published"] . '</span><span class="badge ' . $publishClass . '">' . htmlspecialchars($statusPublish[$idPublish] ?? '', ENT_QUOTES, 'UTF-8') . '</span></div>';
+	echo '<div class="d-flex justify-content-between align-items-center"><span class="text-muted">' . $strings["approval_tracking"] . '</span><span class="badge ' . $statusClass . '">' . htmlspecialchars($statusFile[$idStatus] ?? '', ENT_QUOTES, 'UTF-8') . '</span></div>';
+	if ($fileDetail->fil_mem2_id[0] != '') {
+	    echo '<hr><div class="small text-muted mb-1">' . $strings["approver"] . '</div><div>' . buildLink("../users/viewuser.php?id=" . $fileDetail->fil_mem2_id[0], $fileDetail->fil_mem2_name[0], LINK_INSIDE) . '</div>';
+	    echo '<div class="small text-muted mt-2">' . $strings["approval_date"] . '</div><div>' . htmlspecialchars($fileDetail->fil_date_approval[0], ENT_QUOTES, 'UTF-8') . '</div>';
+	}
+	if ($fileDetail->fil_comments_approval[0] != '') {
+	    echo '<div class="small text-muted mt-2">' . $strings["approval_comments"] . '</div><div>' . nl2br(htmlspecialchars($fileDetail->fil_comments_approval[0], ENT_QUOTES, 'UTF-8')) . '</div>';
+	}
+	echo '</div></div></div>';
 	// ------------------------------------------------------------------
-	$tmpquery = "WHERE fil.id = '$id' OR fil.vc_parent = '$id' AND fil.vc_status = '3' ORDER BY fil.date DESC";
+	$tmpquery = "WHERE fil.id = '$id' OR (fil.vc_parent = '$id' AND fil.vc_status = '3') ORDER BY fil.date DESC";
 	$listVersions = new request();
 	$listVersions->openFiles($tmpquery);
 	$comptListVersions = count($listVersions->fil_vc_parent);
 
-	echo"<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["ifc_version_history"] . " :</td><td>
-
-	<table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" class=\"tableRevision\">";
+	echo '<div class="border-top mt-4 pt-4"><div class="d-flex justify-content-between align-items-center mb-3"><h4 class="h6 mb-0">' . $strings["ifc_version_history"] . '</h4><span class="badge rounded-pill text-bg-light border">' . $comptListVersions . '</span></div>';
+	echo '<div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th class="text-center" style="width:42px"></th><th>' . $strings["vc_version"] . '</th><th>' . $strings["name"] . '</th><th>' . $strings["date"] . '</th><th class="text-end"><span class="visually-hidden">' . $strings["view"] . ' / ' . $strings["save"] . '</span></th></tr></thead><tbody>';
 
 	for ($i = 0;$i < $comptListVersions;$i++) {
-	    // Sort odds and evens for bg color
-	    if ($i == "0") {
-	        $class = "new";
-	    } else {
-	        $class = "old";
-	    }
-	    echo "<tr class=\"$class\"><td>";
+	    $existFile = false;
+	    echo '<tr' . ($i == 0 ? ' class="table-primary"' : '') . '><td class="text-center">';
 	    if ($fileDetail->fil_owner[0] == $_SESSION['idSession'] && $listVersions->fil_id[$i] != $fileDetail->fil_id[0]) {
 	        echo "<a href=\"javascript:MM_toggleItem(document." . $block1->form . "Form, '" . $listVersions->fil_id[$i] . "', '" . $block1->form . "cb" . $listVersions->fil_id[$i] . "','" . THEME . "')\"><img name=\"" . $block1->form . "cb" . $listVersions->fil_id[$i] . "\" border=\"0\" src=\"../themes/" . THEME . "/checkbox_off_16.gif\" alt=\"\" vspace=\"0\"></a>";
 	    }
-	    echo"&nbsp;</td>
-
-		<td>" . $strings["vc_version"] . " : " . $listVersions->fil_vc_version[$i] . "</td>
-		<td colspan=\"3\">$displayname&nbsp;&nbsp;";
-
+	    echo '</td><td><span class="badge text-bg-primary">v' . htmlspecialchars($listVersions->fil_vc_version[$i], ENT_QUOTES, 'UTF-8') . '</span></td>';
+	    echo '<td class="text-break">' . htmlspecialchars($listVersions->fil_name[$i], ENT_QUOTES, 'UTF-8') . '</td>';
+	    echo '<td class="text-nowrap">' . htmlspecialchars($listVersions->fil_date[$i], ENT_QUOTES, 'UTF-8') . '</td><td class="text-end text-nowrap">';
 	    if ($listVersions->fil_task[$i] != "0") {
 	        if (file_exists("../files/" . $listVersions->fil_project[$i] . "/" . $listVersions->fil_task[$i] . "/" . $listVersions->fil_name[$i])) {
-	            echo buildLink("../linkedcontent/accessfile.php?mode=view&amp;id=" . $listVersions->fil_id[$i], $strings["view"], LINK_INSIDE);
-	            $folder = $listVersions->fil_project[$i] . "/" . $listVersions->fil_task[$i];
-	            $existFile = "true";
+	            $existFile = true;
 	        }
 	    } else {
 	        if (file_exists("../files/" . $listVersions->fil_project[$i] . "/" . $listVersions->fil_name[$i])) {
-	            echo buildLink("../linkedcontent/accessfile.php?mode=view&amp;id=" . $listVersions->fil_id[$i], $strings["view"], LINK_INSIDE);
-	            $folder = $listVersions->fil_project[$i];
-	            $existFile = "true";
+	            $existFile = true;
 	        }
 	    }
-	    if ($existFile == "true") {
-	        echo " " . buildLink("../linkedcontent/accessfile.php?mode=download&amp;id=" . $listVersions->fil_id[$i], $strings["save"], LINK_INSIDE);
+	    if ($existFile) {
+	        echo '<a class="btn btn-sm btn-outline-primary me-1" href="../linkedcontent/accessfile.php?mode=view&amp;id=' . $listVersions->fil_id[$i] . '"><i class="fa-regular fa-eye me-1"></i>' . $strings["view"] . '</a>';
+	        echo '<a class="btn btn-sm btn-primary" href="../linkedcontent/accessfile.php?mode=download&amp;id=' . $listVersions->fil_id[$i] . '"><i class="fa-solid fa-download me-1"></i>' . $strings["save"] . '</a>';
 	    } else {
-	        echo $strings["missing_file"];
+	        echo '<span class="badge text-bg-danger">' . $strings["missing_file"] . '</span>';
 	    }
-
-	    echo"</td><td>" . $strings["date"] . " : " . $listVersions->fil_date[$i] . "</td></tr>";
+	    echo '</td></tr>';
 	    if ($listVersions->fil_mem2_id[$i] != "" || $listVersions->fil_comments_approval[$i] != "") {
 	        $idStatus = $listVersions->fil_status[$i];
-	        echo "<tr class=\"$class\"><td>&nbsp;</td><td colspan=5>";
+	        echo '<tr class="small"><td></td><td colspan="4"><div class="bg-light rounded p-2">';
 	        if ($listVersions->fil_mem2_id[$i] != "") {
-	            echo $strings["approver"] . " : " . buildLink("../users/viewuser.php?id=" . $listVersions->fil_mem2_id[$i], $listVersions->fil_mem2_name[$i], LINK_INSIDE) . " (" . buildLink($listVersions->fil_mem2_email_work[$i], $listVersions->fil_mem2_login[$i], LINK_MAIL) . ")<br>
-	" . $strings["approval_tracking"] . " :$statusFile[$idStatus]<br>";
-	            echo $strings["approval_date"] . " : " . $listVersions->fil_date_approval[$i] . "&nbsp;";
+	            echo '<strong>' . $strings["approver"] . ':</strong> ' . buildLink("../users/viewuser.php?id=" . $listVersions->fil_mem2_id[$i], $listVersions->fil_mem2_name[$i], LINK_INSIDE) . ' &middot; ' . htmlspecialchars($statusFile[$idStatus] ?? '', ENT_QUOTES, 'UTF-8') . ' &middot; ' . htmlspecialchars($listVersions->fil_date_approval[$i], ENT_QUOTES, 'UTF-8');
 	        }
 	        if ($listVersions->fil_comments_approval[$i] != "") {
-	            echo "<br>" . $strings["approval_comments"] . " : " . nl2br($listVersions->fil_comments_approval[$i]) . "&nbsp;";
+	            echo '<div class="mt-1"><strong>' . $strings["approval_comments"] . ':</strong> ' . nl2br(htmlspecialchars($listVersions->fil_comments_approval[$i], ENT_QUOTES, 'UTF-8')) . '</div>';
 	        }
-	        echo "</td></tr>";
+	        echo '</div></td></tr>';
 	    }
 	}
-	echo"</table></td></tr>";
+	echo '</tbody></table></div></div>';
 	// ------------------------------------------------------------------
 	//$block1->closeResults();	// wrong
 	$block1->closeContent();
-	$block1->headingForm_close();
+	if ($fileDetail->fil_owner[0] == $_SESSION['idSession']) {
+	    echo '</div></div>';
+	} else {
+	    echo '</div>';
+	}
 	$block1->closeFormResults();
 
 	if ($fileDetail->fil_owner[0] == $_SESSION['idSession']) {
@@ -492,17 +489,15 @@ if ($peerReview == "true") {
 
         $block3 = new block();
         $block3->form = "filedetails";
-        echo "<a name=\"filedetailsAnchor\"></a>";
-        echo "<form accept-charset=\"UNKNOWN\" method=\"POST\" action=\"../linkedcontent/viewfile.php?action=add&amp;id=" . $fileDetail->fil_id[0] . "#filedetailsAnchor\" name=\"filedetailsForm\" enctype=\"multipart/form-data\"><input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"100000000\"><input type=\"hidden\" name=\"maxCustom\" value=\"" . $projectDetail->pro_upload_max[0] . "\">";
+	        echo "<a id=\"addRevisionAnchor\"></a>";
+	        echo "<form method=\"POST\" action=\"../linkedcontent/viewfile.php?action=add&amp;id=" . $fileDetail->fil_id[0] . "#addRevisionAnchor\" name=\"addRevisionForm\" enctype=\"multipart/form-data\"><input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"100000000\"><input type=\"hidden\" name=\"maxCustom\" value=\"" . $projectDetail->pro_upload_max[0] . "\">";
         if ($error3 != "") {
             $block3->headingError($strings["errors"]);
             $block3->contentError($error3);
-        }
-        $block3->headingForm($strings["ifc_add_revision"]);
-        $block3->openContent();
-        $block3->contentTitle($strings["details"]);
-        // Add one to the number of current revisions
-        $revision = $displayrev + 1;
+	        }
+	        $block3->headingForm($strings["ifc_add_revision"]);
+	        // Add one to the number of current revisions
+	        $revision = $displayrev + 1;
 
         echo "
 <input value=\"" . $fileDetail->fil_id[0] . "\" name=\"sendto\" type=\"hidden\">
@@ -514,12 +509,22 @@ if ($peerReview == "true") {
 <input value=\"" . $fileDetail->fil_published[0] . "\" name=\"published\" type=\"hidden\">
 <input value=\"" . $fileDetail->fil_name[0] . "\" name=\"filename\" type=\"hidden\">
 
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">* " . $strings["upload"] . " :</td><td><input size=\"44\" style=\"width: 400px\" name=\"upload\" type=\"FILE\"></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["comments"] . " :</td><td><textarea rows=\"3\" style=\"width: 400px; height: 50px;\" name=\"c\" cols=\"43\">$c</textarea></td></tr>
-<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td><input type=\"SUBMIT\" value=\"" . $strings["save"] . "\"></td></tr>";
+<div class=\"row g-4 align-items-start\">
+    <div class=\"col-lg-7\">
+        <label class=\"form-label fw-semibold\" for=\"revisionUpload\"><span class=\"text-danger\">*</span> " . $strings["upload"] . "</label>
+        <input class=\"form-control\" id=\"revisionUpload\" name=\"upload\" type=\"file\" required>
+        <div class=\"form-text\">" . $strings["vc_version"] . " " . htmlspecialchars($fileDetail->fil_vc_version[0], ENT_QUOTES, 'UTF-8') . " &middot; " . convertSize($projectDetail->pro_upload_max[0]) . " max</div>
+    </div>
+    <div class=\"col-lg-5\">
+        <label class=\"form-label fw-semibold\" for=\"revisionComments\">" . $strings["comments"] . "</label>
+        <textarea class=\"form-control\" id=\"revisionComments\" rows=\"4\" name=\"c\">" . htmlspecialchars($c ?? '', ENT_QUOTES, 'UTF-8') . "</textarea>
+    </div>
+</div>
+<div class=\"d-flex justify-content-end border-top mt-4 pt-3\">
+    <button class=\"btn btn-primary px-4\" type=\"submit\"><i class=\"fa-solid fa-floppy-disk me-2\"></i>" . $strings["save"] . "</button>
+</div>";
 
-        $block3->closeContent();
-		$block3->headingForm_close();
+			$block3->headingForm_close();
         $block3->closeForm();
     }
 }
@@ -529,29 +534,22 @@ if ($fileDetail->fil_owner[0] == $_SESSION['idSession']) {
     $block4 = new block();
 
     $block4->form = "filedetails";
-    echo "<a name=\"filedetailsAnchor\"></a>";
-    echo "<form accept-charset=\"UNKNOWN\" method=\"POST\" action=\"../linkedcontent/viewfile.php?action=update&amp;id=" . $fileDetail->fil_id[0] . "#filedetailsAnchor\" name=\"filedetailsForm\" enctype=\"multipart/form-data\"><input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"100000000\"><input type=\"hidden\" name=\"maxCustom\" value=\"" . $projectDetail->pro_upload_max[0] . "\">";
+	    echo "<a id=\"updateFileAnchor\"></a>";
+	    echo "<form method=\"POST\" action=\"../linkedcontent/viewfile.php?action=update&amp;id=" . $fileDetail->fil_id[0] . "#updateFileAnchor\" name=\"updateFileForm\" enctype=\"multipart/form-data\"><input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"100000000\"><input type=\"hidden\" name=\"maxCustom\" value=\"" . $projectDetail->pro_upload_max[0] . "\">";
 
     if ($error4 != "") {
         $block4->headingError($strings["errors"]);
         $block4->contentError($error4);
     }
 
-    $block4->headingForm($strings["ifc_update_file"]);
+	    $block4->headingForm($strings["ifc_update_file"]);
 
-    $block4->openContent();
-    $block4->contentTitle($strings["details"]);
-
-    echo"
-	<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\"></td><td class=\"odd\">" . $strings["version_increm"] . "<br>
-	<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">
-	<tr><td align=\"right\">0.01</td><td width=\"30\" align=\"right\"><input name=\"change_file_version\" type=\"radio\" value=\"0.01\"></td></tr>
-	<tr><td align=\"right\">0.1</td><td width=\"30\" align=\"right\"><input name=\"change_file_version\" type=\"radio\" value=\"0.1\" checked></td></tr>
-	<tr><td align=\"right\">1.0</td><td width=\"30\" align=\"right\"><input name=\"change_file_version\" type=\"radio\" value=\"1.0\"></td></tr>
-	</table>
-	</td></tr>";
-
-    echo "<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["status"] . " :</td><td><select name=\"statusField\">";
+	    echo '<div class="row g-4">';
+	    echo '<div class="col-12"><label class="form-label fw-semibold d-block">' . $strings["version_increm"] . '</label><div class="btn-group" role="group">';
+	    echo '<input class="btn-check" id="version001" name="change_file_version" type="radio" value="0.01"><label class="btn btn-outline-primary" for="version001">+0.01</label>';
+	    echo '<input class="btn-check" id="version01" name="change_file_version" type="radio" value="0.1" checked><label class="btn btn-outline-primary" for="version01">+0.1</label>';
+	    echo '<input class="btn-check" id="version10" name="change_file_version" type="radio" value="1.0"><label class="btn btn-outline-primary" for="version10">+1.0</label></div></div>';
+	    echo '<div class="col-md-5"><label class="form-label fw-semibold" for="updateStatus">' . $strings["status"] . '</label><select class="form-select" id="updateStatus" name="statusField">';
     $comptSta = count($statusFile);
 
     for ($i = 0;$i < $comptSta;$i++) {
@@ -561,13 +559,12 @@ if ($fileDetail->fil_owner[0] == $_SESSION['idSession']) {
             echo "<option value=\"$i\">$statusFile[$i]</option>";
         }
     }
-    echo"</select></td></tr>";
-    echo"<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">* " . $strings["upload"] . " :</td><td><input size=\"44\" style=\"width: 400px\" name=\"upload\" type=\"FILE\"></td></tr>
-	<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">" . $strings["comments"] . " :</td><td><textarea rows=\"3\" style=\"width: 400px; height: 50px;\" name=\"c\" cols=\"43\">$c</textarea></td></tr>
-	<tr class=\"odd\"><td valign=\"top\" class=\"leftvalue\">&nbsp;</td><td><input type=\"SUBMIT\" value=\"" . $strings["ifc_update_file"] . "\"></td></tr>";
+	    echo '</select></div>';
+	    echo '<div class="col-md-7"><label class="form-label fw-semibold" for="updateUpload"><span class="text-danger">*</span> ' . $strings["upload"] . '</label><input class="form-control" id="updateUpload" name="upload" type="file" required><div class="form-text">' . convertSize($projectDetail->pro_upload_max[0]) . ' max</div></div>';
+	    echo '<div class="col-12"><label class="form-label fw-semibold" for="updateComments">' . $strings["comments"] . '</label><textarea class="form-control" id="updateComments" rows="4" name="c">' . htmlspecialchars($c ?? '', ENT_QUOTES, 'UTF-8') . '</textarea></div></div>';
+	    echo '<div class="d-flex justify-content-end border-top mt-4 pt-3"><button class="btn btn-primary px-4" type="submit"><i class="fa-solid fa-arrow-up-from-bracket me-2"></i>' . $strings["ifc_update_file"] . '</button></div>';
 
-    $block4->closeContent();
-	$block4->headingForm_close();
+		$block4->headingForm_close();
     $block4->closeForm();
 }
 require_once("../themes/" . THEME . "/footer.php");
