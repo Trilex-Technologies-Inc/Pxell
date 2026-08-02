@@ -805,4 +805,17 @@ $strings['reports_from'] = 'from';
 $strings['reports_to'] = 'to';
 $strings['total'] = 'Total';
 
+// Language editor
+$strings['edit_language'] = 'Edit language';
+$strings['language_intro'] = 'Choose a language, then review and update its interface labels.';
+$strings['Choose_Language'] = 'Choose language';
+$strings['Label'] = 'Label';
+$strings['Phrases'] = 'Phrases';
+$strings['Translation'] = 'Translation';
+$strings['add_label'] = 'Add label';
+$strings['add_new_label'] = 'Add a new label';
+$strings['labels_deleted'] = 'labels deleted';
+$strings['save_translation'] = 'Save translations';
+$strings['translations_saved_ok'] = 'translations saved successfully';
+
 ?>

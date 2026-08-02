@@ -230,11 +230,9 @@ $langValue = array(
     'jp'         => 'Japanese'
     );
 
-if ($langDefault != '') {
+$langSelected = array_fill_keys(array_keys($langValue), '');
+if ($langDefault != '' && array_key_exists($langDefault, $langValue)) {
     $langSelected[$langDefault] = 'selected';
-}
-else {
-    $langSelected = '';
 }
 
 // language browser detection
