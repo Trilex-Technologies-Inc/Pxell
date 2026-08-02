@@ -847,6 +847,45 @@ input[type="submit"].btn-primary:focus {
 	color: #ffffff;
 }
 
+/* Legacy confirmation forms do not always provide Bootstrap classes. */
+input[type="submit"][name="delete"] {
+	background: #dc3545;
+	border: 1px solid #dc3545;
+	box-shadow: 0 2px 5px rgba(220, 53, 69, 0.18);
+	color: #ffffff;
+	cursor: pointer;
+	min-height: 38px;
+	padding: 0.45rem 1rem;
+	transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+input[type="submit"][name="delete"]:hover,
+input[type="submit"][name="delete"]:focus {
+	background: #bb2d3b;
+	border-color: #b02a37;
+	box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.2);
+	color: #ffffff;
+	transform: translateY(-1px);
+}
+
+input[type="button"][name="cancel"] {
+	background: #ffffff;
+	border: 1px solid #9aa8b8;
+	color: #425466;
+	cursor: pointer;
+	min-height: 38px;
+	padding: 0.45rem 1rem;
+	transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="button"][name="cancel"]:hover,
+input[type="button"][name="cancel"]:focus {
+	background: #eef2f6;
+	border-color: #6c7b8c;
+	box-shadow: 0 0 0 0.2rem rgba(108, 123, 140, 0.14);
+	color: #25364a;
+}
+
 .alert {
 	border: 0;
 	border-radius: 8px;
