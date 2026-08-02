@@ -95,6 +95,16 @@ if ($settingsMissing && is_file($installerFile)) {
 
 require_once($settingsFile);
 
+// Keep the displayed/runtime application version in one source-controlled
+// place instead of relying on the value baked into generated settings.php.
+$versionFile = $base_dir . 'version.txt';
+if (is_readable($versionFile)) {
+    $releaseVersion = trim((string) file_get_contents($versionFile));
+    if ($releaseVersion !== '') {
+        $version = $releaseVersion;
+    }
+}
+
 // A partially written settings file can exist and still lack the values the
 // application requires. Treat it as an incomplete installation as well.
 $settingsComplete = defined('MYSERVER') && defined('MYLOGIN') &&
