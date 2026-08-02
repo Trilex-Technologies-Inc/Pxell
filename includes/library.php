@@ -484,29 +484,9 @@ function openDatabase() {
  * @access public
  */
 function updatechecker($iCV) {
-    global $strings; 
-
-    $checkMsg = '';
-
-    // get latest available version number
-    $versionData = @file('http://pxell.net/px/version.txt');
-    if ($versionData === false) {
-        return $checkMsg;
-    }
-    $iNV = trim(implode('', $versionData));
-
-    // version comparisions
-    // version string order: dev < alpha = a < beta = b < RC < pl
-    // this allows for versions such as 2.5.2b1, 2.6.0RC1, and so on
-    if (version_compare($iNV, $iCV, '>')) {
-        $checkMsg  = '<br><b>' . $strings['update_available'] . '</b> ';
-        $checkMsg .= $strings['version_current'] . " $iCV. ";
-        $checkMsg .= $strings['version_latest'] . " $iNV.<br>";
-        $checkMsg .= '<a href="http://www.sourceforge.net/projects/netoffice" target="_blank">';
-        $checkMsg .= $strings['sourceforge_link'] . '</a>.';
-    } 
-
-    return($checkMsg);
+    // Remote update checks are disabled. The legacy implementation fetched:
+    // $versionData = file('http://pxell.net/px/version.txt');
+    return '';
 }
 
 /**
