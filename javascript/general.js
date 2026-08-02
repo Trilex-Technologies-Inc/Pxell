@@ -363,6 +363,14 @@
 		var SELECTIONPARAMNAME = 'id';
 		var SELECTIONPARAMDELIMITER = '**';
 		
+		// Actions prefixed with "post:" submit the selection instead of
+		// navigating to it. This is used by state-changing commands.
+		var submitWithPost = false;
+		if (action.indexOf('post:') == 0) {
+			submitWithPost = true;
+			action = action.substr(5);
+		}
+
 		// If the action is a javascript action (starts with 'javascript')
 		// then execute it immediately.
 		
@@ -414,7 +422,22 @@
 					url = url + 'id=' + params;
 				}
 				
-				window.location = url;
+				if (submitWithPost) {
+					var postForm = document.createElement('form');
+					postForm.method = 'POST';
+					postForm.action = action;
+
+					var selection = document.createElement('input');
+					selection.type = 'hidden';
+					selection.name = SELECTIONPARAMNAME;
+					selection.value = params;
+					postForm.appendChild(selection);
+
+					document.body.appendChild(postForm);
+					postForm.submit();
+				} else {
+					window.location = url;
+				}
 			}
 			
 		}

@@ -219,15 +219,17 @@ $tmpquery = "WHERE tas.project = '$id' AND tas.milestone <> '0' ORDER BY tas.nam
 $listTasksTime = new request();
 $listTasksTime->openTasks($tmpquery);
 $comptListTasksTime = count($listTasksTime->tas_id);
+$estimated_time = 0;
+$diff_time = 0;
 
 if ($comptListTasksTime != '0') {
     for ($i = 0; $i < $comptListTasksTime; $i++) {
-        $estimated_time = $estimated_time + $listTasksTime->tas_estimated_time[$i];
+        $estimated_time += (float) ($listTasksTime->tas_estimated_time[$i] ?? 0);
         // $actual_time = $actual_time + $listTasksTime->tas_actual_time[$i];
         
         if ($listTasksTime->tas_complete_date[$i] != '' && $listTasksTime->tas_complete_date[$i] != '--' && $listTasksTime->tas_due_date[$i] != '--') {
             $diff = diff_date($listTasksTime->tas_complete_date[$i], $listTasksTime->tas_due_date[$i]);
-            $diff_time = $diff_time + $diff;
+            $diff_time += (int) $diff;
         }
     }
     

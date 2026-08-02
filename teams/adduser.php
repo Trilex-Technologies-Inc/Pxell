@@ -113,17 +113,18 @@ $tmpquery = "WHERE tea.project = '$project' AND mem.profil != '3'";
 $concatMembers = new request();
 $concatMembers->openTeams($tmpquery);
 $comptConcatMembers = count($concatMembers->tea_id);
+$memberIds = array();
 for ($i = 0;$i < $comptConcatMembers;$i++) {
-    $membersTeam .= $concatMembers->tea_mem_id[$i];
-    if ($i < $comptConcatMembers-1) {
-        $membersTeam .= ",";
-    } 
-} 
+    $memberIds[] = $concatMembers->tea_mem_id[$i];
+}
+$memberExclusion = count($memberIds) > 0
+    ? " AND mem.id NOT IN(" . implode(",", $memberIds) . ")"
+    : "";
 
 if ($demoMode == true) {
-    $tmpquery = "WHERE mem.id NOT IN($membersTeam) AND mem.profil != '3' ORDER BY $block1->sortingValue";
+    $tmpquery = "WHERE mem.profil != '3'$memberExclusion ORDER BY $block1->sortingValue";
 } else {
-    $tmpquery = "WHERE mem.id NOT IN($membersTeam) AND mem.profil != '3' AND mem.id != '2' ORDER BY $block1->sortingValue";
+    $tmpquery = "WHERE mem.profil != '3' AND mem.id != '2'$memberExclusion ORDER BY $block1->sortingValue";
 } 
 $listMembers = new request();
 $listMembers->openMembers($tmpquery);
@@ -158,7 +159,7 @@ if ($comptListMembers != "0") {
 $block1->closeFormResults();
 
 $block1->openPaletteScript();
-$block1->paletteScript(0, "add", "../teams/adduser.php?project=$project&action=add", "false,true,true", $strings["add"]);
+$block1->paletteScript(0, "add", "post:../teams/adduser.php?project=$project&action=add", "false,true,true", $strings["add"]);
 $block1->paletteScript(1, "info", "../users/viewuser.php?", "false,true,false", $strings["view"]);
 $block1->paletteScript(2, "edit", "../users/edituser.php?", "false,true,false", $strings["edit"]);
 $block1->closePaletteScript($comptListMembers, $listMembers->mem_id);
