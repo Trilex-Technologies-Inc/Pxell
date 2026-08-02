@@ -25,11 +25,6 @@ $breadcrumbs[]=$strings['holidays'];
 
 $pageSection = 'admin';
 
-// Add Bootstrap CSS and JS
-echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">';
-echo '<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>';
-echo '<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>';
-
 require_once('../themes/' . THEME . '/header.php');
 
 $block1 = new block();

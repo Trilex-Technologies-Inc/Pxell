@@ -46,9 +46,9 @@ if ($_SESSION['projectSession'] != "" && $changeProject != "true") {
         ?>
     </title>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap (served locally) -->
+    <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js" defer></script>
     <link rel="stylesheet" href="../themes/<?php echo projectSiteHeaderHtml(THEME); ?>/calendar.css">
     <style>
         body.projectsite-shell {
