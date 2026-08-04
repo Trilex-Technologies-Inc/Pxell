@@ -1,0 +1,11 @@
+{
+  "name": "Task Management",
+  "version": "1.0.0",
+  "author": "TaskVibe",
+  "description": "Create, prioritize, schedule, complete, and remove team tasks.",
+  "default_action": "main",
+  "navigation": {
+    "label": "Task Management",
+    "icon": "fa-list-check"
+  }
+}

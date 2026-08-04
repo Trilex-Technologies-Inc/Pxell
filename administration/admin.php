@@ -28,6 +28,12 @@ require_once('../themes/' . THEME . '/header.php');
 
 $adminCards = array(
     array(
+        'href' => '../administration/modules.php',
+        'label' => 'Module management',
+        'icon' => 'fa-puzzle-piece',
+        'tone' => 'green'
+    ),
+    array(
         'href' => '../users/listusers.php',
         'label' => $strings['user_management'],
         'icon' => 'fa-users',
