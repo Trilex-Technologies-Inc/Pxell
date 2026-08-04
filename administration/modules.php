@@ -63,8 +63,11 @@ $breadcrumbs[] = buildLink('../administration/admin.php', isset($strings['admini
 $breadcrumbs[] = 'Modules';
 require_once('../themes/' . THEME . '/header.php');
 ?>
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center gap-3 mb-4">
     <div><h1 class="h3 mb-1">Modules</h1><p class="text-muted mb-0">Install, enable, disable, and uninstall TaskVibe extensions.</p></div>
+    <a class="btn btn-outline-secondary btn-sm flex-shrink-0" href="../administration/module_development.php">
+        Module Development Guide
+    </a>
 </div>
 <?php if ($notice !== ''): ?><div class="alert alert-success"><?php echo htmlspecialchars($notice); ?></div><?php endif; ?>
 <?php if ($error !== ''): ?><div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
