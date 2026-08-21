@@ -541,8 +541,8 @@ function autoLinks($data) {
 function diff_date($date1, $date2) {
     list($an, $mois, $jour) = explode('-', $date1, 3);
     list($an2, $mois2, $jour2) = explode('-', $date2, 3);
-    $timestamp1 = mktime(0, 0, 0, $mois, $jour, $an);
-    $timestamp2 = mktime(0, 0, 0, $mois2, $jour2, $an2);
+    $timestamp1 = mktime(0, 0, 0, (int) $mois, (int) $jour, (int) $an);
+    $timestamp2 = mktime(0, 0, 0, (int) $mois2, (int) $jour2, (int) $an2);
     $diff = ($timestamp1 - $timestamp2) / (3600 * 24);
     $diff = intval($diff + 1);
     return($diff);
@@ -963,7 +963,7 @@ function createDate($storedDate, $gmtUser)
             $extractMonth = substr($storedDate, 5, 2);
             $extractDay = substr($storedDate, 8, 2);
 
-            return(date("Y-m-d H:i", mktime($extractHour + $gmtUser, $extractMinute, '', $extractMonth, $extractDay, $extractYear)));
+            return(date("Y-m-d H:i", mktime((int) $extractHour + (int) $gmtUser, (int) $extractMinute, 0, (int) $extractMonth, (int) $extractDay, (int) $extractYear)));
         } 
     } else {
         return($storedDate);
@@ -1445,7 +1445,7 @@ function get_remote_addr()
  */
 function date2timestamp($date1) {
     list($an1, $mois1, $jour1) = explode('-', $date1, 3);
-    $timestamp1 = mktime(0, 0, 0, $mois1, $jour1, $an1);
+    $timestamp1 = mktime(0, 0, 0, (int) $mois1, (int) $jour1, (int) $an1);
     return($timestamp1);
 }
 

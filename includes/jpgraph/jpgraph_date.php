@@ -122,7 +122,7 @@ class DateScale extends LinearScale {
 		}
 	    }
 	}
-	return mktime($h,$i,$s,$m,$d,$y);
+	return mktime((int) $h, (int) $i, (int) $s, (int) $m, (int) $d, (int) $y);
 	
     }
 
@@ -204,7 +204,7 @@ class DateScale extends LinearScale {
 		}
 	    }
 	}
-	return mktime($h,$i,$s,$m,$d,$y);
+	return mktime((int) $h, (int) $i, (int) $s, (int) $m, (int) $d, (int) $y);
     }
 
 //------------------------------------------------------------------------------------------

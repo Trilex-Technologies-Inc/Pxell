@@ -80,15 +80,15 @@ $yearDay = date("Y");
 $monthDay = date("n");
 $dayDay = date("d");
 
-$dayName = date("w", mktime(0, 0, 0, $month, $day, $year));
-$monthName = date("n", mktime(0, 0, 0, $month, $day, $year));
+$dayName = date("w", mktime(0, 0, 0, (int) $month, (int) $day, (int) $year));
+$monthName = date("n", mktime(0, 0, 0, (int) $month, (int) $day, (int) $year));
 $dayName = $dayNameArray[$dayName];
 $monthName = $monthNameArray[$monthName];
 
-$daysmonth = date("t", mktime(0, 0, 0, $month, $day, $year));
-$firstday = date("w", mktime(0, 0, 0, $month, 1, $year));
-$padmonth = date("m", mktime(0, 0, 0, $month, $day, $year));
-$padday = date("d", mktime(0, 0, 0, $month, $day, $year));
+$daysmonth = date("t", mktime(0, 0, 0, (int) $month, (int) $day, (int) $year));
+$firstday = date("w", mktime(0, 0, 0, (int) $month, 1, (int) $year));
+$padmonth = date("m", mktime(0, 0, 0, (int) $month, (int) $day, (int) $year));
+$padday = date("d", mktime(0, 0, 0, (int) $month, (int) $day, (int) $year));
 
 if ($firstday == 0) {
     $firstday = 7;
@@ -102,7 +102,7 @@ if ($type == "calendEdit") {
             $dateStart_A = substr("$dateStart", 0, 4);
             $dateStart_M = substr("$dateStart", 5, 2);
             $dateStart_J = substr("$dateStart", 8, 2);
-            $dayRecurr = _dayOfWeek(mktime(12, 12, 12, $dateStart_M, $dateStart_J, $dateStart_A));
+            $dayRecurr = _dayOfWeek(mktime(12, 12, 12, (int) $dateStart_M, (int) $dateStart_J, (int) $dateStart_A));
         }
         $subject = convertData($subject);
         $description = convertData($description);
@@ -121,7 +121,7 @@ if ($type == "calendEdit") {
                 $dateStart_A = substr("$dateStart", 0, 4);
                 $dateStart_M = substr("$dateStart", 5, 2);
                 $dateStart_J = substr("$dateStart", 8, 2);
-                $dayRecurr = _dayOfWeek(mktime(12, 12, 12, $dateStart_M, $dateStart_J, $dateStart_A));
+                $dayRecurr = _dayOfWeek(mktime(12, 12, 12, (int) $dateStart_M, (int) $dateStart_J, (int) $dateStart_A));
             }
             $subject = convertData($subject);
             $description = convertData($description);
@@ -515,7 +515,7 @@ else if ($type == "dayList") {
 
     $block1->sorting("calendar", $sortingUser->sor_calendar[0], "cal.date_end DESC", $sortingFields = array(0 => "cal.shortname", 1 => "cal.subject", 2 => "cal.date_start", 3 => "cal.date_end"));
 
-    $dayRecurr = _dayOfWeek(mktime(12, 12, 12, $month, $day, $year));
+    $dayRecurr = _dayOfWeek(mktime(12, 12, 12, (int) $month, (int) $day, (int) $year));
 
     if ($viewCalend == 0) {
         $tmpquery = "WHERE cal.owner = '" . $_SESSION['idSession'] . "' AND ((cal.date_start <= '$dateCalend' AND cal.date_end >= '$dateCalend' AND cal.recurring = '0') OR ((cal.date_start <= '$dateCalend' AND cal.date_end <= '$dateCalend') AND cal.recurring = '1' AND cal.recur_day = '$dayRecurr')) ORDER BY cal.shortname";
@@ -915,7 +915,7 @@ else if ($type == "monthPreview") {
         }
         $dateLink = "$year-$month-$a";
         $todayClass = "";
-        $dayRecurr = _dayOfWeek(mktime(12, 12, 12, $month, $a, $year));
+        $dayRecurr = _dayOfWeek(mktime(12, 12, 12, (int) $month, (int) $a, (int) $year));
         $comptListCalendarScan = "0";
 
         if ($viewCalend == 0) {

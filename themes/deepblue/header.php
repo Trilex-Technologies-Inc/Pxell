@@ -669,6 +669,19 @@ echo $setCopyright . "\n";
 
                     echo '<a class="nav-link ' . $active . '" href="' . $url . '"><i class="fa ' . $icon . '"></i><span class="nav-text">' . $label . '</span></a>';
                 }
+
+                if (!defined('INSTALL') && !$notLogged && is_file($base_dir . 'includes/modules.php')) {
+                    require_once($base_dir . 'includes/modules.php');
+                    foreach (module_discover() as $moduleDirectory => $moduleInfo) {
+                        if (empty($moduleInfo['enabled']) || empty($moduleInfo['navigation']) || !is_array($moduleInfo['navigation'])) {
+                            continue;
+                        }
+                        $moduleLabel = isset($moduleInfo['navigation']['label']) ? $moduleInfo['navigation']['label'] : $moduleInfo['name'];
+                        $moduleIcon = isset($moduleInfo['navigation']['icon']) ? $moduleInfo['navigation']['icon'] : 'fa-puzzle-piece';
+                        $moduleActive = $pageSection === 'module_' . $moduleDirectory ? 'active' : '';
+                        echo '<a class="nav-link ' . $moduleActive . '" href="' . htmlspecialchars(module_url($moduleDirectory, $moduleInfo['default_action'])) . '"><i class="fa ' . htmlspecialchars($moduleIcon) . '"></i><span class="nav-text">' . htmlspecialchars($moduleLabel) . '</span></a>';
+                    }
+                }
                 ?>
             </nav>
 

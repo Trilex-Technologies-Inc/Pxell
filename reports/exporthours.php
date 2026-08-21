@@ -30,14 +30,14 @@ if ($_GET['S_COMPLETEDATE'] == 'DATERANGE') {
         $s_sdate2 = $_GET['S_SDATE2'];
     } else {
         $s_sdate2 = date("Y-m-d",
-            mktime (0, 0, 0, date("m"), "1", date("Y")));
+            mktime(0, 0, 0, (int) date("m"), 1, (int) date("Y")));
     } 
     // get the range end date
     if ($_GET['S_EDATE2']) {
         $s_edate2 = $_GET['S_EDATE2'];
     } else {
         $s_edate2 = date("Y-m-d",
-            mktime (0, 0, 0, date("m"), date("d"), date("Y")));
+            mktime(0, 0, 0, (int) date("m"), (int) date("d"), (int) date("Y")));
     } 
 } else {
     // select all dates
