@@ -66,6 +66,14 @@ if ($_SESSION['projectSession'] != "" && $changeProject != "true") {
             padding: 14px 24px;
         }
 
+        .projectsite-topbar__logo {
+            display: block;
+            height: 36px;
+            margin-right: 14px;
+            object-fit: contain;
+            width: auto;
+        }
+
         .projectsite-topbar h1 {
             font-size: 1.05rem;
             font-weight: 700;
@@ -197,6 +205,7 @@ if ($_SESSION['projectSession'] != "" && $changeProject != "true") {
 </head>
 <body class="projectsite-shell">
 <div class="projectsite-topbar">
+    <img class="projectsite-topbar__logo" src="<?php echo projectSiteHeaderHtml($base_uri . 'themes/deepblue/img/logo-sidebar.png'); ?>" alt="TaskVibe">
     <h1><?php echo projectSiteHeaderHtml($titlePage); ?></h1>
 </div>
 <div class="projectsite-layout">

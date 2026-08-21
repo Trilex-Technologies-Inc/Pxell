@@ -35,7 +35,7 @@ $notifications = $_REQUEST['notifications'] ?? '';
 $forcedlogin = $_REQUEST['forcedlogin'] ?? '';
 $langdefault = $_REQUEST['langdefault'] ?? '';
 $root = $_REQUEST['root'] ?? '';
-$loginMethod = $_REQUEST['loginMethod'] ?? '';
+$loginMethod = 'PASSWORD_HASH';
 $adminPwd = $_REQUEST['adminPwd'] ?? '';
 $ftpserver = $_REQUEST['ftpserver'] ?? '';
 $ftplogin = $_REQUEST['ftplogin'] ?? '';
@@ -416,21 +416,6 @@ if ($step == "2") {
         <input type="text" class="form-control" id="root" name="root" value="' . htmlspecialchars($root) . '" maxlength="100" required>
     </div>
     <div class="mb-3">
-        <label class="form-label">* Login method: [<a href="javascript:void(0);" onmouseover="return overlib(\'' . addslashes($help["setup_loginmethod"]) . '\',SNAPX,550,BGCOLOR,\'#5B7F93\',FGCOLOR,\'#C4D3DB\');" onmouseout="return nd();">Help</a>]</label>
-        <div class="form-check">
-            <input class="form-check-input" type="radio" name="loginMethod" id="loginPlain" value="PLAIN">
-            <label class="form-check-label" for="loginPlain">Plain</label>
-        </div>
-        <div class="form-check">
-            <input class="form-check-input" type="radio" name="loginMethod" id="loginMD5" value="MD5">
-            <label class="form-check-label" for="loginMD5">MD5</label>
-        </div>
-        <div class="form-check">
-            <input class="form-check-input" type="radio" name="loginMethod" id="loginCrypt" value="CRYPT" checked>
-            <label class="form-check-label" for="loginCrypt">Crypt</label>
-        </div>
-    </div>
-    <div class="mb-3">
         <label for="adminPwd" class="form-label">* Admin password:</label>
         <input type="password" class="form-control" id="adminPwd" name="adminPwd" value="' . htmlspecialchars($adminPwd) . '" maxlength="100" required>
     </div>
@@ -475,19 +460,7 @@ function get_crypt_key()
 // return a password using the globally specified method
 function get_password($newPassword)
 {
-    global $loginMethod;
-
-    switch ($loginMethod) {
-        case 'MD5':
-            return md5($newPassword);
-        case 'CRYPT':
-            $salt = substr($newPassword, 0, 2);
-            return crypt($newPassword, $salt);
-        case 'PLAIN':
-            return $newPassword;
-        default:
-            return $newPassword;
-    }
+    return password_hash($newPassword, PASSWORD_DEFAULT);
 }
 
 ?>

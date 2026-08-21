@@ -120,7 +120,11 @@ if (!$settingsComplete && is_file($installerFile)) {
 
 // set base URI
 $url_array = parse_url($root);
-$base_uri = $url_array['path'] . '/';
+$rootPath = isset($url_array['path']) ? trim((string) $url_array['path']) : '';
+$base_uri = '/' . trim($rootPath, '/') . '/';
+if ($base_uri === '//') {
+    $base_uri = '/';
+}
 
 // PHP 8.3 is the supported runtime baseline.
 // if you take this out don't even think about asking for help with bugs!!
@@ -557,13 +561,16 @@ function diff_date($date1, $date2) {
  * @access public 
  */
 function is_password_match($formUsername, $formPassword, $storedPassword) {
-    global $loginMethod, $useLDAP, $configLDAP;
+    global $useLDAP, $configLDAP;
 
     // Existing users may have been created under a previous loginMethod.
     // Detect the stored representation instead of rejecting a correct
     // password solely because the setting later changed.
-    $matchesStoredPassword = static function ($password, $stored) use ($loginMethod) {
+    $matchesStoredPassword = static function ($password, $stored) {
         $stored = (string) $stored;
+        if (password_get_info($stored)['algo'] !== null) {
+            return password_verify($password, $stored);
+        }
         if (preg_match('/^[a-f0-9]{32}$/i', $stored)) {
             return hash_equals(strtolower($stored), md5($password));
         }
@@ -571,7 +578,8 @@ function is_password_match($formUsername, $formPassword, $storedPassword) {
             $stored !== '*0' && $stored !== '*1') {
             return hash_equals($stored, crypt($password, $stored));
         }
-        return $loginMethod === 'PLAIN' && hash_equals($stored, $password);
+        // Plain text is accepted only to let legacy accounts migrate on login.
+        return hash_equals($stored, $password);
     };
 
     if ($useLDAP == 'true') {
@@ -603,21 +611,7 @@ function is_password_match($formUsername, $formPassword, $storedPassword) {
  * @access public 
  */
 function get_password($newPassword) {
-    global $loginMethod;
-
-    switch ($loginMethod) {
-        case 'MD5':
-            return(md5($newPassword));
-        case 'CRYPT':
-            $salt = substr($newPassword, 0, 2);
-            return(crypt($newPassword, $salt));
-        case 'PLAIN':
-            return($newPassword);
-
-            return($newPassword);
-    } 
-
-    return $newPassword;
+    return password_hash($newPassword, PASSWORD_DEFAULT);
 }
 
 /**

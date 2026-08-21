@@ -89,8 +89,8 @@ define('THEME','deepblue');
 # The [en|de]cryption key unique to your site, used for session validity checks
 \$cryptKey = '$cryptKey';
 
-# login method, set to 'CRYPT' in order CVS authentication to work (if CVS support is enabled)
-\$loginMethod = '$loginMethod'; //select 'MD5', 'CRYPT', or 'PLAIN'
+# Passwords use PHP's current secure password hashing algorithm.
+\$loginMethod = 'PASSWORD_HASH';
 
 # enable LDAP
 \$useLDAP = 'false';
