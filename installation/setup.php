@@ -42,6 +42,7 @@ $ftplogin = $_REQUEST['ftplogin'] ?? '';
 $ftppassword = $_REQUEST['ftppassword'] ?? '';
 $ftpRoot = $_REQUEST['ftpRoot'] ?? '';
 $error = '';
+$installationComplete = false;
 $cryptKey = get_crypt_key();
 $basedir = preg_replace('/installation$/i', '', str_replace('\\', '/', dirname(__FILE__)), 1);
 
@@ -90,8 +91,7 @@ if ($action == "generate") {
         }
         
         fclose($fp);
-        $msg = 'File settings.php created correctly.';
-        // crypt admin and demo password
+        // Securely hash the admin and demo passwords.
         $demoPwd = get_password("demo");
         $adminPwd = get_password($adminPwd);
         // create all tables
@@ -119,8 +119,8 @@ if ($action == "generate") {
             }
         }
 
-        $msg .= '<br>Tables and settings file created correctly.';
-        $msg .= '<br><br><a href=../general/login.php>Please log in</a>';
+        $installationComplete = true;
+        $msg = '';
     } else {
         $msg = $error;
     } 
@@ -147,7 +147,7 @@ if ($step == "1") {
     } else if ($step > "2") {
         $breadcrumbs[]="<a href=\"../installation/setup.php?step=2\">Settings</a>";
         if ($step == "3") {
-            $breadcrumbs[]="Control";
+            $breadcrumbs[]="Complete";
         } 
     } 
 } 
@@ -197,7 +197,7 @@ else if ($step == "2") {
     $block1->headingForm("Settings");
 }
 else if ($step == "3") {
-    $block1->headingForm("Control");
+    $block1->headingForm($installationComplete ? "Installation complete" : "Installation status");
 }
 
 if ($step == "1") {
@@ -427,12 +427,17 @@ if ($step == "2") {
 } 
 
 if ($step == "3") {
-    $block1->openContent();
-    $block1->contentTitle("&nbsp;");
-
-    echo '<div class="alert alert-info">' . $msg . '</div>';
-    $block1->closeContent();
-} 
+    if ($installationComplete) {
+        echo '<div class="text-center py-4 px-3">';
+        echo '<div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success-subtle text-success mb-3" style="width:64px;height:64px;font-size:2rem" aria-hidden="true"><i class="fas fa-check"></i></div>';
+        echo '<h2 class="h4 mb-2">TaskVibe is ready</h2>';
+        echo '<p class="text-muted mb-4">The settings file and database tables were created successfully.</p>';
+        echo '<a class="btn btn-primary btn-lg px-4" href="../general/login.php"><i class="fas fa-right-to-bracket me-2" aria-hidden="true"></i>Log in to TaskVibe</a>';
+        echo '</div>';
+    } else {
+        echo '<div class="alert alert-danger mb-0" role="alert"><strong>Installation could not be completed.</strong><br>' . htmlspecialchars((string) $msg, ENT_QUOTES) . '</div>';
+    }
+}
 $block1->headingForm_close();
 
 $stepNext = $step + 1;
