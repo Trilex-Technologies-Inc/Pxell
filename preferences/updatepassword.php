@@ -20,10 +20,7 @@ if ($enable_cvs == "true") {
 } 
 
 if ($action == "update") {
-    // encrypt the old password using the defined loginMethod
-    $opw = get_password($opw);
-
-    if (0) {
+    if (!is_password_match($_SESSION['loginSession'], $opw, $_SESSION['passwordSession'])) {
         $error = $strings["old_password_error"];
     } else {
         if ($npw != $pwa || $npw == "") {
@@ -65,8 +62,7 @@ if ($action == "update") {
                 } 
             } 
 
-            // encrypt the new password to the session using the defined loginMethod
-            $_SESSION['passwordSession'] = get_password($npw);
+            $_SESSION['passwordSession'] = $cnpw;
             header("Location: ../preferences/updateuser.php?msg=update");
             exit;
         } 

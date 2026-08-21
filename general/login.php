@@ -81,11 +81,7 @@ if ($loginSubmit != '') {
         $error = $strings['login_password'];
     } else {
         $auth = 'on';
-        if ($rememberForm == 'on') {
-            $storePwd = get_password($passwordForm);
-            $cookie_value = base64_encode(serialize(array('loginForm' => $loginForm, 'storePwd' => $storePwd, 'tokenSession' => md5($loginForm . $cryptKey))));
-            setcookie('NetOfficeAuthCookie', $cookie_value, time() + 31536000, $base_uri);
-        } else {
+        if ($rememberForm != 'on') {
             setcookie('NetOfficeAuthCookie', '', time() - 3600, $base_uri);
         }
     }
@@ -209,7 +205,9 @@ if ($auth == 'on') {
 
             if ((!is_password_match($loginForm, $passwordForm, $loginUser->mem_password[0]))) {
                 $storedPassword = (string) $loginUser->mem_password[0];
-                if (preg_match('/^[a-f0-9]{32}$/i', $storedPassword)) {
+                if (password_get_info($storedPassword)['algo'] !== null) {
+                    $storedFormat = 'secure password hash';
+                } else if (preg_match('/^[a-f0-9]{32}$/i', $storedPassword)) {
                     $storedFormat = 'MD5';
                 } else if (strlen($storedPassword) === 13 || substr($storedPassword, 0, 1) === '$') {
                     $storedFormat = 'CRYPT';
@@ -217,16 +215,38 @@ if ($auth == 'on') {
                     $storedFormat = 'plain/unknown';
                 }
                 $error = 'The user exists, but the password comparison failed. ' .
-                    'Configured method: ' . htmlspecialchars($loginMethod) .
-                    '; stored password format: ' . $storedFormat . '.';
+                    'Stored password format: ' . $storedFormat . '.';
             } else {
                 $match = true;
             }
         }
 
         if ($match == true) {
-            // encrypt password in session using the defined loginMethod from settings.php
-            $passwordForm = get_password($passwordForm);
+            $sessionPassword = (string) $loginUser->mem_password[0];
+
+            // Upgrade legacy hashes after a successful password-based login.
+            if ($loginCookie == '' &&
+                (password_get_info($sessionPassword)['algo'] === null || password_needs_rehash($sessionPassword, PASSWORD_DEFAULT))) {
+                $sessionPassword = get_password($passwordForm);
+                $passwordUpdate = mysqli_prepare($loginConnection, "UPDATE `$memberTable` SET password = ? WHERE id = ?");
+                if (!$passwordUpdate) {
+                    exit('Unable to prepare password security upgrade.');
+                }
+                mysqli_stmt_bind_param($passwordUpdate, 'si', $sessionPassword, $memberId);
+                if (!mysqli_stmt_execute($passwordUpdate)) {
+                    exit('Unable to upgrade password security.');
+                }
+                mysqli_stmt_close($passwordUpdate);
+            }
+
+            if ($loginCookie == '' && $rememberForm == 'on') {
+                $cookieValue = base64_encode(serialize(array(
+                    'loginForm' => $loginForm,
+                    'storePwd' => $sessionPassword,
+                    'tokenSession' => md5($loginForm . $cryptKey),
+                )));
+                setcookie('NetOfficeAuthCookie', $cookieValue, time() + 31536000, $base_uri);
+            }
 
             // get the ip addr
             $ip = SESS_REMOTE_ADDR;
@@ -237,7 +257,7 @@ if ($auth == 'on') {
             $_SESSION['timezoneSession'] = $loginUser->mem_timezone[0];
             $_SESSION['languageSession'] = $languageForm;
             $_SESSION['loginSession'] = $loginForm;
-            $_SESSION['passwordSession'] = $passwordForm;
+            $_SESSION['passwordSession'] = $sessionPassword;
             $_SESSION['nameSession'] = $loginUser->mem_name[0];
             $_SESSION['ipSession'] = $ip;
             $_SESSION['dateunixSession'] = date('U');
@@ -272,7 +292,7 @@ if ($auth == 'on') {
             mysqli_stmt_execute($deleteLog);
             mysqli_stmt_close($deleteLog);
 
-            mysqli_stmt_bind_param($insertLog, 'sssss', $loginForm, $passwordForm, $ip, $session, $dateheure);
+            mysqli_stmt_bind_param($insertLog, 'sssss', $loginForm, $sessionPassword, $ip, $session, $dateheure);
             if (!mysqli_stmt_execute($insertLog)) {
                 exit('Unable to save login session record.');
             }

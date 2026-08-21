@@ -580,8 +580,11 @@ echo $setCopyright . "\n";
                 //--- Client logo ---
                 $logoFile = null;
                 $logoAlt = 'TaskVibe';
+                $defaultLogoUrl = defined('INSTALL')
+                    ? '../themes/deepblue/img/logo-sidebar.png?v=' . rawurlencode($version)
+                    : $base_uri . 'themes/deepblue/img/logo-sidebar.png';
                 if (defined('INSTALL')) {
-                    echo '<img src="../themes/deepblue/img/logo-sidebar.png?v=' . rawurlencode($version) . '" alt="TaskVibe">';
+                    echo '<img src="' . htmlspecialchars($defaultLogoUrl, ENT_QUOTES) . '" alt="TaskVibe">';
                 } else if (!$blank && $version >= "2.0") {
                     $tmpquery = "WHERE org.id = '1'";
                     $clientHeader = new request();
@@ -595,9 +598,9 @@ echo $setCopyright . "\n";
                 }
 
                 if (!defined('INSTALL') && !$blank && $logoFile !== null && isset($logoDiskFile) && is_file($logoDiskFile)) {
-                    echo '<img src="' . htmlspecialchars($logoFile) . '" alt="' . htmlspecialchars($logoAlt) . '">';
+                    echo '<img src="' . htmlspecialchars($logoFile, ENT_QUOTES) . '" alt="' . htmlspecialchars($logoAlt, ENT_QUOTES) . '" onerror="this.onerror=null;this.src=\'' . htmlspecialchars($defaultLogoUrl, ENT_QUOTES) . '\'">';
                 } else if (!defined('INSTALL')) {
-                    echo '<img src="' . htmlspecialchars($base_uri . 'themes/deepblue/img/logo-sidebar.png') . '" alt="TaskVibe">';
+                    echo '<img src="' . htmlspecialchars($defaultLogoUrl, ENT_QUOTES) . '" alt="TaskVibe">';
                 }
                 ?>
             </div>
