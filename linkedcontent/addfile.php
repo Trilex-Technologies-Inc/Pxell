@@ -20,7 +20,12 @@ if ($task == "") {
     $task = "0";
 }
 
-if ($action == "add") {
+// Project-level uploads have no phase. Strict SQL modes reject an empty
+// string for this integer column.
+$phase = (isset($phase) && ctype_digit((string) $phase)) ? (int) $phase : 0;
+$task = (isset($task) && ctype_digit((string) $task)) ? (int) $task : 0;
+
+if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if ($maxCustom != "") {
         $maxFileSize = $maxCustom;
     }
@@ -208,7 +213,7 @@ $block1->form = "filedetails";
                             <input class="form-control" type="file" name="upload" required>
                             <div class="form-text">
                                 <?php
-                                $maxFileSizeKB = $projectDetail->pro_upload_max[0] / 1024;
+                                $maxFileSizeKB = (float) ($projectDetail->pro_upload_max[0] ?? 0) / 1024;
                                 echo sprintf($strings["max_file_size"], $maxFileSizeKB, $byteUnits[1]);
                                 ?>
                                 <?php if ($allowPhp == "false"): ?>

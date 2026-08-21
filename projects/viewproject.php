@@ -15,6 +15,8 @@
 $checkSession = true;
 require_once('../includes/library.php');
 
+$id = (string) ($_GET['id'] ?? '');
+
 if ($action == 'publish') {
     $closeTopic = $_GET['closeTopic'];
     
@@ -196,13 +198,20 @@ if ($msg == 'demo') {
     $id = $project;
 }
 
+// Publish actions may initially use a task/topic ID list and replace it with
+// the parent project above. Validate only after that normalization.
+if ($id === '' || !ctype_digit((string) $id)) {
+    header('Location: ../projects/listprojects.php?msg=blankProject&reason=missing_id');
+    exit;
+}
+
 $tmpquery = "WHERE pro.id = '$id'";
 $projectDetail = new request();
 $projectDetail->openProjects($tmpquery);
 $comptProjectDetail = count($projectDetail->pro_id);
 
 if ($comptProjectDetail == '0') {
-    header('Location: ../projects/listprojects.php?msg=blankProject');
+    header('Location: ../projects/listprojects.php?msg=blankProject&reason=id_not_found');
     exit;
 }
 
@@ -210,15 +219,17 @@ $tmpquery = "WHERE tas.project = '$id' AND tas.milestone <> '0' ORDER BY tas.nam
 $listTasksTime = new request();
 $listTasksTime->openTasks($tmpquery);
 $comptListTasksTime = count($listTasksTime->tas_id);
+$estimated_time = 0;
+$diff_time = 0;
 
 if ($comptListTasksTime != '0') {
     for ($i = 0; $i < $comptListTasksTime; $i++) {
-        $estimated_time = $estimated_time + $listTasksTime->tas_estimated_time[$i];
+        $estimated_time += (float) ($listTasksTime->tas_estimated_time[$i] ?? 0);
         // $actual_time = $actual_time + $listTasksTime->tas_actual_time[$i];
         
         if ($listTasksTime->tas_complete_date[$i] != '' && $listTasksTime->tas_complete_date[$i] != '--' && $listTasksTime->tas_due_date[$i] != '--') {
             $diff = diff_date($listTasksTime->tas_complete_date[$i], $listTasksTime->tas_due_date[$i]);
-            $diff_time = $diff_time + $diff;
+            $diff_time += (int) $diff;
         }
     }
     

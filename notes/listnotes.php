@@ -58,6 +58,9 @@ if ($comptMemberTest == "0") {
 } else {
     $teamMember = "true";
 } 
+if (($_SESSION['profilSession'] ?? '') == '0') {
+    $teamMember = 'true';
+}
 
 //--- header ---
 $breadcrumbs[]=buildLink("../projects/listprojects.php?", $strings["projects"], LINK_INSIDE);

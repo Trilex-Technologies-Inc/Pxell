@@ -39,7 +39,11 @@ $block1->closePaletteIcon();
 
 $block1->sorting("reports", $sortingUser->sor_reports[0], "rep.name ASC", $sortingFields = array(0 => "rep.name", 1 => "rep.created"));
 
-$tmpquery = "WHERE rep.owner = '" . $_SESSION['idSession'] . "' ORDER BY $block1->sortingValue";
+if (($_SESSION['profilSession'] ?? '') == '0') {
+    $tmpquery = "ORDER BY $block1->sortingValue";
+} else {
+    $tmpquery = "WHERE rep.owner = '" . $_SESSION['idSession'] . "' ORDER BY $block1->sortingValue";
+}
 $listReports = new request();
 $listReports->openReports($tmpquery);
 $comptListReports = count($listReports->rep_id);

@@ -20,7 +20,7 @@ if ($_SESSION['profilSession'] != 0) {
     exit;
 } 
 
-$versionNew = '2.7.1B';
+$versionNew = '3.0B';
 
 if ($action == 'generate') {
     if ($installationTypeNew == 'offline') {

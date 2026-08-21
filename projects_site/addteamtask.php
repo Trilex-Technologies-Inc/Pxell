@@ -17,7 +17,7 @@ require_once("../includes/library.php");
 // case add task
 if ($id == "") {
     // case add task
-    if ($action == "add") {
+    if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         // concat values from date selector and replace quotes by html code in name
         $tn = convertData($tn);
         $d = convertData($d);

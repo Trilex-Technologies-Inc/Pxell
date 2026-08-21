@@ -98,11 +98,11 @@ if (!defined('PMA_IS_LANG_DETECT_FUNCTION')) {
         global $lang;
 
         reset($available_languages);
-        while (list($key, $value) = each($available_languages)) {
+        foreach ($available_languages as $key => $value) {
             // $envType =  1 for the 'HTTP_ACCEPT_LANGUAGE' environment variable,
             //             2 for the 'HTTP_USER_AGENT' one
-            if (($envType == 1 && eregi('^(' . $value[0] . ')(;q=[0-9]\\.[0-9])?$', $str))
-                || ($envType == 2 && eregi('(\(|\[|;[[:space:]])(' . $value[0] . ')(;|\]|\))', $str))) {
+            if (($envType == 1 && preg_match('/^(' . $value[0] . ')(;q=[0-9]\\.[0-9])?$/i', $str))
+                || ($envType == 2 && preg_match('/(\(|\[|;[[:space:]])(' . $value[0] . ')(;|\]|\))/i', $str))) {
                 $lang     = $key;
                 break;
             }
@@ -118,36 +118,25 @@ if (!defined('PMA_IS_LANG_DETECT_FUNCTION')) {
  */
 if (!empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
     $HTTP_ACCEPT_LANGUAGE = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-}
-else if (!empty($HTTP_SERVER_VARS['HTTP_ACCEPT_LANGUAGE'])) {
-    $HTTP_ACCEPT_LANGUAGE = $HTTP_SERVER_VARS['HTTP_ACCEPT_LANGUAGE'];
+} else {
+    $HTTP_ACCEPT_LANGUAGE = '';
 }
 
 if (!empty($_SERVER['HTTP_USER_AGENT'])) {
     $HTTP_USER_AGENT = $_SERVER['HTTP_USER_AGENT'];
-}
-else if (!empty($HTTP_SERVER_VARS['HTTP_USER_AGENT'])) {
-    $HTTP_USER_AGENT = $HTTP_SERVER_VARS['HTTP_USER_AGENT'];
+} else {
+    $HTTP_USER_AGENT = '';
 }
 
 if (!isset($lang)) {
-    if (isset($_GET) && !empty($_GET['lang'])) {
+    if (!empty($_GET['lang'])) {
         $lang = $_GET['lang'];
     }
-    else if (isset($HTTP_GET_VARS) && !empty($HTTP_GET_VARS['lang'])) {
-        $lang = $HTTP_GET_VARS['lang'];
-    }
-    else if (isset($_POST) && !empty($_POST['lang'])) {
+    else if (!empty($_POST['lang'])) {
         $lang = $_POST['lang'];
     }
-    else if (isset($HTTP_POST_VARS) && !empty($HTTP_POST_VARS['lang'])) {
-        $lang = $HTTP_POST_VARS['lang'];
-    }
-    else if (isset($_COOKIE) && !empty($_COOKIE['lang'])) {
+    else if (!empty($_COOKIE['lang'])) {
         $lang = $_COOKIE['lang'];
-    }
-    else if (isset($HTTP_COOKIE_VARS) && !empty($HTTP_COOKIE_VARS['lang'])) {
-        $lang = $HTTP_COOKIE_VARS['lang'];
     }
 }
 

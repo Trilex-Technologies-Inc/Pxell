@@ -15,6 +15,14 @@
 $checkSession = true;
 require_once('../includes/library.php');
 
+$id = (string) ($_GET['id'] ?? '');
+$action = (string) ($_GET['action'] ?? '');
+$project = (string) ($_GET['project'] ?? ($_POST['project'] ?? ''));
+$report = (string) ($_GET['report'] ?? '');
+$cpy = ($_GET['cpy'] ?? '') === 'true' ? 'true' : 'false';
+$phase = (string) ($_GET['phase'] ?? '0');
+$taskDetail = new request();
+
 // case multiple edit tasks
 $multi = strstr($id, '**');
 
@@ -25,7 +33,6 @@ if ($multi != '') {
 
 if ($id != '' && $action != 'update' && $action != 'add') {
     $tmpquery = "WHERE tas.id = '$id'";
-    $taskDetail = new request();
     $taskDetail->openTasks($tmpquery);
     $tmpquery = "WHERE pro.id = '" . $taskDetail->tas_project[0] . "'";
     $project = $taskDetail->tas_project[0];
@@ -56,7 +63,7 @@ if ($teamMember == 'false' && $_SESSION['profilSession'] != '5') {
 // case update or copy task
 if ($id != '') {
     // case update or copy task
-    if ($action == 'update') {
+    if ($action == 'update' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         // concat values from date selector and replace quotes by html code in name
         $tn = convertData($tn);
         $d = convertData($d);
@@ -347,7 +354,7 @@ if ($id != '') {
 // case add task
 if ($id == "") {
     // case add task
-    if ($action == "add") {
+    if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         // concat values from date selector and replace quotes by html code in name
         $tn = convertData($tn);
         $d = convertData($d);
@@ -442,9 +449,12 @@ if ($id == "") {
     }
 
     // set default values
-    $taskDetail->tas_assigned_to[0] = $_SESSION['idSession'];
-    $taskDetail->tas_priority[0] = $projectDetail->pro_priority[0];
-    $taskDetail->tas_status[0] = '3';
+    $taskDetail->tas_assigned_to = array($_SESSION['idSession']);
+    $taskDetail->tas_priority = array($projectDetail->pro_priority[0]);
+    $taskDetail->tas_status = array('3');
+    $taskDetail->tas_parent_phase = array($phase);
+    $taskDetail->tas_completion = array('0');
+    $taskDetail->tas_service = array('0');
 }
 
 if ($projectDetail->pro_org_id[0] == '1') {

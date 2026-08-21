@@ -15,7 +15,7 @@
 $checkSession = true;
 require_once("../includes/library.php");
 
-if ($action == "add") {
+if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $S_SAVENAME = convertData($S_SAVENAME);
     $tmpquery1 = "INSERT INTO " . $tableCollab["reports"] . "(owner,name,projects,clients,members,priorities,status,date_due_start,date_due_end,date_complete_start,date_complete_end,created) VALUES('" . $_SESSION['idSession'] . "','$S_SAVENAME','$S_PRJSEL','$S_ORGSEL','$S_ATSEL','$S_PRIOSEL','$S_STATSEL','$S_SDATE','$S_EDATE','$S_SDATE2','$S_EDATE2','$dateheure')";
     connectSql("$tmpquery1");
@@ -276,8 +276,8 @@ if ($comptListTasks != "0") {
         $idPublish = $listTasks->tas_published[$i];
         $block1->openRow($listTasks->tas_id[$i]);
         $block1->checkboxRow($listTasks->tas_id[$i]);
-        $block1->cellRow(buildLink("../tasks/viewtask.php?id=" . $listTasks->tas_id[$i], $listTasks->tas_id[$i], in));
-        $block1->cellRow(buildLink("../tasks/viewtask.php?id=" . $listTasks->tas_id[$i], $listTasks->tas_name[$i], in));
+        $block1->cellRow(buildLink("../tasks/viewtask.php?id=" . $listTasks->tas_id[$i], $listTasks->tas_id[$i], LINK_INSIDE));
+        $block1->cellRow(buildLink("../tasks/viewtask.php?id=" . $listTasks->tas_id[$i], $listTasks->tas_name[$i], LINK_INSIDE));
         $block1->cellRow('<img src="../themes/' . THEME . '/gfx_priority/' . $idPriority . '.gif" alt="' . $priority[$idPriority] . '">&nbsp;' . $priority[$idPriority], '', true);
         $block1->cellRow($status[$idStatus]);
         if ($listTasks->tas_due_date[$i] <= $date && $listTasks->tas_completion[$i] != "10") {
@@ -294,7 +294,7 @@ if ($comptListTasks != "0") {
         } else {
             $block1->cellRow(buildLink($listTasks->tas_mem_email_work[$i], $listTasks->tas_mem_login[$i], LINK_MAIL));
         } 
-        $block1->cellRow(buildLink("../projects/viewproject.php?id=" . $listTasks->tas_project[$i], $listTasks->tas_pro_name[$i], in));
+        $block1->cellRow(buildLink("../projects/viewproject.php?id=" . $listTasks->tas_project[$i], $listTasks->tas_pro_name[$i], LINK_INSIDE));
         if ($sitePublish == "true") {
             $block1->cellRow($statusPublish[$idPublish]);
         } 

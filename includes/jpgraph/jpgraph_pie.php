@@ -22,6 +22,7 @@ DEFINE("PIE_VALUE_ADJPER",2);
 // CLASS PiePlot
 // Description: Draws a pie plot
 //===================================================
+#[\AllowDynamicProperties]
 class PiePlot {
     var $posx=0.5,$posy=0.5;
     var $radius=0.3;
@@ -55,7 +56,7 @@ class PiePlot {
     var $iGuideLineCurve = false,$iGuideVFactor=1.4,$iGuideLineRFactor=0.8;
 //---------------
 // CONSTRUCTOR
-    function PiePlot($data) {
+    function __construct($data) {
 	$this->data = array_reverse($data);
 	$this->title = new Text("");
 	$this->title->SetFont(FF_FONT1,FS_BOLD);
@@ -361,7 +362,7 @@ class PiePlot {
     }
 
 
-    function Stroke(&$img,$aaoption=0) {
+    function Stroke($img,$aaoption=0) {
 	// aaoption is used to handle antialias
 	// aaoption == 0 a normal pie
 	// aaoption == 1 just the body
@@ -910,14 +911,15 @@ class PiePlot {
 // Description: Same as a normal pie plot but with a 
 // filled circle in the center
 //===================================================
+#[\AllowDynamicProperties]
 class PiePlotC extends PiePlot {
     var $imidsize=0.5;		// Fraction of total width
     var $imidcolor='white';
     var $midtitle='';
     var $middlecsimtarget="",$middlecsimalt="";
 
-    function PiePlotC($data,$aCenterTitle='') {
-	parent::PiePlot($data);
+    function __construct($data,$aCenterTitle='') {
+	parent::__construct($data);
 	$this->midtitle = new Text();
 	$this->midtitle->ParagraphAlign('center');
     }
@@ -1090,6 +1092,7 @@ class PiePlotC extends PiePlot {
 // CLASS PieGraph
 // Description: 
 //===================================================
+#[\AllowDynamicProperties]
 class PieGraph extends Graph {
     var $posx, $posy, $radius;		
     var $legends=array();	
@@ -1097,8 +1100,8 @@ class PieGraph extends Graph {
     var $pieaa = false ;
 //---------------
 // CONSTRUCTOR
-    function PieGraph($width=300,$height=200,$cachedName="",$timeout=0,$inline=1) {
-	$this->Graph($width,$height,$cachedName,$timeout,$inline);
+    function __construct($width=300,$height=200,$cachedName="",$timeout=0,$inline=1) {
+	parent::__construct($width,$height,$cachedName,$timeout,$inline);
 	$this->posx=$width/2;
 	$this->posy=$height/2;
 	$this->SetColor(array(255,255,255));		

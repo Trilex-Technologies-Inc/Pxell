@@ -18,11 +18,12 @@
 // graphic which benefits from all the functionality in the
 // graph liek caching for example. 
 //===================================================
+#[\AllowDynamicProperties]
 class CanvasGraph extends Graph {
 //---------------
 // CONSTRUCTOR
-    function CanvasGraph($aWidth=300,$aHeight=200,$aCachedName="",$timeout=0,$inline=1) {
-	$this->Graph($aWidth,$aHeight,$aCachedName,$timeout,$inline);
+    function __construct($aWidth=300,$aHeight=200,$aCachedName="",$timeout=0,$inline=1) {
+	parent::__construct($aWidth,$aHeight,$aCachedName,$timeout,$inline);
     }
 
 //---------------

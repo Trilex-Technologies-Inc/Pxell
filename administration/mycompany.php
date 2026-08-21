@@ -20,38 +20,58 @@ if ($_SESSION['profilSession'] != 0) {
     exit;
 } 
 
-$action = $_GET['action'];
+$action = (string) ($_GET['action'] ?? '');
+$error = '';
 
-if ($action == 'update') {
-    $extension = $_POST['extension'];
-    $extensionOld = $_POST['extensionOld'];
-    $cn = $_POST['cn'];
-    $add = $_POST['add'];
-    $wp = $_POST['wp'];
-    $url = $_POST['url'];
-    $email = $_POST['email'];
-    $c = $_POST['c'];
-    $logoDel = $_POST['logoDel'];
+if ($action == 'update' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+    $extensionOld = (string) ($_POST['extensionOld'] ?? '');
+    $cn = (string) ($_POST['cn'] ?? '');
+    $add = (string) ($_POST['add'] ?? '');
+    $wp = (string) ($_POST['wp'] ?? '');
+    $url = (string) ($_POST['url'] ?? '');
+    $email = (string) ($_POST['email'] ?? '');
+    $c = (string) ($_POST['c'] ?? '');
+    $logoDel = (string) ($_POST['logoDel'] ?? '');
+    $logoDirectory = $base_dir . 'logos_clients/';
 
     if ($logoDel == 'on') {
         $tmpquery = 'UPDATE ' . $tableCollab['organizations'] . " SET extension_logo='' WHERE id='1'";
         connectSql($tmpquery);
-        @unlink("../logos_clients/1.$extensionOld");
+        $oldLogo = $logoDirectory . '1.' . basename($extensionOld);
+        if (is_file($oldLogo)) {
+            unlink($oldLogo);
+        }
     } 
 
-    $extension = strtolower(substr(strrchr($_FILES['upload']['name'], '.'), 1));
+    $upload = $_FILES['upload'] ?? null;
+    if (is_array($upload) && ($upload['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+        $uploadError = (int) ($upload['error'] ?? UPLOAD_ERR_NO_FILE);
+        $extension = strtolower((string) pathinfo((string) ($upload['name'] ?? ''), PATHINFO_EXTENSION));
+        $allowedExtensions = array('png', 'jpg', 'jpeg', 'gif', 'webp');
 
-    if (@move_uploaded_file($_FILES['upload']['tmp_name'], "../logos_clients/1.$extension")) {
-        $tmpquery = 'UPDATE ' . $tableCollab['organizations'] . " SET extension_logo='$extension' WHERE id='1'";
-        connectSql($tmpquery);
-    } 
+        if ($uploadError !== UPLOAD_ERR_OK) {
+            $error = 'Logo upload failed with PHP upload error code ' . $uploadError . '.';
+        } elseif (!in_array($extension, $allowedExtensions, true)) {
+            $error = 'Logo upload failed: only PNG, JPG, GIF, and WebP images are allowed.';
+        } elseif (!is_dir($logoDirectory) || !is_writable($logoDirectory)) {
+            $error = 'Logo upload failed: the logos_clients directory is not writable by the web server.';
+        } elseif (!move_uploaded_file((string) $upload['tmp_name'], $logoDirectory . '1.' . $extension)) {
+            $error = 'Logo upload failed while moving the uploaded file into logos_clients.';
+        } else {
+            $tmpquery = 'UPDATE ' . $tableCollab['organizations'] . " SET extension_logo='$extension' WHERE id='1'";
+            connectSql($tmpquery);
+        }
+    }
 
     $cn = convertData($cn);
     $add = convertData($add);
     $c = convertData($c);
     $tmpquery = 'UPDATE ' . $tableCollab['organizations'] . " SET name='$cn',address1='$add',phone='$wp',url='$url',email='$email',comments='$c' WHERE id = '1'";
     connectSql($tmpquery);
-    header('Location: ../administration/mycompany.php');
+    if ($error === '') {
+        header('Location: ../administration/mycompany.php');
+        exit;
+    }
 } 
 
 $tmpquery = "WHERE org.id='1'";
@@ -138,7 +158,8 @@ $block1->formRow(
 );
 
 // ---------- EXISTING LOGO DISPLAY AND DELETE OPTION ----------
-if (file_exists('../logos_clients/1.' . $clientDetail->org_extension_logo[0])) {
+$companyLogoPath = $base_dir . 'logos_clients/1.' . $clientDetail->org_extension_logo[0];
+if (is_file($companyLogoPath)) {
     $block1->formRow(
         '',
         '<div class="mb-2">

@@ -14,6 +14,9 @@
 	# The actual SQL queries are found in the pages.
 	# Use this as a starting point to port to other databases
 
+	# Global connection handle for the mantis database wrapper
+	$GLOBALS['mantis_dbh'] = null;
+
 	# --------------------
 	# connect to database and select database
 	function db_connect($p_hostname="", $p_username="",
@@ -38,8 +41,7 @@
 			$p_port = $g_port;
 		}
 
-		$t_result = mysql_connect(  $p_hostname.":".$p_port,
-									$p_username, $p_password );
+		$t_result = mysqli_connect( $p_hostname, $p_username, $p_password, $p_database, (int)$p_port );
 
 		if ( !$t_result ) {
 			echo "ERROR: FAILED CONNECTION TO DATABASE: ";
@@ -47,13 +49,7 @@
 			exit;
 		}
 
-		$t_result = db_select_db( $p_database );
-
-		if ( !$t_result ) {
-			echo "ERROR: FAILED DATABASE SELECTION: ";
-			echo db_error();
-			exit;
-		}
+		$GLOBALS['mantis_dbh'] = $t_result;
 	}
 	# --------------------
 	# persistent connect to database and select database
@@ -61,8 +57,7 @@
 						$p_password="", $p_database="mantis",
 						$p_port=3306 ) {
 
-		$t_result = mysql_pconnect(  $p_hostname.":".$p_port,
-									$p_username, $p_password );
+		$t_result = mysqli_connect( 'p:' . $p_hostname, $p_username, $p_password, $p_database, (int)$p_port );
 
 		if ( !$t_result ) {
 			echo "ERROR: FAILED CONNECTION TO DATABASE: ";
@@ -70,19 +65,13 @@
 			exit;
 		}
 
-		$t_result = db_select_db( $p_database );
-
-		if ( !$t_result ) {
-			echo "ERROR: FAILED DATABASE SELECTION: ";
-			echo db_error();
-			exit;
-		}
+		$GLOBALS['mantis_dbh'] = $t_result;
 	}
 	# --------------------
 	# execute query, requires connection to be opened,
 	function db_query( $p_query ) {
 
-		$t_result = mysql_query( $p_query );
+		$t_result = mysqli_query( $GLOBALS['mantis_dbh'], $p_query );
 
 		if ( !$t_result ) {
 			echo "ERROR: FAILED QUERY: ".$p_query." : ";
@@ -94,20 +83,25 @@
 	}
 	# --------------------
 	function db_select_db( $p_db_name ) {
-		return mysql_select_db( $p_db_name );
+		return mysqli_select_db( $GLOBALS['mantis_dbh'], $p_db_name );
 	}
 	# --------------------
 	function db_num_rows( $p_result ) {
-		return mysql_num_rows( $p_result );
+		return mysqli_num_rows( $p_result );
 	}
 	# --------------------
 	function db_fetch_array( $p_result ) {
-		return mysql_fetch_array( $p_result );
+		return mysqli_fetch_array( $p_result );
 	}
 	# --------------------
 	function db_result( $p_result, $p_index1=0, $p_index2=0 ) {
 		if ( $p_result && ( db_num_rows( $p_result ) > 0 ) ) {
-			return mysql_result( $p_result, $p_index1, $p_index2 );
+			mysqli_data_seek( $p_result, $p_index1 );
+			$row = mysqli_fetch_array( $p_result );
+			if ( is_numeric( $p_index2 ) ) {
+				return $row[$p_index2];
+			}
+			return $row[$p_index2];
 		} else {
 			return false;
 		}
@@ -116,17 +110,15 @@
 	# return the last inserted id
 	# For MS SQL use: SELECT @@IDENTITY AS 'id'
 	function db_insert_id() {
-		$query = "SELECT LAST_INSERT_ID()";
-		$t_result = db_query( $query );
-		return db_result( $t_result, 0, 0 );
+		return mysqli_insert_id( $GLOBALS['mantis_dbh'] );
 	}
 	# --------------------
 	function db_error_num() {
-		return mysql_errno();
+		return mysqli_errno( $GLOBALS['mantis_dbh'] );
 	}
 	# --------------------
 	function db_error_msg() {
-		return mysql_error();
+		return mysqli_error( $GLOBALS['mantis_dbh'] );
 	}
 	# --------------------
 	# display both the error num and error msg
@@ -138,7 +130,10 @@
 	# Not really necessary most of the time since a connection is
 	# automatically closed when a page finishes loading.
 	function db_close() {
-		$t_result = mysql_close();
+		if ( $GLOBALS['mantis_dbh'] ) {
+			mysqli_close( $GLOBALS['mantis_dbh'] );
+			$GLOBALS['mantis_dbh'] = null;
+		}
 	}
 	# --------------------
 ?>

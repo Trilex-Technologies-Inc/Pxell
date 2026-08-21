@@ -136,6 +136,7 @@ if (!function_exists('array_fill')) {
 // CLASS GanttActivityInfo
 // Description: 
 //===================================================
+#[\AllowDynamicProperties]
 class GanttActivityInfo {
     var $iColor='black';
     var $iBackgroundColor='lightgray';
@@ -149,7 +150,7 @@ class GanttActivityInfo {
     var $iShow=true;
     var $iHeaderAlign='center';
 
-    function GanttActivityInfo() {
+    function __construct() {
 	$this->vgrid = new LineProperty();
     }
 
@@ -324,6 +325,7 @@ class GanttActivityInfo {
 // CLASS GanttGraph
 // Description: Main class to handle gantt graphs
 //===================================================
+#[\AllowDynamicProperties]
 class GanttGraph extends Graph {
     var $scale;							// Public accessible
     var $iObj=array();				// Gantt objects
@@ -338,7 +340,7 @@ class GanttGraph extends Graph {
 //---------------
 // CONSTRUCTOR	
     // Create a new gantt graph
-    function GanttGraph($aWidth=0,$aHeight=0,$aCachedName="",$aTimeOut=0,$aInline=true) {
+    function __construct($aWidth=0,$aHeight=0,$aCachedName="",$aTimeOut=0,$aInline=true) {
 
 	// Backward compatibility
 	if( $aWidth == -1 ) $aWidth=0;
@@ -347,7 +349,7 @@ class GanttGraph extends Graph {
 	if( $aWidth<  0 || $aHeight < 0 ) {
 	    JpgraphError::Raise("You can't specify negative sizes for Gantt graph dimensions. Use 0 to indicate that you want the library to automatically determine a dimension.");
 	}
-	Graph::Graph($aWidth,$aHeight,$aCachedName,$aTimeOut,$aInline);		
+	parent::__construct($aWidth,$aHeight,$aCachedName,$aTimeOut,$aInline);
 	$this->scale = new GanttScale($this->img);
 
 	// Default margins
@@ -507,7 +509,7 @@ class GanttGraph extends Graph {
     }
 
     // Override inherit method from Graph and give a warning message
-    function SetScale() {
+    function SetScale($aAxisType = null, $aYMin = 1, $aYMax = 1, $aXMin = 1, $aXMax = 1) {
 	JpGraphError::Raise("SetScale() is not meaningfull with Gantt charts.");
     }
 
@@ -1105,6 +1107,7 @@ DEFINE('GICON_FOLDEROPEN',10);
 DEFINE('GICON_FOLDER',11);
 DEFINE('GICON_TEXTIMPORTANT',12);
 
+#[\AllowDynamicProperties]
 class PredefIcons {
     var $iBuiltinIcon = null;
     var $iLen = -1 ;
@@ -1120,7 +1123,7 @@ class PredefIcons {
 	return Image::CreateFromString(base64_decode($this->iBuiltinIcon[$aIdx][1]));   
     }
 
-    function PredefIcons() {
+    function __construct() {
 	//==========================================================
 	// warning.png
 	//==========================================================
@@ -1410,13 +1413,14 @@ $_gPredefIcons = new PredefIcons();
 // CLASS IconImage
 // Description: Holds properties for an icon image 
 //===================================================
+#[\AllowDynamicProperties]
 class IconImage {
     var $iGDImage=null;
     var $iWidth,$iHeight;
     var $ixalign='left',$iyalign='center';
     var $iScale=1.0;
 
-    function IconImage($aIcon,$aScale=1) {
+    function __construct($aIcon,$aScale=1) {
 	GLOBAL $_gPredefIcons ; 
 	if( is_string($aIcon) ) {
 	    $this->iGDImage = Graph::LoadBkgImage('',$aIcon);
@@ -1476,6 +1480,7 @@ class IconImage {
 // CLASS TextProperty
 // Description: Holds properties for a text
 //===================================================
+#[\AllowDynamicProperties]
 class TextProperty {
     var $iFFamily=FF_FONT1,$iFStyle=FS_NORMAL,$iFSize=10;
     var $iColor="black";
@@ -1486,7 +1491,7 @@ class TextProperty {
 	
 //---------------
 // CONSTRUCTOR	
-    function TextProperty($aTxt='') {
+    function __construct($aTxt='') {
 	$this->iText = $aTxt;
     }		
 	
@@ -1567,7 +1572,7 @@ class TextProperty {
 	$aImg->SetFont($this->iFFamily,$this->iFStyle,$this->iFSize);
 	if( is_string($this->iText) ) {
 	    if( strlen($this->iText) == 0 ) return 0;
-	    $tmp = split("\t",$this->iText);
+	    $tmp = explode("\t",$this->iText);
 	    if( count($tmp) <= 1 || !$aUseTabs ) {
 		return $aImg->GetTextWidth($this->iText)+2*$extra_margin;
 	    }
@@ -1690,7 +1695,7 @@ class TextProperty {
 		}
 	    }
 	    else {
-		$tmp = split("\t",$this->iText);
+		$tmp = explode("\t",$this->iText);
 		$n = min(count($tmp),count($aX));
 		for($i=0; $i < $n; ++$i) {
 		    $aImg->StrokeText($aX[$i],$aY,$tmp[$i]);
@@ -1705,6 +1710,7 @@ class TextProperty {
 // Description: Data encapsulating class to hold property 
 // for each type of the scale headers
 //===================================================
+#[\AllowDynamicProperties]
 class HeaderProperty {
     var $iTitleVertMargin=3,$iFFamily=FF_FONT0,$iFStyle=FS_NORMAL,$iFSize=8;
     var $iFrameColor="black",$iFrameWeight=1;
@@ -1718,7 +1724,7 @@ class HeaderProperty {
 
 //---------------
 // CONSTRUCTOR	
-    function HeaderProperty() {
+    function __construct() {
 	$this->grid = new LineProperty();
     }
 
@@ -1809,6 +1815,7 @@ class HeaderProperty {
 // converting dates to position in the chart as well as stroking the
 // date headers (days, week, etc).
 //===================================================
+#[\AllowDynamicProperties]
 class GanttScale {
     var $minute,$hour,$day,$week,$month,$year;
     var $divider,$dividerh,$tableTitle;
@@ -1833,7 +1840,7 @@ class GanttScale {
 	
 //---------------
 // CONSTRUCTOR	
-    function GanttScale(&$aImg) {
+    function __construct(&$aImg) {
 	$this->iImg = &$aImg;		
 	$this->iDateLocale = new DateLocale();
 
@@ -1998,8 +2005,8 @@ class GanttScale {
 	}
 
 	// Get day in week for start and ending date (Sun==0)
-	$ds=strftime("%w",$this->iStartDate);
-	$de=strftime("%w",$this->iEndDate);	
+	$ds=JpGraphDateFormat("%w",$this->iStartDate);
+	$de=JpGraphDateFormat("%w",$this->iEndDate);
 	
 	// We want to start on iWeekStart day. But first we subtract a week
 	// if the startdate is "behind" the day the week start at. 
@@ -2086,11 +2093,11 @@ class GanttScale {
 	
     // Get week number 
     function GetWeekNbr($aDate) {
-	// We can't use the internal strftime() since it gets the weeknumber
+	// We can't use the internal JpGraphDateFormat() since it gets the weeknumber
 	// wrong since it doesn't follow ISO on all systems since this is
 	// system linrary dependent.
 	// Even worse is that this works differently if we are on a Windows
-	// or UNIX box (it even differs between UNIX boxes how strftime()
+	// or UNIX box (it even differs between UNIX boxes how JpGraphDateFormat()
 	// is natively implemented)
 	//
 	// Credit to Nicolas Hoizey <nhoizey@phpheaven.net> for this elegant
@@ -2146,17 +2153,17 @@ class GanttScale {
 	
     // Get day in month
     function GetMonthDayNbr($aDate) {
-	return 0+strftime("%d",$aDate);
+	return 0+JpGraphDateFormat("%d",$aDate);
     }
 
     // Get day in year
     function GetYearDayNbr($aDate) {
-	return 0+strftime("%j",$aDate);
+	return 0+JpGraphDateFormat("%j",$aDate);
     }
 	
     // Get month number
     function GetMonthNbr($aDate) {
-	return 0+strftime("%m",$aDate);
+	return 0+JpGraphDateFormat("%m",$aDate);
     }
 	
     // Translate a date to screen coordinates	(horizontal scale)
@@ -2454,63 +2461,63 @@ class GanttScale {
 					      $x+$daywidth,$yb-$this->day->iFrameWeight);
 		}
 
-		$mn = strftime('%m',$datestamp);
+		$mn = JpGraphDateFormat('%m',$datestamp);
 		if( $mn[0]=='0' ) 
 		    $mn = $mn[1];
 
 		switch( $this->day->iStyle ) {
 		    case DAYSTYLE_LONG:
 			// "Monday"
-			$txt = strftime('%A',$datestamp);
+			$txt = JpGraphDateFormat('%A',$datestamp);
 			break;
 		    case DAYSTYLE_SHORT:
 			// "Mon"
-			$txt = strftime('%a',$datestamp);
+			$txt = JpGraphDateFormat('%a',$datestamp);
 			break;
 		    case DAYSTYLE_SHORTDAYDATE1:
 			// "Mon 23/6"
-			$txt = strftime('%a %d/'.$mn,$datestamp);
+			$txt = JpGraphDateFormat('%a %d/'.$mn,$datestamp);
 			break;
 		    case DAYSTYLE_SHORTDAYDATE2:
 			// "Mon 23 Jun"
-			$txt = strftime('%a %d %b',$datestamp);
+			$txt = JpGraphDateFormat('%a %d %b',$datestamp);
 			break;
 		    case DAYSTYLE_SHORTDAYDATE3:
 			// "Mon 23 Jun 2003"
-			$txt = strftime('%a %d %b %Y',$datestamp);
+			$txt = JpGraphDateFormat('%a %d %b %Y',$datestamp);
 			break;
 		    case DAYSTYLE_LONGDAYDATE1:
 			// "Monday 23 Jun"
-			$txt = strftime('%A %d %b',$datestamp);
+			$txt = JpGraphDateFormat('%A %d %b',$datestamp);
 			break;
 		    case DAYSTYLE_LONGDAYDATE2:
 			// "Monday 23 Jun 2003"
-			$txt = strftime('%A %d %b %Y',$datestamp);
+			$txt = JpGraphDateFormat('%A %d %b %Y',$datestamp);
 			break;
 		    case DAYSTYLE_SHORTDATE1:
 			// "23/6"
-			$txt = strftime('%d/'.$mn,$datestamp);
+			$txt = JpGraphDateFormat('%d/'.$mn,$datestamp);
 			break;			
 		    case DAYSTYLE_SHORTDATE2:
 			// "23 Jun"
-			$txt = strftime('%d %b',$datestamp);
+			$txt = JpGraphDateFormat('%d %b',$datestamp);
 			break;			
 		    case DAYSTYLE_SHORTDATE3:
 			// "Mon 23"
-			$txt = strftime('%a %d',$datestamp);
+			$txt = JpGraphDateFormat('%a %d',$datestamp);
 			break;	
 		    case DAYSTYLE_SHORTDATE4:
 			// "23"
-			$txt = strftime('%d',$datestamp);
+			$txt = JpGraphDateFormat('%d',$datestamp);
 			break;	
 		    case DAYSTYLE_CUSTOM:
 			// Custom format
-			$txt = strftime($this->day->iLabelFormStr,$datestamp);
+			$txt = JpGraphDateFormat($this->day->iLabelFormStr,$datestamp);
 			break;	
 		    case DAYSTYLE_ONELETTER:
 		    default:
 			// "M"
-			$txt = strftime('%A',$datestamp);
+			$txt = JpGraphDateFormat('%A',$datestamp);
 			$txt = strtoupper($txt[0]);
 			break;
 		}
@@ -2661,7 +2668,7 @@ class GanttScale {
 
 	    $img->SetLineWeight($this->month->grid->iWeight);
 	    $img->SetColor($this->month->iTextColor);
-	    $year = 0+strftime("%Y",$this->iStartDate);
+	    $year = 0+JpGraphDateFormat("%Y",$this->iStartDate);
 	    $img->SetTextAlign("center");
 	    if( $this->GetMonthNbr($this->iStartDate) == $this->GetMonthNbr($this->iEndDate)  
 		&& $this->GetYear($this->iStartDate)==$this->GetYear($this->iEndDate) ) {
@@ -2867,6 +2874,7 @@ class GanttScale {
 // CLASS GanttConstraint
 // Just a structure to store all the values for a constraint
 //===================================================
+#[\AllowDynamicProperties]
 class GanttConstraint {
     var $iConstrainType;
     var $iConstrainRow;
@@ -2876,7 +2884,7 @@ class GanttConstraint {
 
 //---------------
 // CONSTRUCTOR
-    function GanttConstraint($aRow,$aType,$aColor,$aArrowSize,$aArrowType){
+    function __construct($aRow,$aType,$aColor,$aArrowSize,$aArrowType){
 	$this->iConstrainType = $aType;
 	$this->iConstrainRow = $aRow;
 	$this->iConstrainColor=$aColor;
@@ -2890,6 +2898,7 @@ class GanttConstraint {
 // CLASS GanttPlotObject
 // The common signature for a Gantt object
 //===================================================
+#[\AllowDynamicProperties]
 class GanttPlotObject {
     var $iVPos=0;					// Vertical position
     var $iLabelLeftMargin=2;	// Title margin
@@ -2901,7 +2910,7 @@ class GanttPlotObject {
     var $constraints = array();    
     var $iConstrainPos=array();
 		
-    function GanttPlotObject() {
+    function __construct() {
  	$this->title = new TextProperty();
 	$this->title->Align("left","center");
 	$this->caption = new TextProperty();
@@ -2983,6 +2992,7 @@ class GanttPlotObject {
 // Holds parameters for the progress indicator 
 // displyed within a bar
 //===================================================
+#[\AllowDynamicProperties]
 class Progress {
     var $iProgress=-1, $iColor="black", $iFillColor='black';
     var $iPattern=GANTT_SOLID;
@@ -3016,6 +3026,7 @@ DEFINE('GANTT_HGRID2',1);
 // CLASS HorizontalGridLine
 // Responsible for drawinf horizontal gridlines and filled alternatibg rows
 //===================================================
+#[\AllowDynamicProperties]
 class HorizontalGridLine {
     var $iGraph=NULL;
     var $iRowColor1 = '', $iRowColor2 = '';
@@ -3023,7 +3034,7 @@ class HorizontalGridLine {
     var $line=null;
     var $iStart=0; // 0=from left margin, 1=just along header
 
-    function HorizontalGridLine() {
+    function __construct() {
 	$this->line = new LineProperty();
 	$this->line->SetColor('gray@0.4');
 	$this->line->SetStyle('dashed');
@@ -3095,6 +3106,7 @@ class HorizontalGridLine {
 // CLASS GanttBar
 // Responsible for formatting individual gantt bars
 //===================================================
+#[\AllowDynamicProperties]
 class GanttBar extends GanttPlotObject {
     var $iEnd;
     var $iHeightFactor=0.5;
@@ -3105,8 +3117,8 @@ class GanttBar extends GanttPlotObject {
     var $progress;
 //---------------
 // CONSTRUCTOR	
-    function GanttBar($aPos,$aLabel,$aStart,$aEnd,$aCaption="",$aHeightFactor=0.6) {
-	parent::GanttPlotObject();	
+    function __construct($aPos,$aLabel,$aStart,$aEnd,$aCaption="",$aHeightFactor=0.6) {
+	parent::__construct();
 	$this->iStart = $aStart;	
 	// Is the end date given as a date or as number of days added to start date?
 	if( is_string($aEnd) ) {
@@ -3325,13 +3337,14 @@ class GanttBar extends GanttPlotObject {
 // CLASS MileStone
 // Responsible for formatting individual milestones
 //===================================================
+#[\AllowDynamicProperties]
 class MileStone extends GanttPlotObject {
     var $mark;
 	
 //---------------
 // CONSTRUCTOR	
-    function MileStone($aVPos,$aLabel,$aDate,$aCaption="") {
-	GanttPlotObject::GanttPlotObject();
+    function __construct($aVPos,$aLabel,$aDate,$aCaption="") {
+	parent::__construct();
 	$this->caption->Set($aCaption);
 	$this->caption->Align("left","center");
 	$this->caption->SetFont(FF_FONT1,FS_BOLD);
@@ -3411,18 +3424,20 @@ class MileStone extends GanttPlotObject {
 // Responsible for formatting individual milestones
 //===================================================
 
+#[\AllowDynamicProperties]
 class TextPropertyBelow extends TextProperty {
-    function TextPropertyBelow($aTxt='') {
-	parent::TextProperty($aTxt);
+    function __construct($aTxt='') {
+	parent::__construct($aTxt);
     }
 
-    function GetColWidth($aImg,$margin) {
+    function GetColWidth($aImg,$margin=0) {
 	// Since we are not stroking the title in the columns
 	// but rather under the graph we want this to return 0.
 	return array(0);
     }
 }
 
+#[\AllowDynamicProperties]
 class GanttVLine extends GanttPlotObject {
 
     var $iLine,$title_margin=3;
@@ -3430,8 +3445,8 @@ class GanttVLine extends GanttPlotObject {
 	
 //---------------
 // CONSTRUCTOR	
-    function GanttVLine($aDate,$aTitle="",$aColor="black",$aWeight=3,$aStyle="dashed") {
-	GanttPlotObject::GanttPlotObject();
+    function __construct($aDate,$aTitle="",$aColor="black",$aWeight=3,$aStyle="dashed") {
+	parent::__construct();
 	$this->iLine = new LineProperty();
 	$this->iLine->SetColor($aColor);
 	$this->iLine->SetWeight($aWeight);
@@ -3473,6 +3488,7 @@ class GanttVLine extends GanttPlotObject {
 // CLASS LinkArrow
 // Handles the drawing of a an arrow 
 //===================================================
+#[\AllowDynamicProperties]
 class LinkArrow {
     var $ix,$iy;
     var $isizespec = array(
@@ -3480,7 +3496,7 @@ class LinkArrow {
     var $iDirection=ARROW_DOWN,$iType=ARROWT_SOLID,$iSize=ARROW_S2;
     var $iColor='black';
 
-    function LinkArrow($x,$y,$aDirection,$aType=ARROWT_SOLID,$aSize=ARROW_S2) {
+    function __construct($x,$y,$aDirection,$aType=ARROWT_SOLID,$aSize=ARROW_S2) {
 	$this->iDirection = $aDirection;
 	$this->iType = $aType;
 	$this->iSize = $aSize;
@@ -3543,13 +3559,14 @@ class LinkArrow {
 // Handles the drawing of a link line between 2 points
 //===================================================
 
+#[\AllowDynamicProperties]
 class GanttLink {
     var $ix1,$ix2,$iy1,$iy2;
     var $iPathType=2,$iPathExtend=15;
     var $iColor='black',$iWeight=1;
     var $iArrowSize=ARROW_S2,$iArrowType=ARROWT_SOLID;
 
-    function GanttLink($x1=0,$y1=0,$x2=0,$y2=0) {
+    function __construct($x1=0,$y1=0,$x2=0,$y2=0) {
 	$this->ix1 = $x1;
 	$this->ix2 = $x2;
 	$this->iy1 = $y1;

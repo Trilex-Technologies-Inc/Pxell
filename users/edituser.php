@@ -15,6 +15,24 @@
 $checkSession = true;
 require_once("../includes/library.php");
 
+$id = (string) ($_GET['id'] ?? '');
+$action = (string) ($_GET['action'] ?? '');
+$un = (string) ($_POST['un'] ?? '');
+$unOld = (string) ($_POST['unOld'] ?? '');
+$fn = (string) ($_POST['fn'] ?? '');
+$tit = (string) ($_POST['tit'] ?? '');
+$em = (string) ($_POST['em'] ?? '');
+$wp = (string) ($_POST['wp'] ?? '');
+$hp = (string) ($_POST['hp'] ?? '');
+$mp = (string) ($_POST['mp'] ?? '');
+$fax = (string) ($_POST['fax'] ?? '');
+$c = (string) ($_POST['c'] ?? '');
+$perm = (string) ($_POST['perm'] ?? '2');
+$pw = (string) ($_POST['pw'] ?? '');
+$pwa = (string) ($_POST['pwa'] ?? '');
+$error = '';
+$comptListProjects = 0;
+
 if ($_SESSION['profilSession'] != "0") {
     header("Location: ../general/permissiondenied.php");
     exit;
@@ -26,7 +44,7 @@ if ($id != "") {
         exit;
     }
     // case update user
-    if ($action == "update") {
+    if ($action == "update" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         if ($htaccessAuth == "true") {
             require_once("../includes/htpasswd.class.php");
             $Htpasswd = new Htpasswd;
@@ -157,7 +175,7 @@ if ($id != "") {
 if ($id == "") {
     $checked2 = "checked";
     // case add user
-    if ($action == "add") {
+    if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         if (!preg_match('/^[A-Za-z0-9]+$/', $un)) {
             $error = $strings["alpha_only"];
         } else {

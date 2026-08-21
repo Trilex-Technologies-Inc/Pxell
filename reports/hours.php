@@ -40,18 +40,18 @@ if ($_POST["S_ORSEL"]) {
 	$S_org = "ALL";
 }
 // a date range was selected
-if ($_POST{'S_COMPLETEDATE'} == 'DATERANGE') {
+if ($_POST['S_COMPLETEDATE'] == 'DATERANGE') {
     $dateRange = true; 
     // get the range start date (if given)
-    if ($_POST{'S_SDATE2'}) {
-        $s_sdate2 = $_POST{'S_SDATE2'};
+    if ($_POST['S_SDATE2']) {
+        $s_sdate2 = $_POST['S_SDATE2'];
     } else {
         $s_sdate2 = date("Y-m-d",
             mktime (0, 0, 0, date("m"), "1", date("Y")));
     } 
     // get the range end date
-    if ($_POST{'S_EDATE2'}) {
-        $s_edate2 = $_POST{'S_EDATE2'};
+    if ($_POST['S_EDATE2']) {
+        $s_edate2 = $_POST['S_EDATE2'];
     } else {
         $s_edate2 = date("Y-m-d",
             mktime (0, 0, 0, date("m"), date("d"), date("Y")));
@@ -66,7 +66,7 @@ require_once("../includes/library.php");
 
 //--- header ---
 $breadcrumbs[]=$strings['reports'];
-$breadcrumbs[]=buildLink('../reports/createreport.php?typeReports=create', $strings["create_report"], in) . ' | ' . buildLink('../reports/createreport.php?typeReports=custom', $strings['custom_reports'], LINK_INSIDE);
+$breadcrumbs[]=buildLink('../reports/createreport.php?typeReports=create', $strings["create_report"], LINK_INSIDE) . ' | ' . buildLink('../reports/createreport.php?typeReports=custom', $strings['custom_reports'], LINK_INSIDE);
 
 $pageSection = 'reports';
 require_once("../themes/" . THEME . "/header.php");
@@ -160,7 +160,7 @@ if ($comptListHours != "0") {
         $block1->cellRow($listHours->tim_hours[$i]);
         $block1->closeRow();
         // add to total hours
-        $totalMemHours += $listHours->tim_hours[$i];
+        $totalMemHours += (float) ($listHours->tim_hours[$i] ?? 0);
     }
     // print the totals
     $block1->openRow();

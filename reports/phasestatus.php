@@ -21,7 +21,7 @@ require_once("../includes/library.php");
 
 
 $breadcrumbs[]=$strings['reports'];
-$breadcrumbs[]=buildLink('../reports/createreport.php?typeReports=create', $strings["create_report"], in) . ' | ' . buildLink('../reports/createreport.php?typeReports=custom', $strings['custom_reports'], LINK_INSIDE);
+$breadcrumbs[]=buildLink('../reports/createreport.php?typeReports=create', $strings["create_report"], LINK_INSIDE) . ' | ' . buildLink('../reports/createreport.php?typeReports=custom', $strings['custom_reports'], LINK_INSIDE);
 
 $pageSection = 'reports';
 require_once("../themes/" . THEME . "/header.php");
@@ -123,7 +123,7 @@ if ($comptListProjects != "0") {
                         } 
                     } 
                     // determine overall completion of phase
-                    $phaseCompleted += $countPhaseTasks->tas_completion[$k];
+                    $phaseCompleted += (float) ($countPhaseTasks->tas_completion[$k] ?? 0);
                 } 
                 // calculate overall percentage completion for all task(s) within this phase
                 if ($phaseCompleted > 0) {

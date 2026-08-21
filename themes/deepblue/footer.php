@@ -12,42 +12,57 @@
  * (at your option) any later version.
  */
 
-echo "<p id='footer'>Powered by Pxell http://www.pxell.net v$version";
+echo '<footer id="footer" class="site-footer">';
+echo '<div class="site-footer__main">';
+echo '<span class="site-footer__brand">Powered by <strong>Taskvibe</strong></span>';
+echo '<a class="site-footer__link" href="http://www.taskvibe.net" target="_blank">www.taskvibe.net</a>';
+echo '<span class="site-footer__chip">v' . htmlspecialchars($version) . '</span>';
 
 if ($notLogged != true && $blank != true) {
-    echo ' - Connected users: ' . $connectedUsers;
-} 
+    echo '<span class="site-footer__chip">Connected users: ' . htmlspecialchars($connectedUsers) . '</span>';
+}
 
 if ($footerDev == true) {
     $parse_end = getmicrotime();
     $parse = $parse_end - $parse_start;
     $parse = round($parse, 3);
-    echo " - $parse secondes - databaseType $databaseType - select requests $comptRequest";
-    echo ' - <a href="http://validator.w3.org/check/referer" target="w3c">w3c</a> (in progress)';
-} 
+    echo '<span class="site-footer__chip">' . htmlspecialchars($parse) . ' secondes</span>';
+    echo '<span class="site-footer__chip">databaseType ' . htmlspecialchars($databaseType) . '</span>';
+    echo '<span class="site-footer__chip">select requests ' . htmlspecialchars($comptRequest) . '</span>';
+    echo '<a class="site-footer__link" href="http://validator.w3.org/check/referer" target="w3c">w3c</a>';
+}
 
-echo '</p>'
+echo '</div>';
+echo '</footer>'
 
 ?>
 
 <!-- JavaScript -->
 <script>
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const mobileToggle = document.getElementById('mobileMenuToggle');
+    const content = document.querySelector('.content');
+
     // Toggle sidebar
-    document.getElementById('sidebarToggle').addEventListener('click', function() {
-        document.getElementById('sidebar').classList.toggle('collapsed');
-    });
+    if (sidebar && sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+        });
+    }
 
     // Mobile menu toggle
-    document.getElementById('mobileMenuToggle').addEventListener('click', function() {
-        document.getElementById('sidebar').classList.toggle('active');
-    });
+    if (sidebar && mobileToggle) {
+        mobileToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+    }
 
     // Close sidebar when clicking outside on mobile
     document.addEventListener('click', function(event) {
-        const sidebar = document.getElementById('sidebar');
-        const mobileToggle = document.getElementById('mobileMenuToggle');
-
         if (window.innerWidth <= 992 &&
+            sidebar &&
+            mobileToggle &&
             !sidebar.contains(event.target) &&
             !mobileToggle.contains(event.target)) {
             sidebar.classList.remove('active');
@@ -56,17 +71,15 @@ echo '</p>'
 
     // Adjust content margin on window resize
     window.addEventListener('resize', function() {
-        const sidebar = document.getElementById('sidebar');
-        const content = document.querySelector('.content');
-
-        if (window.innerWidth > 992) {
+        if (window.innerWidth > 992 && sidebar && content) {
             if (sidebar.classList.contains('collapsed')) {
-                content.style.marginLeft = 'calc(70px + 20px)';
+                content.style.marginLeft = 'calc(var(--sidebar-collapsed-width) + var(--content-padding))';
             } else {
-                content.style.marginLeft = 'calc(250px + 20px)';
+                content.style.marginLeft = 'calc(var(--sidebar-width) + var(--content-padding))';
             }
         }
     });
 </script>
 </body>
+
 </html>

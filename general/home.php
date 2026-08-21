@@ -103,11 +103,204 @@ $breadcrumbs[]=$_SESSION['nameSession']);
 */
 
 $pageSection='home';
-$pageTitle= "<span class=type>".$strings['home_of'] ."<br></span><span class=name>".$_SESSION['nameSession']."</span>";
+$pageTitle= "";
 
 require_once('../themes/' . THEME . '/header.php');
 
 //--- content -----------------
+?>
+<style>
+	.home-dashboard {
+		display: grid;
+		gap: 22px;
+	}
+
+	.home-hero {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: 22px;
+		align-items: center;
+		background: #ffffff;
+		border: 1px solid #d9e3ec;
+		border-radius: 8px;
+		box-shadow: 0 12px 36px rgba(34, 49, 72, 0.09);
+		padding: 24px;
+	}
+
+	.home-hero__eyebrow {
+		color: #2f6f6a;
+		font-size: 0.78rem;
+		font-weight: 750;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		margin-bottom: 8px;
+	}
+
+	.home-hero h1 {
+		color: #162033;
+		font-size: 1.95rem;
+		font-weight: 750;
+		letter-spacing: 0;
+		margin: 0 0 10px;
+	}
+
+	.home-hero__meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin: 0;
+		padding: 0;
+	}
+
+	.home-hero__meta span,
+	.home-stat {
+		background: #f6f9fb;
+		border: 1px solid #d9e3ec;
+		border-radius: 999px;
+		color: #526174;
+		font-size: 0.78rem;
+		font-weight: 700;
+		padding: 6px 10px;
+	}
+
+	.home-hero__badge {
+		width: 72px;
+		height: 72px;
+		display: grid;
+		place-items: center;
+		border-radius: 8px;
+		background: #e8f4f4;
+		color: #2f6f6a;
+		font-size: 1.8rem;
+	}
+
+	.home-actions {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+		gap: 12px;
+	}
+
+	.home-action {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		background: #ffffff;
+		border: 1px solid #d9e3ec;
+		border-radius: 8px;
+		box-shadow: 0 10px 28px rgba(34, 49, 72, 0.07);
+		color: #162033;
+		font-weight: 750;
+		min-height: 76px;
+		padding: 14px;
+		text-decoration: none;
+		transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+	}
+
+	.home-action:hover {
+		border-color: #b7c6d5;
+		box-shadow: 0 16px 34px rgba(34, 49, 72, 0.12);
+		color: #162033;
+		text-decoration: none;
+		transform: translateY(-2px);
+	}
+
+	.home-action i {
+		width: 42px;
+		height: 42px;
+		display: grid;
+		place-items: center;
+		flex: 0 0 auto;
+		border-radius: 8px;
+		background: #e8f0f7;
+		color: #164773;
+	}
+
+	.home-modules {
+		display: grid;
+		gap: 16px;
+	}
+
+	.home-modules form {
+		min-width: 0;
+	}
+
+	.home-modules .card {
+		margin-bottom: 0 !important;
+	}
+
+	.home-modules .card-header {
+		align-items: center;
+		min-height: 54px;
+	}
+
+	.home-modules .card-header h5 {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.home-modules .card-header .addition {
+		background: #e8f4f4;
+		border-radius: 999px;
+		color: #2f6f6a !important;
+		display: inline-flex;
+		font-size: 0.76rem;
+		font-weight: 750;
+		line-height: 1;
+		padding: 5px 8px;
+	}
+
+	.home-modules .btn-group img {
+		border-radius: 6px;
+		transition: transform 0.2s, box-shadow 0.2s;
+	}
+
+	.home-modules .btn-group a:hover img {
+		box-shadow: 0 6px 14px rgba(34, 49, 72, 0.14);
+		transform: translateY(-1px);
+	}
+
+	@media (max-width: 720px) {
+		.home-hero {
+			grid-template-columns: 1fr;
+			padding: 20px;
+		}
+
+		.home-hero__badge {
+			width: 56px;
+			height: 56px;
+			font-size: 1.35rem;
+		}
+	}
+</style>
+
+<div class="home-dashboard">
+	<section class="home-hero">
+		<div>
+			<div class="home-hero__eyebrow"><?php echo $strings['home_of']; ?></div>
+			<h1><?php echo htmlspecialchars($_SESSION['nameSession']); ?></h1>
+			<div class="home-hero__meta" aria-label="Home status">
+				<span><?php echo htmlspecialchars($_SESSION['loginSession']); ?></span>
+				<span><?php echo htmlspecialchars($_SESSION['dateSession']); ?></span>
+				<?php if ($_SESSION['lastvisiteSession'] != '') { ?>
+					<span><?php echo createDate($_SESSION['lastvisiteSession'], $_SESSION['timezoneSession']); ?></span>
+				<?php } ?>
+			</div>
+		</div>
+		<div class="home-hero__badge" aria-hidden="true">
+			<i class="fa fa-house"></i>
+		</div>
+	</section>
+
+	<section class="home-actions" aria-label="Quick actions">
+		<a class="home-action" href="../projects/listprojects.php"><i class="fa fa-briefcase"></i><?php echo $strings['projects']; ?></a>
+		<a class="home-action" href="../tasks/listtasks.php"><i class="fa fa-list-check"></i><?php echo $strings['tasks']; ?></a>
+		<a class="home-action" href="../calendar/viewcalendar.php"><i class="fa fa-calendar-days"></i><?php echo $strings['calendar']; ?></a>
+		<a class="home-action" href="../reports/listreports.php"><i class="fa fa-chart-line"></i><?php echo $strings['reports']; ?></a>
+	</section>
+
+	<div class="home-modules">
+<?php
 
 //--- bookmarks ----------------------------------
 {
@@ -157,7 +350,7 @@ require_once('../themes/' . THEME . '/header.php');
 	        for ($i = 0;$i < $comptListBookmarks;$i++) {
 	            $block6->openRow($listBookmarks->boo_id[$i]);
 	            $block6->checkboxRow($listBookmarks->boo_id[$i]);
-	            $block6->cellRow(buildLink("../bookmarks/viewbookmark.php?view=$view&amp;id=" . $listBookmarks->boo_id[$i], $listBookmarks->boo_name[$i], in) . ' ' . buildLink($listBookmarks->boo_url[$i], "(" . $strings["url"] . ")", LINK_OUT));
+	            $block6->cellRow(buildLink("../bookmarks/viewbookmark.php?view=$view&amp;id=" . $listBookmarks->boo_id[$i], $listBookmarks->boo_name[$i], LINK_INSIDE) . ' ' . buildLink($listBookmarks->boo_url[$i], "(" . $strings["url"] . ")", LINK_OUT));
 	            $block6->cellRow($listBookmarks->boo_boocat_name[$i]);
 
 	            if ($listBookmarks->boo_shared[$i] == "1") {
@@ -844,6 +1037,11 @@ require_once('../themes/' . THEME . '/header.php');
 	$block4->paletteScript(2, "info", "../reports/resultsreport.php", "false,true,true", $strings["view"]);
 	$block4->closePaletteScript($comptListReports, $listReports->rep_id);
 }
+
+?>
+	</div>
+</div>
+<?php
 
 require_once("../themes/" . THEME . "/footer.php");
 

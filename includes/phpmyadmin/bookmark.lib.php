@@ -59,15 +59,15 @@ if (!defined('PMA_BOOKMARK_LIB_INCLUDED')){
                 . ' WHERE dbase = \'' . PMA_sqlAddslashes($db) . '\''
                 . ' AND user = \'' . PMA_sqlAddslashes($cfgBookmark['user']) . '\'';
         if (isset($GLOBALS['dbh'])) {
-            $result = mysql_query($query, $GLOBALS['dbh']);
+            $result = mysqli_query($GLOBALS['dbh'], $query);
         } else {
-            $result = mysql_query($query);
+            $result = mysqli_query($GLOBALS['userlink'], $query);
         }
 
         // There is some bookmarks -> store them
-        if ($result > 0 && mysql_num_rows($result) > 0) {
+        if ($result > 0 && mysqli_num_rows($result) > 0) {
             $flag = 1;
-            while ($row = mysql_fetch_row($result)) {
+            while ($row = mysqli_fetch_row($result)) {
                 $bookmark_list[$flag . ' - ' . $row[0]] = $row[1];
                 $flag++;
             } // end while
@@ -98,11 +98,12 @@ if (!defined('PMA_BOOKMARK_LIB_INCLUDED')){
                         . ' AND user = \'' . PMA_sqlAddslashes($cfgBookmark['user']) . '\''
                         . ' AND id = ' . $id;
         if (isset($GLOBALS['dbh'])) {
-            $result = mysql_query($query, $GLOBALS['dbh']);
+            $result = mysqli_query($GLOBALS['dbh'], $query);
         } else {
-            $result = mysql_query($query);
+            $result = mysqli_query($GLOBALS['userlink'], $query);
         }
-        $bookmark_query = mysql_result($result, 0, 'query');
+        $bk_row = mysqli_fetch_assoc($result);
+        $bookmark_query = $bk_row ? $bk_row['query'] : '';
 
         return $bookmark_query;
     } // end of the 'PMA_queryBookmarks()' function
@@ -121,9 +122,9 @@ if (!defined('PMA_BOOKMARK_LIB_INCLUDED')){
         $query = 'INSERT INTO ' . PMA_backquote($cfgBookmark['db']) . '.' . PMA_backquote($cfgBookmark['table'])
                . ' (id, dbase, user, query, label) VALUES (\'\', \'' . PMA_sqlAddslashes($fields['dbase']) . '\', \'' . PMA_sqlAddslashes($fields['user']) . '\', \'' . PMA_sqlAddslashes(urldecode($fields['query'])) . '\', \'' . PMA_sqlAddslashes($fields['label']) . '\')';
         if (isset($GLOBALS['dbh'])) {
-            $result = mysql_query($query, $GLOBALS['dbh']);
+            $result = mysqli_query($GLOBALS['dbh'], $query);
         } else {
-            $result = mysql_query($query);
+            $result = mysqli_query($GLOBALS['userlink'], $query);
         }
     } // end of the 'PMA_addBookmarks()' function
 
@@ -143,9 +144,9 @@ if (!defined('PMA_BOOKMARK_LIB_INCLUDED')){
                 . ' WHERE user = \'' . PMA_sqlAddslashes($cfgBookmark['user']) . '\''
                 . ' AND id = ' . $id;
         if (isset($GLOBALS['dbh'])) {
-            $result = mysql_query($query, $GLOBALS['dbh']);
+            $result = mysqli_query($GLOBALS['dbh'], $query);
         } else {
-            $result = mysql_query($query);
+            $result = mysqli_query($GLOBALS['userlink'], $query);
         }
     } // end of the 'PMA_deleteBookmarks()' function
 

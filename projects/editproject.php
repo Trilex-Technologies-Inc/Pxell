@@ -15,23 +15,30 @@
 $checkSession = true;
 require_once('../includes/library.php');
 
-#$id = $_REQUEST['id'];
-#$msg = $_REQUEST['msg'];
-#$cpy = $_REQUEST['cpy'];
-#$action = $_REQUEST['action'];
-#$project = $_REQUEST['project'];
-
-$pn = $_POST['pn'];
-$pr = $_POST['pr'];
-$d = $_POST['d'];
-$url_dev = $_POST['url_dev'];
-$url_prod = $_POST['url_prod'];
-$pown = $_POST['pown'];
-$clod = $_POST['clod'];
-$thisPhase = $_POST['thisPhase'];
-$st = $_POST['st'];
-$pt = $_POST['pt'];
-$up = $_POST['up'];
+// Explicit request defaults replace this legacy page's register_globals
+// assumptions and make both the initial add form and edit form valid on PHP 8.
+$requestedId = (string) ($_GET['id'] ?? '');
+$id = ($requestedId === '' || ctype_digit($requestedId)) ? $requestedId : '';
+$requestedAction = (string) ($_GET['action'] ?? '');
+$action = in_array($requestedAction, array('add', 'update'), true) ? $requestedAction : '';
+$cpy = ($_GET['cpy'] ?? '') === 'true' ? 'true' : 'false';
+$requestedOrganization = (string) ($_GET['organization'] ?? '');
+$organization = ctype_digit($requestedOrganization) ? $requestedOrganization : '';
+$pn = (string) ($_POST['pn'] ?? '');
+$pr = (string) ($_POST['pr'] ?? '3');
+$d = (string) ($_POST['d'] ?? '');
+$url_dev = (string) ($_POST['url_dev'] ?? '');
+$url_prod = (string) ($_POST['url_prod'] ?? '');
+$pown = (string) ($_POST['pown'] ?? ($_SESSION['idSession'] ?? ''));
+$clod = (string) ($_POST['clod'] ?? ($organization !== '' ? $organization : '1'));
+$thisPhase = (string) ($_POST['thisPhase'] ?? '0');
+$st = (string) ($_POST['st'] ?? '2');
+$pt = (string) ($_POST['pt'] ?? '0');
+$up = (string) ($_POST['up'] ?? ($maxFileSize ?? ''));
+$projectPublished = (string) ($_POST['projectPublished'] ?? '1');
+$error = '';
+$membersTeam = '';
+$projectDetail = new request();
 
 if ($htaccessAuth == 'true') {
     require_once('../includes/htpasswd.class.php');
@@ -51,12 +58,11 @@ if ($id != '') {
 
     // test exists selected project, redirect to list if not
     $tmpquery = "WHERE pro.id = '$id'";
-    $projectDetail = new request();
     $projectDetail->openProjects($tmpquery);
     $comptProjectDetail = count($projectDetail->pro_id);
 
     if ($comptProjectDetail == '0') {
-        header('Location: ../projects/listprojects.php?msg=blankProject');
+        header('Location: ../projects/listprojects.php?msg=blankProject&reason=id_not_found');
         exit;
     }
 
@@ -66,9 +72,9 @@ if ($id != '') {
     }
 
     // case update or copy project
-    if ($action == 'update') {
+    if ($action == 'update' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         // replace quotes by html code in name and description
-        $pn = convertData($_POST['pn']);
+        $pn = convertData($pn);
         $d = convertData($d);
         // case copy project
         if ($cpy == 'true') {
@@ -296,18 +302,18 @@ if ($id == '') {
         header('Location: ../projects/listprojects.php');
         exit;
     }
-    // set organization if add project action done from clientdetail
-    if ($organization != '') {
-        $projectDetail->pro_org_id[0] = $organization;
-    }
-    // set default values
-    $projectDetail->pro_mem_id[0] = $_SESSION['idSession'];
-    $projectDetail->pro_priority[0] = 3;
-
-    $projectDetail->pro_status[0] = 2;
-    $projectDetail->pro_upload_max[0] = $maxFileSize;
+    // Build the same shape that openProjects() provides in edit mode. The old
+    // code attempted to write these properties on null, causing the fatal at
+    // line 304 whenever the add-project page was opened.
+    $projectDetail->pro_org_id = array($clod);
+    $projectDetail->pro_mem_id = array($pown);
+    $projectDetail->pro_priority = array($pr);
+    $projectDetail->pro_status = array($st);
+    $projectDetail->pro_upload_max = array($up);
+    $projectDetail->pro_phase_set = array($thisPhase);
+    $projectDetail->pro_type = array($pt);
     // case add project
-    if ($action == 'add') {
+    if ($action == 'add' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 
         // replace quotes by html code in name and description
         $pn = convertData($pn);
@@ -319,9 +325,19 @@ if ($id == '') {
         connectSql($tmpquery1);
 
         $tmpquery = $tableCollab['projects'];
-        last_id($tmpquery);
-        $num = $lastId[0];
+        $lastIds = last_id($tmpquery);
+        if (empty($lastIds)) {
+            $error = 'The project could not be created because the database did not return a new project ID.';
+        } else {
+            $num = $lastIds[0];
+        }
         unset($lastId);
+
+        if ($error !== '') {
+            // Do not create team, repository, or phase records without a
+            // verified project ID.
+            goto renderProjectForm;
+        }
 
         $tmpquery2 = 'INSERT INTO ' . $tableCollab['teams'] . "(project,member,published,authorized) VALUES('$num','$pown','1','0')";
         connectSql($tmpquery2);
@@ -380,6 +396,7 @@ STAMP;
 
 
 //--- header ---------
+renderProjectForm:
 $breadcrumbs[]=buildLink('../projects/listprojects.php', $strings['projects'], LINK_INSIDE);
 // case add project
 if ($id == '') {

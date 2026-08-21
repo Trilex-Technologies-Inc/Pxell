@@ -65,7 +65,7 @@ $displayname = $fileDetail->mat_name[0];
 
 // ---------------------------------------------------------------------------------------------------
 // Update file code
-if ($action == "update") {
+if ($action == "update" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if ($maxCustom != "") {
         $maxFileSize = $maxCustom;
     }
@@ -136,7 +136,7 @@ if ($action == "update") {
         $extension = strtolower(strrev($tab[0]));
     }
 
-    $newversion = $fileDetail->mat_vc_version[0] + $change_file_version;
+    $newversion = (int) ($fileDetail->mat_vc_version[0] ?? 0) + (int) $change_file_version;
     if ($cpy == "true") {
         $name = $upload_name;
         $tmpquery = "UPDATE " . $tableCollab["meetings_attachment"] . " SET date='$dateheure',size='$size',comments='$c',comments_approval='',approver='',date_approval='',status='$statusField',vc_version='$newversion' WHERE id = '$id'";
@@ -147,7 +147,7 @@ if ($action == "update") {
 }
 // ---------------------------------------------------------------------------------------------------
 // Add new revision code
-if ($action == "add") {
+if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if ($maxCustom != "") {
         $maxFileSize = $maxCustom;
     }

@@ -12,6 +12,7 @@
  * (at your option) any later version.
  */
 
+#[\AllowDynamicProperties]
 class htmltextsystem {
     function clear_repeats($text)
     {
@@ -63,6 +64,8 @@ class htmltextsystem {
     {
         if ($secs < 2) return "very little time";
         $intern = array();
+        $breaks = array();
+        $year = $month = $week = $day = $hour = $minute = $second = 0;
         $desc = array(1 => 'second',
             60 => 'minute',
             3600 => 'hour',
@@ -70,10 +73,9 @@ class htmltextsystem {
             604800 => 'week',
             2628000 => 'month',
             31536000 => 'year');
-        while (list($k, $s) = each($desc)) {
+        foreach ($desc as $k => $s) {
             $breaks[] = $k;
-            $$s = 0;
-        } 
+        }
         sort($breaks);
 
         $i = 0;
@@ -83,12 +85,12 @@ class htmltextsystem {
         $i--;
         $break = $breaks[$i];
 
-        $$desc[$break] = intval($secs / $break);
+        ${$desc[$break]} = intval($secs / $break);
         if ($i > 0) {
             $rest = $secs % $break;
             $break = $breaks[--$i];
             if ($rest > 0) {
-                $$desc[$break] = intval($rest / $break);
+                ${$desc[$break]} = intval($rest / $break);
             } 
         } 
         $retval = $formatstring;

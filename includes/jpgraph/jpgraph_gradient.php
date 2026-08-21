@@ -29,12 +29,13 @@ DEFINE("GRAD_RAISED_PANEL",10);
 // Description: Handles gradient fills. This is to be
 // considered a "friend" class of Class Image.
 //===================================================
+#[\AllowDynamicProperties]
 class Gradient {
     var $img=null;
     var $numcolors=100;
 //---------------
 // CONSTRUCTOR
-    function Gradient(&$img) {
+    function __construct(&$img) {
 	$this->img = $img;
     }
 

@@ -129,8 +129,8 @@
 
 		$t_adm = ADMINISTRATOR;
 		$t_rep = REPORTER;
-		$t_pub = PUBLIC;
-		$t_prv = PRIVATE;
+		$t_pub = MANTIS_PUBLIC;
+		$t_prv = MANTIS_PRIVATE;
 		$user_arr = array();
 
 		# checking if it's per project or all projects
@@ -180,7 +180,7 @@
 
 				# see if users belong
 				$t_project_view_state = get_project_field( $g_project_cookie_val, "view_state" );
-				if ( PUBLIC == $t_project_view_state ) {
+				if ( MANTIS_PUBLIC == $t_project_view_state ) {
 					$query = "SELECT l.access_level
 							FROM	$g_mantis_project_user_list_table l,
 									$g_mantis_project_table p
@@ -294,8 +294,8 @@
 
 		$t_adm = ADMINISTRATOR;
 		$t_dev = DEVELOPER;
-		$t_pub = PUBLIC;
-		$t_prv = PRIVATE;
+		$t_pub = MANTIS_PUBLIC;
+		$t_prv = MANTIS_PRIVATE;
 		$user_arr = array();
 
 		# checking if it's per project or all projects
@@ -345,7 +345,7 @@
 
 				# see if users belong
 				$t_project_view_state = get_project_field( $g_project_cookie_val, "view_state" );
-				if ( PUBLIC == $t_project_view_state ) {
+				if ( MANTIS_PUBLIC == $t_project_view_state ) {
 					$query = "SELECT l.access_level
 							FROM	$g_mantis_project_user_list_table l,
 									$g_mantis_project_table p
@@ -399,8 +399,8 @@
 		$t_user_id = get_current_user_field( "id" );
 		$t_access_level = get_current_user_field( "access_level" );
 
-		$t_pub = PUBLIC;
-		$t_prv = PRIVATE;
+		$t_pub = MANTIS_PUBLIC;
+		$t_prv = MANTIS_PRIVATE;
 
 		if ( ADMINISTRATOR == $t_access_level ) {
 			$query = "SELECT DISTINCT( p.id ), p.name
@@ -722,7 +722,7 @@
 	function print_project_user_list_option_list2( $p_user_id ) {
 		global	$g_mantis_project_user_list_table, $g_mantis_project_table;
 
-		$t_prv = PRIVATE;
+		$t_prv = MANTIS_PRIVATE;
 		$query = "SELECT DISTINCT p.id, p.name
 				FROM $g_mantis_project_table p
 				LEFT JOIN $g_mantis_project_user_list_table u
@@ -1040,7 +1040,7 @@
 	function print_sql_error( $p_query ) {
 		global $MANTIS_ERROR, $g_administrator_email, $s_administrator;
 
-		PRINT $MANTIS_ERROR[ERROR_SQL];
+		PRINT $MANTIS_ERROR[ERROR_SQL] ?? 'Database error';
 		print_email_link( $g_administrator_email, $s_administrator );
 		PRINT "<p>$p_query;<p>";
 	}
@@ -1051,10 +1051,10 @@
 	# --------------------
 	# make http and mailto link urls
 	function filter_href_tags( $p_string ) {
-    	$p_string = eregi_replace( "([[:alnum:]]+)://([^[:space:]]*)([[:alnum:]#?/&=])",
+		$p_string = preg_replace( "/([[:alnum:]]+):\/\/([^[:space:]]*)([[:alnum:]#?\/&=])/i",
     							"<a href=\"\\1://\\2\\3\">\\1://\\2\\3</a>",
     							$p_string);
-        $p_string = eregi_replace( "(([a-z0-9_]|\\-|\\.)+@([^[:space:]]*)([[:alnum:]-]))",
+        $p_string = preg_replace( "/(([a-z0-9_]|\\-|\\.)+@([^[:space:]]*)([[:alnum:]-]))/i",
         						"<a href=\"mailto:\\1\" target=\"_new\">\\1</a>",
         						$p_string);
 		return $p_string;
@@ -1062,10 +1062,10 @@
 	# --------------------
 	# undo http and mailto link urls for editing purposes
 	function unfilter_href_tags( $p_string ) {
-    	$p_string = eregi_replace( "<a href=\"([[:alnum:]]+)://([^[:space:]]*)([[:alnum:]#?/&=])\">([^[:space:]]*)([[:alnum:]#?/&=])</a>",
+		$p_string = preg_replace( "/<a href=\"([[:alnum:]]+):\/\/([^[:space:]]*)([[:alnum:]#?\/&=])\">([^[:space:]]*)([[:alnum:]#?\/&=])<\/a>/i",
     							"\\1://\\2\\3",
     							$p_string);
-        $p_string = eregi_replace( "<a href=\"mailto:(([a-z0-9_]|\\-|\\.)+@([^[:space:]]*)([[:alnum:]-]))\" target=\"_new\">(([a-z0-9_]|\\-|\\.)+@([^[:space:]]*)([[:alnum:]-]))</a>",
+        $p_string = preg_replace( "/<a href=\"mailto:(([a-z0-9_]|\\-|\\.)+@([^[:space:]]*)([[:alnum:]-]))\" target=\"_new\">(([a-z0-9_]|\\-|\\.)+@([^[:space:]]*)([[:alnum:]-]))<\/a>/i",
         						"\\1",
         						$p_string);
 		return $p_string;
@@ -1219,16 +1219,16 @@
 	if ( !function_exists( "wordwrap" ) ) {
 		function wordwrap ($string, $cols = 72, $prefix = "") {
 
-			$t_lines = split( "\n", $string);
+			$t_lines = explode( "\n", $string);
 			$outlines = "";
 
-			while(list(, $thisline) = each($t_lines)) {
+			foreach ($t_lines as $thisline) {
 				if(strlen($thisline) > $cols) {
 
 					$newline = "";
-					$t_l_lines = split(" ", $thisline);
+					$t_l_lines = explode(" ", $thisline);
 
-					while(list(, $thisword) = each($t_l_lines)) {
+					foreach ($t_l_lines as $thisword) {
 						while((strlen($thisword) + strlen($prefix)) > $cols) {
 							$cur_pos = 0;
 							$outlines .= $prefix;
@@ -1248,13 +1248,13 @@
 						} else {
 							$newline .= $thisword." ";
 						}
-					}  # end while
+					}  # end foreach
 
 					$outlines .= $prefix.$newline."\n";
 			    } else {
 					$outlines .= $prefix.$thisline."\n";
 				}
-			} # end outermost while
+			} # end outermost foreach
 			return $outlines;
 		}
 	}

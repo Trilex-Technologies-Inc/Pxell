@@ -18,25 +18,30 @@ require_once('../languages/help_en.php');
 
 define("INSTALL", true);
 
-$step = $_REQUEST['step'];
-$connexion = $_REQUEST['connexion'];
-$redirect = $_REQUEST['redirect'];
-$action = $_REQUEST['action'];
-$updatechecker = $_REQUEST['updatechecker'];
-$installationType = $_REQUEST['installationType'];
-$databaseType = $_REQUEST['databaseType'];
-$myserver = $_REQUEST['myserver'];
-$mylogin = $_REQUEST['mylogin'];
-$mypassword = $_REQUEST['mypassword'];
-$mydatabase = $_REQUEST['mydatabase'];
-$myprefix = $_REQUEST['myprefix'];
-$mkdirMethod = $_REQUEST['mkdirMethod'];
-$notifications = $_REQUEST['notifications'];
-$forcedlogin = $_REQUEST['forcedlogin'];
-$langdefault = $_REQUEST['langdefault'];
-$root = $_REQUEST['root'];
-$loginMethod = $_REQUEST['loginMethod'];
-$adminPwd = $_REQUEST['adminPwd'];
+$step = $_REQUEST['step'] ?? '';
+$connexion = $_REQUEST['connexion'] ?? '';
+$redirect = $_REQUEST['redirect'] ?? '';
+$action = $_REQUEST['action'] ?? '';
+$updatechecker = $_REQUEST['updatechecker'] ?? '';
+$installationType = $_REQUEST['installationType'] ?? '';
+$databaseType = $_REQUEST['databaseType'] ?? '';
+$myserver = $_REQUEST['myserver'] ?? '';
+$mylogin = $_REQUEST['mylogin'] ?? '';
+$mypassword = $_REQUEST['mypassword'] ?? '';
+$mydatabase = $_REQUEST['mydatabase'] ?? '';
+$myprefix = $_REQUEST['myprefix'] ?? '';
+$mkdirMethod = $_REQUEST['mkdirMethod'] ?? '';
+$notifications = $_REQUEST['notifications'] ?? '';
+$forcedlogin = $_REQUEST['forcedlogin'] ?? '';
+$langdefault = $_REQUEST['langdefault'] ?? '';
+$root = $_REQUEST['root'] ?? '';
+$loginMethod = $_REQUEST['loginMethod'] ?? '';
+$adminPwd = $_REQUEST['adminPwd'] ?? '';
+$ftpserver = $_REQUEST['ftpserver'] ?? '';
+$ftplogin = $_REQUEST['ftplogin'] ?? '';
+$ftppassword = $_REQUEST['ftppassword'] ?? '';
+$ftpRoot = $_REQUEST['ftpRoot'] ?? '';
+$error = '';
 $cryptKey = get_crypt_key();
 $basedir = preg_replace('/installation$/i', '', str_replace('\\', '/', dirname(__FILE__)), 1);
 
@@ -52,7 +57,7 @@ if (substr($ftpRoot, -1) == '/') {
     $ftpRoot = substr($ftpRoot, 0, -1);
 }
 
-$version = '2.7.1B';
+$version = '3.0B';
 
 $dateheure = date("Y-m-d H:i");
 
@@ -211,9 +216,17 @@ if ($step == "2") {
     $block1->form = "settings";
     $block1->openForm("../installation/setup.php?action=generate&amp;step=3");
 
+    $installCheckOffline = '';
+    $installCheckOnline = '';
+    $dbCheckMysql = '';
+    $checked1_a = '';
+    $checked2_a = '';
+    $checked1_b = '';
+    $checked2_b = '';
+
     if ($connexion == "off") {
         echo "<input value=\"false\" name=\"updatechecker\" type=\"hidden\">";
-    } else if (@join('', file("http://netoffice.sourceforge.net/version.txt"))) {
+    } else if (is_readable(dirname(__DIR__) . '/version.txt')) {
         echo "<input value=\"true\" name=\"updatechecker\" type=\"hidden\">";
     } else {
         echo "<input value=\"false\" name=\"updatechecker\" type=\"hidden\">";
@@ -268,7 +281,7 @@ if ($step == "2") {
         <input type="text" class="form-control" id="myprefix" name="myprefix" value="' . htmlspecialchars($myprefix) . '" maxlength="100">
     </div>';
 
-    $safemodeTest = ini_get(safe_mode);
+    $safemodeTest = ini_get('safe_mode');
     if ($safemodeTest == "1") {
         $checked1_a = "checked"; //false
         $safemode = "on";
@@ -381,16 +394,21 @@ if ($step == "2") {
         </select>
     </div>';
 
-    $url = $_SERVER['SERVER_NAME'];
-    if ($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) {
-        $url .= ":" . $_SERVER['SERVER_PORT'];
+    $serverName = $_SERVER['SERVER_NAME'] ?? 'localhost';
+    $serverPort = (int) ($_SERVER['SERVER_PORT'] ?? 80);
+    $httpsEnabled = strtolower((string) ($_SERVER['HTTPS'] ?? 'off')) === 'on';
+    $scriptName = $_SERVER['PHP_SELF'] ?? '/installation/setup.php';
+
+    $url = $serverName;
+    if ($serverPort !== 80 && $serverPort !== 443) {
+        $url .= ":" . $serverPort;
     } 
-    if ($_SERVER['HTTPS'] == "on") {
+    if ($httpsEnabled) {
         $protocol = "https://";
     } else {
         $protocol = "http://";
     } 
-    $root = $protocol . $url . dirname($_SERVER['PHP_SELF']);
+    $root = $protocol . $url . dirname($scriptName);
     $root = str_replace("installation", "", $root);
 
     echo '<div class="mb-3">
@@ -427,7 +445,7 @@ if ($step == "3") {
     $block1->openContent();
     $block1->contentTitle("&nbsp;");
 
-    echo '<div class="alert alert-info">' . htmlspecialchars($msg) . '</div>';
+    echo '<div class="alert alert-info">' . $msg . '</div>';
     $block1->closeContent();
 } 
 $block1->headingForm_close();
@@ -460,12 +478,12 @@ function get_password($newPassword)
     global $loginMethod;
 
     switch ($loginMethod) {
-        case MD5:
+        case 'MD5':
             return md5($newPassword);
-        case CRYPT:
+        case 'CRYPT':
             $salt = substr($newPassword, 0, 2);
             return crypt($newPassword, $salt);
-        case PLAIN:
+        case 'PLAIN':
             return $newPassword;
         default:
             return $newPassword;

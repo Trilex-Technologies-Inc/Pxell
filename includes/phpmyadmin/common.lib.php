@@ -212,7 +212,7 @@ if (!defined('PMA_COMMON_LIB_INCLUDED')){
                           $is_modify_link = TRUE, $back_url = '')
     {
         if (!$error_message) {
-            $error_message = mysql_error();
+            $error_message = isset($GLOBALS['userlink']) ? mysqli_error($GLOBALS['userlink']) : '';
         }
         if (!$the_query && !empty($GLOBALS['sql_query'])) {
             $the_query = $GLOBALS['sql_query'];
@@ -224,7 +224,7 @@ if (!defined('PMA_COMMON_LIB_INCLUDED')){
         // username/password
         if (!empty($the_query) && !strstr($the_query, 'connect')) {
             $query_base = htmlspecialchars($the_query);
-            $query_base = ereg_replace("((\015\012)|(\015)|(\012)){3,}", "\n\n", $query_base);
+            $query_base = preg_replace("/((\015\012)|(\015)|(\012)){3,}/", "\n\n", $query_base);
             echo '<p>' . "\n";
             echo '    ' . $GLOBALS['strSQLQuery'] . '&nbsp;:&nbsp;' . "\n";
             if ($is_modify_link) {
@@ -237,7 +237,7 @@ if (!defined('PMA_COMMON_LIB_INCLUDED')){
         } // end if
         if (!empty($error_message)) {
             $error_message = htmlspecialchars($error_message);
-            $error_message = ereg_replace("((\015\012)|(\015)|(\012)){3,}", "\n\n", $error_message);
+            $error_message = preg_replace("/((\015\012)|(\015)|(\012)){3,}/", "\n\n", $error_message);
         }
         echo '<p>' . "\n";
         echo '    ' . $GLOBALS['strMySQLSaid'] . '<br />' . "\n";
@@ -264,7 +264,7 @@ if (!defined('PMA_COMMON_LIB_INCLUDED')){
      *
      * @access  public
      */
-    function PMA_isInto($toFind = '', &$in)
+    function PMA_isInto($toFind, &$in)
     {
         $max = count($in);
         for ($i = 0; $i < $max && ($toFind != $in[$i]); $i++) {
@@ -276,9 +276,9 @@ if (!defined('PMA_COMMON_LIB_INCLUDED')){
 
 
     /**
-     * Use mysql_connect() or mysql_pconnect()?
+     * Use mysqli_connect() or persistent mysqli_connect()?
      */
-    $connect_func = ($cfgPersistentConnections) ? 'mysql_pconnect' : 'mysql_connect';
+    $pma_persistent = ($cfgPersistentConnections) ? true : false;
     $dblist       = array();
 
 
@@ -286,7 +286,7 @@ if (!defined('PMA_COMMON_LIB_INCLUDED')){
      * Gets the valid servers list and parameters
      */
     reset($cfgServers);
-    while (list($key, $val) = each($cfgServers)) {
+    foreach ($cfgServers as $key => $val) {
         // Don't use servers with no hostname
         if (empty($val['host'])) {
             unset($cfgServers[$key]);
@@ -361,40 +361,23 @@ if (!defined('PMA_COMMON_LIB_INCLUDED')){
         // must be open after this one so it would be default one for all the
         // scripts)
         if ($cfgServer['stduser'] != '') {
-            $dbh           = @$connect_func(
-                                 $cfgServer['host'] . $server_port . $server_socket,
-                                 $cfgServer['stduser'],
-                                 $cfgServer['stdpass']
-                             );
+            $pma_host = ($pma_persistent ? 'p:' : '') . $cfgServer['host'];
+            $pma_port = empty($cfgServer['port']) ? 3306 : (int)$cfgServer['port'];
+            $dbh = @mysqli_connect($pma_host, $cfgServer['stduser'], $cfgServer['stdpass'], '', $pma_port);
             if ($dbh == FALSE) {
-                if (mysql_error()) {
-                    $conn_error = mysql_error();
-                } else if (isset($php_errormsg)) {
-                    $conn_error = $php_errormsg;
-                } else {
-                    $conn_error = 'Cannot connect: invalid settings.';
-                }
-                $local_query    = $connect_func . '('
-                                . $cfgServer['host'] . $server_port . $server_socket . ', '
-                                . $cfgServer['stduser'] . ', '
-                                . $cfgServer['stdpass'] . ')';
+                $conn_error = mysqli_connect_error() ?: (isset($php_errormsg) ? $php_errormsg : 'Cannot connect: invalid settings.');
+                $local_query = 'mysqli_connect(' . $cfgServer['host'] . $server_port . ', ' . $cfgServer['stduser'] . ', ***)';
                 PMA_mysqlDie($conn_error, $local_query, FALSE);
             } // end if
         } // end if
 
         // Connects to the server (validates user's login)
-        $userlink      = @$connect_func(
-                             $cfgServer['host'] . $server_port . $server_socket,
-                             $cfgServer['user'],
-                             $cfgServer['password']
-                         );
+        $pma_host = ($pma_persistent ? 'p:' : '') . $cfgServer['host'];
+        $pma_port = empty($cfgServer['port']) ? 3306 : (int)$cfgServer['port'];
+        $userlink = @mysqli_connect($pma_host, $cfgServer['user'], $cfgServer['password'], '', $pma_port);
         if ($userlink == FALSE) {
             PMA_auth_fails();
         } // end if
-
-        if (PMA_PHP_INT_VERSION >= 40000) {
-            @ini_set('track_errors', $bkp_track_err);
-        }
 
         // If stduser isn't defined, use the current user settings to get his
         // rights
@@ -409,24 +392,20 @@ if (!defined('PMA_COMMON_LIB_INCLUDED')){
             $true_dblist  = array();
             $is_show_dbs  = TRUE;
             for ($i = 0; $i < $dblist_cnt; $i++) {
-                if ($is_show_dbs && ereg('(^|[^\])(_|%)', $dblist[$i])) {
+                if ($is_show_dbs && preg_match('/(^|[^\\\\])(_|%)/', $dblist[$i])) {
                     $local_query = 'SHOW DATABASES LIKE \'' . $dblist[$i] . '\'';
-                    $rs          = mysql_query($local_query, $dbh);
+                    $rs          = mysqli_query($dbh, $local_query);
                     // "SHOW DATABASES" statement is disabled
                     if ($i == 0
-                        && (mysql_error() && mysql_errno() == 1045)) {
+                        && (mysqli_error($dbh) && mysqli_errno($dbh) == 1045)) {
                         $true_dblist[] = str_replace('\\_', '_', str_replace('\\%', '%', $dblist[$i]));
                         $is_show_dbs   = FALSE;
                     }
-                    // Debug
-                    // else if (mysql_error()) {
-                    //    PMA_mysqlDie('', $local_query, FALSE);
-                    // }
-                    while ($row = @mysql_fetch_row($rs)) {
+                    while ($row = @mysqli_fetch_row($rs)) {
                         $true_dblist[] = $row[0];
                     } // end while
                     if ($rs) {
-                        mysql_free_result($rs);
+                        mysqli_free_result($rs);
                     }
                 } else {
                     $true_dblist[]     = str_replace('\\_', '_', str_replace('\\%', '%', $dblist[$i]));
@@ -442,97 +421,71 @@ if (!defined('PMA_COMMON_LIB_INCLUDED')){
             $auth_query = 'SELECT User, Select_priv '
                         . 'FROM mysql.user '
                         . 'WHERE User = \'' . PMA_sqlAddslashes($cfgServer['user']) . '\'';
-            $rs         = mysql_query($auth_query, $dbh); // Debug: or PMA_mysqlDie('', $auth_query, FALSE);
+            $rs         = mysqli_query($dbh, $auth_query); // Debug: or PMA_mysqlDie('', $auth_query, FALSE);
         } // end if
 
         // Access to "mysql" db allowed -> gets the usable db list
-        if (!$dblist_cnt && @mysql_numrows($rs)) {
-            $row = mysql_fetch_array($rs);
-            mysql_free_result($rs);
-            // Correction uva 19991215
-            // Previous code assumed database "mysql" admin table "db" column
-            // "db" contains literal name of user database, and works if so.
-            // Mysql usage generally (and uva usage specifically) allows this
-            // column to contain regular expressions (we have all databases
-            // owned by a given student/faculty/staff beginning with user i.d.
-            // and governed by default by a single set of privileges with
-            // regular expression as key). This breaks previous code.
-            // This maintenance is to fix code to work correctly for regular
-            // expressions.
+        if (!$dblist_cnt && isset($rs) && @mysqli_num_rows($rs)) {
+            $row = mysqli_fetch_array($rs);
+            mysqli_free_result($rs);
             if ($row['Select_priv'] != 'Y') {
 
                 // 1. get allowed dbs from the "mysql.db" table
                 // lem9: User can be blank (anonymous user)
                 $local_query = 'SELECT DISTINCT Db FROM mysql.db WHERE Select_priv = \'Y\' AND (User = \'' . PMA_sqlAddslashes($cfgServer['user']) . '\' OR User = \'\')';
-                $rs          = mysql_query($local_query, $dbh); // Debug: or PMA_mysqlDie('', $local_query, FALSE);
-                if (@mysql_numrows($rs)) {
-                    // Will use as associative array of the following 2 code
-                    // lines:
-                    //   the 1st is the only line intact from before
-                    //     correction,
-                    //   the 2nd replaces $dblist[] = $row['Db'];
+                $rs          = mysqli_query($dbh, $local_query); // Debug: or PMA_mysqlDie('', $local_query, FALSE);
+                if (isset($rs) && @mysqli_num_rows($rs)) {
                     $uva_mydbs = array();
-                    // Code following those 2 lines in correction continues
-                    // populating $dblist[], as previous code did. But it is
-                    // now populated with actual database names instead of
-                    // with regular expressions.
-                    while ($row = mysql_fetch_array($rs)) {
-                        // loic1: all databases cases - part 1
+                    while ($row = mysqli_fetch_array($rs)) {
                         if (empty($row['Db']) || $row['Db'] == '%') {
                             $uva_mydbs['%'] = 1;
                             break;
                         }
-                        // loic1: avoid multiple entries for dbs
                         if (!isset($uva_mydbs[$row['Db']])) {
                             $uva_mydbs[$row['Db']] = 1;
                         }
                     } // end while
-                    mysql_free_result($rs);
-                    $uva_alldbs = mysql_list_dbs($dbh);
+                    mysqli_free_result($rs);
+                    // Use SHOW DATABASES instead of removed mysql_list_dbs()
+                    $uva_alldbs = mysqli_query($dbh, 'SHOW DATABASES');
                     // loic1: all databases cases - part 2
                     if (isset($uva_mydbs['%'])) {
-                        while ($uva_row = mysql_fetch_array($uva_alldbs)) {
+                        while ($uva_row = mysqli_fetch_array($uva_alldbs)) {
                             $dblist[] = $uva_row[0];
                         } // end while
                     } // end if
                     else {
-                        while ($uva_row = mysql_fetch_array($uva_alldbs)) {
+                        while ($uva_row = mysqli_fetch_array($uva_alldbs)) {
                             $uva_db = $uva_row[0];
                             if (isset($uva_mydbs[$uva_db]) && $uva_mydbs[$uva_db] == 1) {
                                 $dblist[]           = $uva_db;
                                 $uva_mydbs[$uva_db] = 0;
                             } else if (!isset($dblist[$uva_db])) {
-                                reset($uva_mydbs);
-                                while (list($uva_matchpattern, $uva_value) = each($uva_mydbs)) {
-                                    // loic1: fixed bad regexp
-                                    // TODO: db names may contain characters
-                                    //       that are regexp instructions
-                                    $re        = '(^|(\\\\\\\\)+|[^\])';
-                                    $uva_regex = ereg_replace($re . '%', '\\1.*', ereg_replace($re . '_', '\\1.{1}', $uva_matchpattern));
-                                    // Fixed db name matching
-                                    // 2000-08-28 -- Benjamin Gandon
-                                    if (ereg('^' . $uva_regex . '$', $uva_db)) {
+                                foreach ($uva_mydbs as $uva_matchpattern => $uva_value) {
+                                    $re        = '(^|(\\\\\\\\)+|[^\\\\])';
+                                    $uva_regex = preg_replace('/' . $re . '%/', '\\1.*', preg_replace('/' . $re . '_/', '\\1.{1}', $uva_matchpattern));
+                                    if (preg_match('/^' . $uva_regex . '$/', $uva_db)) {
                                         $dblist[] = $uva_db;
                                         break;
                                     }
-                                } // end while
+                                } // end foreach
                             } // end if ... else if....
                         } // end while
                     } // end else
-                    mysql_free_result($uva_alldbs);
+                    mysqli_free_result($uva_alldbs);
                     unset($uva_mydbs);
                 } // end if
 
                 // 2. get allowed dbs from the "mysql.tables_priv" table
                 $local_query = 'SELECT DISTINCT Db FROM mysql.tables_priv WHERE Table_priv LIKE \'%Select%\' AND User = \'' . PMA_sqlAddslashes($cfgServer['user']) . '\'';
-                $rs          = mysql_query($local_query, $dbh); // Debug: or PMA_mysqlDie('', $local_query, FALSE);
-                if (@mysql_numrows($rs)) {
-                    while ($row = mysql_fetch_array($rs)) {
+                $rs          = mysqli_query($dbh, $local_query); // Debug: or PMA_mysqlDie('', $local_query, FALSE);
+                if (isset($rs) && @mysqli_num_rows($rs)) {
+                    while ($row = mysqli_fetch_array($rs)) {
                         if (PMA_isInto($row['Db'], $dblist) == -1) {
                             $dblist[] = $row['Db'];
                         }
                     } // end while
-                    mysql_free_result($rs);
+                    mysqli_free_result($rs);
                 } // end if
             } // end if
         } // end building available dbs from the "mysql" db
@@ -559,8 +512,7 @@ if (!defined('PMA_COMMON_LIB_INCLUDED')){
      */
     function PMA_availableDatabases($error_url = '')
     {
-        global $dblist;
-        global $num_dbs;
+        global $dblist, $num_dbs, $userlink;
 
         $num_dbs = count($dblist);
 
@@ -569,7 +521,7 @@ if (!defined('PMA_COMMON_LIB_INCLUDED')){
         if ($num_dbs) {
             $true_dblist = array();
             for ($i = 0; $i < $num_dbs; $i++) {
-                $dblink  = @mysql_select_db($dblist[$i]);
+                $dblink  = @mysqli_select_db($userlink, $dblist[$i]);
                 if ($dblink) {
                     $true_dblist[] = $dblist[$i];
                 } // end if
@@ -583,18 +535,20 @@ if (!defined('PMA_COMMON_LIB_INCLUDED')){
         // 2. Allowed database list is empty -> gets the list of all databases
         //    on the server
         else {
-            $dbs          = mysql_list_dbs() or PMA_mysqlDie('', 'mysql_list_dbs()', FALSE, $error_url);
-            $num_dbs      = @mysql_num_rows($dbs);
+            $dbs = mysqli_query($userlink, 'SHOW DATABASES') or PMA_mysqlDie('', 'SHOW DATABASES', FALSE, $error_url);
+            $num_dbs      = @mysqli_num_rows($dbs);
             $real_num_dbs = 0;
             for ($i = 0; $i < $num_dbs; $i++) {
-                $db_name_tmp = mysql_dbname($dbs, $i);
-                $dblink      = @mysql_select_db($db_name_tmp);
+                mysqli_data_seek($dbs, $i);
+                $dbs_row = mysqli_fetch_row($dbs);
+                $db_name_tmp = $dbs_row[0];
+                $dblink      = @mysqli_select_db($userlink, $db_name_tmp);
                 if ($dblink) {
                     $dblist[] = $db_name_tmp;
                     $real_num_dbs++;
                 }
             } // end for
-            mysql_free_result($dbs);
+            mysqli_free_result($dbs);
             $num_dbs = $real_num_dbs; 
         } // end else
 
@@ -788,9 +742,11 @@ if (!defined('PMA_COMMON_LIB_INCLUDED')){
      */
     function PMA_countRecords($db, $table, $ret = FALSE)
     {
-        $result = mysql_query('SELECT COUNT(*) AS num FROM ' . PMA_backquote($db) . '.' . PMA_backquote($table));
-        $num    = mysql_result($result, 0, 'num');
-        mysql_free_result($result);
+        global $userlink;
+        $result = mysqli_query($userlink, 'SELECT COUNT(*) AS num FROM ' . PMA_backquote($db) . '.' . PMA_backquote($table));
+        $row    = mysqli_fetch_assoc($result);
+        $num    = $row['num'];
+        mysqli_free_result($result);
         if ($ret) {
             return $num;
         } else {
@@ -845,7 +801,7 @@ window.parent.frames['nav'].location.replace('<?php echo $reload_url; ?>');
             // xhtml1.0 statement before php4.0.5 ("<br>" and not "<br />")
             $new_line   = '<br />' . "\n" . '            ';
             $query_base = htmlspecialchars($GLOBALS['sql_query']);
-            $query_base = ereg_replace("((\015\012)|(\015)|(\012))+", $new_line, $query_base);
+            $query_base = preg_replace("/((\015\012)|(\015)|(\012))+/", $new_line, $query_base);
             if (!isset($GLOBALS['show_query']) || $GLOBALS['show_query'] != 'y') {
                 if (!isset($GLOBALS['goto'])) {
                     $edit_target = (isset($GLOBALS['table'])) ? 'tbl_properties.php' : 'db_details.php';
@@ -962,7 +918,7 @@ window.parent.frames['nav'].location.replace('<?php echo $reload_url; ?>');
     {
         // The name contains caracters <> a-z, A-Z and "_" -> not a reserved
         // word
-        if (!ereg('^[a-zA-Z_]+$', $the_name)) {
+        if (!preg_match('/^[a-zA-Z_]+$/', $the_name)) {
             return true;
         }
         
@@ -1003,10 +959,15 @@ window.parent.frames['nav'].location.replace('<?php echo $reload_url; ?>');
             $timestamp = time();
         }
 
-        $date = ereg_replace('%[aA]', $day_of_week[(int)strftime('%w', $timestamp)], $datefmt);
-        $date = ereg_replace('%[bB]', $month[(int)strftime('%m', $timestamp)-1], $date);
+        $date = preg_replace('/%[aA]/', $day_of_week[(int)date('w', $timestamp)], $datefmt);
+        $date = preg_replace('/%[bB]/', $month[(int)date('m', $timestamp)-1], $date);
+        $date = strtr($date, array(
+            '%d' => 'd', '%e' => 'j', '%H' => 'H', '%I' => 'h',
+            '%m' => 'm', '%M' => 'i', '%p' => 'A', '%S' => 's',
+            '%w' => 'w', '%y' => 'y', '%Y' => 'Y', '%%' => '\\%'
+        ));
 
-        return strftime($date, $timestamp);
+        return date($date, $timestamp);
     } // end of the 'PMA_localisedDate()' function
 
 } // $__PMA_COMMON_LIB__

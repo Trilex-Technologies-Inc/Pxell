@@ -28,6 +28,7 @@ DEFINE('PATTERN_STRIPE2',10);
 // CLASS BarPlot
 // Description: Main code to produce a bar plot 
 //===================================================
+#[\AllowDynamicProperties]
 class BarPlot extends Plot {
     var $width=0.4; // in percent of major ticks
     var $abswidth=-1; // Width in absolute pixels
@@ -44,8 +45,8 @@ class BarPlot extends Plot {
 	
 //---------------
 // CONSTRUCTOR
-    function BarPlot(&$datay,$datax=false) {
-	$this->Plot($datay,$datax);		
+    function __construct(&$datay,$datax=false) {
+	parent::__construct($datay,$datax);
 	++$this->numpoints;
     }
 
@@ -127,9 +128,9 @@ class BarPlot extends Plot {
 
 	    // Center the bars 
 	    if( $this->align == "center" )
-	    	$graph->SetTextScaleOff(0.5-$this->width/2);					
+		$graph->SetTextScaleOff(0.5-$this->width/2);
 	    elseif( $this->align == "right" )
-	    	$graph->SetTextScaleOff(1-$this->width);			
+		$graph->SetTextScaleOff(1-$this->width);
 
 	}
 	else {
@@ -517,6 +518,7 @@ class BarPlot extends Plot {
 // CLASS GroupBarPlot
 // Description: Produce grouped bar plots
 //===================================================
+#[\AllowDynamicProperties]
 class GroupBarPlot extends BarPlot {
     var $plots;
     var $width=0.7;
@@ -524,7 +526,7 @@ class GroupBarPlot extends BarPlot {
     var $numpoints;
 //---------------
 // CONSTRUCTOR
-    function GroupBarPlot($plots) {
+    function __construct($plots) {
 	$this->plots = $plots;
 	$this->nbrplots = count($plots);
 	if( $this->nbrplots < 1 ) {
@@ -604,11 +606,12 @@ class GroupBarPlot extends BarPlot {
 // CLASS AccBarPlot
 // Description: Produce accumulated bar plots
 //===================================================
+#[\AllowDynamicProperties]
 class AccBarPlot extends BarPlot {
     var $plots=null,$nbrplots=0,$numpoints=0;
 //---------------
 // CONSTRUCTOR
-    function AccBarPlot($plots) {
+    function __construct($plots) {
 	$this->plots = $plots;
 	$this->nbrplots = count($plots);
 	$this->numpoints = $plots[0]->numpoints;		

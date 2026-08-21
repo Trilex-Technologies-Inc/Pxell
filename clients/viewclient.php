@@ -15,6 +15,11 @@
 $checkSession = true;
 require_once('../includes/library.php');
 
+$id = (int) ($_GET['id'] ?? 0);
+$isAdministrator = (string) ($_SESSION['profilSession'] ?? '') === '0' ||
+    (string) ($_SESSION['idSession'] ?? '') === '1' ||
+    strcasecmp((string) ($_SESSION['loginSession'] ?? ''), 'admin') === 0;
+
 if ($clientsFilter == 'true' && $_SESSION['profilSession'] == '2') {
     $teamMember = 'false';
     $tmpquery = "WHERE tea.member = '" . $_SESSION['idSession'] . "' AND org2.id = '$id'";
@@ -132,7 +137,7 @@ require_once('../themes/' . THEME . '/header.php');
 
 	$block2->sorting('organization_projects', $sortingUser->sor_organization_projects[0], 'pro.name ASC', $sortingFields = array(0 => 'pro.id', 1 => 'pro.name', 2 => 'pro.priority', 3 => 'pro.status', 4 => 'mem.login', 5 => 'pro.published'));
 
-	if ($projectsFilter == 'true') {
+	if ($projectsFilter == 'true' && !$isAdministrator) {
 	    $tmpquery = 'LEFT OUTER JOIN ' . $tableCollab['teams'] . ' teams ON teams.project = pro.id ';
 	    $tmpquery .= 'WHERE pro.organization = "' . $clientDetail->org_id[0] . '" AND teams.member = "' . $_SESSION['idSession'] . '" ORDER BY ' . $block2->sortingValue;
 	} else {
@@ -156,7 +161,7 @@ require_once('../themes/' . THEME . '/header.php');
 	        $block2->checkboxRow($listProjects->pro_id[$i]);
 	        $block2->cellRow(buildLink('../projects/viewproject.php?id=' . $listProjects->pro_id[$i], $listProjects->pro_id[$i], LINK_INSIDE));
 	        $block2->cellRow(buildLink('../projects/viewproject.php?id=' . $listProjects->pro_id[$i], $listProjects->pro_name[$i], LINK_INSIDE));
-	        $block1->cellRow('<img src="../themes/' . THEME . '/gfx_priority/' . $idPriority . '.gif" alt="' . $priority[$idPriority] . '">&nbsp;' . $priority[$idPriority], '', true);
+	        $block2->cellRow('<img src="../themes/' . THEME . '/gfx_priority/' . $idPriority . '.gif" alt="' . $priority[$idPriority] . '">&nbsp;' . $priority[$idPriority], '', true);
 
 	        $block2->cellRow('<img src="../themes/' . THEME . '/gfx_status/' . $idStatus . '.gif" alt="' . $status[$idStatus] . '">&nbsp;' . $status[$idStatus], '', true);
 
@@ -169,6 +174,7 @@ require_once('../themes/' . THEME . '/header.php');
 	                $block2->cellRow('&lt;' . buildLink('../projects/viewprojectsite.php?id=' . $listProjects->pro_id[$i], $strings['details'], LINK_INSIDE) . '&gt;');
 	            }
 	        }
+	        $block2->closeRow();
 	    }
 
 	    $block2->closeResults();

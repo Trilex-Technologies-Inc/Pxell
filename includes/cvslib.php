@@ -101,16 +101,16 @@ function cvs_read_passwd($cvs_project)
     global $cvs_root;
     $cvs_passwd_file = $cvs_root . '/' . $cvs_project . '/CVSROOT/passwd';
 
-    settype($all_cvs_users, 'array');
+    $all_cvs_users = array();
     if (is_file($cvs_passwd_file)) {
         $fcontents = file($cvs_passwd_file, 'r');
-        while (list ($line_num, $line) = each ($fcontents)) {
+        foreach ($fcontents as $line_num => $line) {
             $line = trim($line);
             if (substr($line, 0, 1) != '#' && strlen($line) > 0) {
-                list($cvs_u, $cvs_p, $sys_u) = split (':', $line, 3);
+                list($cvs_u, $cvs_p, $sys_u) = explode(':', $line, 3);
                 $all_cvs_users[$cvs_u] = array($cvs_p, $sys_u);
             } 
-        } 
+        }
         cvs_log(1, "Processed $cvs_passwd_file");
     } else {
         cvs_log(3, "No such file- File $cvs_passwd_file!");

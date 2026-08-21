@@ -5,7 +5,8 @@ http://netoffice.sourceforge.net
 http://sourceforge.net/projects/netoffice
 
 # Requirements
-- Php 4.1.0 or greater (4.3.x or greater recommended)
+- PHP 8.3 or greater
+- mysqli, session, mbstring, GD, and fileinfo extensions
 - session support enabled
 - file_uploads On
 - MySQL

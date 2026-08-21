@@ -77,44 +77,69 @@ $base_dir = str_replace('\\', '/', dirname(dirname(__FILE__)) . '/');
 // load the custom error handler
 require_once($base_dir . 'includes/error_handler.php');
 
-// load configuration settings
-require_once($base_dir . 'includes/settings.php');
+// Redirect every application entry point to setup when the generated
+// configuration is absent or clearly incomplete. index.php already had a
+// similar check, but direct URLs such as general/login.php previously failed
+// with a fatal require error instead.
+$settingsFile = $base_dir . 'includes/settings.php';
+$installerFile = $base_dir . 'installation/setup.php';
+$settingsMissing = !is_file($settingsFile) || !is_readable($settingsFile) || filesize($settingsFile) <= 1024;
+
+if ($settingsMissing && is_file($installerFile)) {
+    $scriptFilename = str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME'] ?? '');
+    $relativeScript = ltrim(str_replace($base_dir, '', $scriptFilename), '/');
+    $scriptDepth = dirname($relativeScript) === '.' ? 0 : substr_count(dirname($relativeScript), '/') + 1;
+    header('Location: ' . str_repeat('../', $scriptDepth) . 'installation/setup.php');
+    exit;
+}
+
+require_once($settingsFile);
+
+// Keep the displayed/runtime application version in one source-controlled
+// place instead of relying on the value baked into generated settings.php.
+$versionFile = $base_dir . 'version.txt';
+if (is_readable($versionFile)) {
+    $releaseVersion = trim((string) file_get_contents($versionFile));
+    if ($releaseVersion !== '') {
+        $version = $releaseVersion;
+    }
+}
+
+// A partially written settings file can exist and still lack the values the
+// application requires. Treat it as an incomplete installation as well.
+$settingsComplete = defined('MYSERVER') && defined('MYLOGIN') &&
+    defined('MYPASSWORD') && defined('MYDATABASE') &&
+    isset($root, $databaseType, $tableCollab) && is_array($tableCollab);
+if (!$settingsComplete && is_file($installerFile)) {
+    $scriptFilename = str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME'] ?? '');
+    $relativeScript = ltrim(str_replace($base_dir, '', $scriptFilename), '/');
+    $scriptDepth = dirname($relativeScript) === '.' ? 0 : substr_count(dirname($relativeScript), '/') + 1;
+    header('Location: ' . str_repeat('../', $scriptDepth) . 'installation/setup.php');
+    exit;
+}
 
 // set base URI
 $url_array = parse_url($root);
 $base_uri = $url_array['path'] . '/';
 
-// PHP version check, force version greater than or equal to 4.1.0
+// PHP 8.3 is the supported runtime baseline.
 // if you take this out don't even think about asking for help with bugs!!
-$phpVersiondata = explode('.', phpversion());
-if ($phpVersiondata[0] >= 4) {
-    // only need to check subversion if this is php4
-    if ($phpVersiondata[0] == 4 && $phpVersiondata[1] < 1) {
-        header('Location: ' . $base_uri . 'general/error.php?type=phpversion');
-        exit;
-    }
-}
-else {
+if (version_compare(PHP_VERSION, '8.3.0', '<')) {
     header('Location: ' . $base_uri . 'general/error.php?type=phpversion');
     exit;
 }
 
 // Session Settings
 ini_set('session.use_trans_sid', 0); 		// Stop adding SID to URLs
-ini_set('session.save_handler', 'user'); 	// User-defined save handler (files|user)
 ini_set('session.serialize_handler', 'php');// How to store data
 ini_set('session.use_cookies', 1); 			// Cookies store the session ID
 ini_set('session.cookie_path', $base_uri); 	// session cookie save path
 
-// if the phpversion is >= 4.3.0 then set the 'use_only_cookies' to true
-if (version_compare(phpversion(), '4.3.0', '>=')) {
-    ini_set('session.use_only_cookies', 1);
-}
+// Require session identifiers to be transported only via cookies.
+ini_set('session.use_only_cookies', 1);
 
 // set the cache pages expire time in minutes
-if(version_compare(phpversion(), '4.2.0', '>=')) {
-    session_cache_expire(180);
-}
+session_cache_expire(180);
 
 // more session settings
 ini_set('session.name', 'netOfficeSID'); // Name of the cookie
@@ -205,21 +230,20 @@ $langValue = array(
     'jp'         => 'Japanese'
     );
 
-if ($langDefault != '') {
+$langSelected = array_fill_keys(array_keys($langValue), '');
+if ($langDefault != '' && array_key_exists($langDefault, $langValue)) {
     $langSelected[$langDefault] = 'selected';
-}
-else {
-    $langSelected = '';
 }
 
 // language browser detection
 if ($langDefault == '') {
-    if (isset($HTTP_ACCEPT_LANGUAGE)) {
-        $plng = split(',', $HTTP_ACCEPT_LANGUAGE);
+    $acceptLang = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '';
+    if ($acceptLang !== '') {
+        $plng = explode(',', $acceptLang);
         if (count($plng) > 0) {
-            while (list($k, $v) = each($plng)) {
-                $k = split(';', $v, 1);
-                //$k = split('-', $k[0]);	// removed - it disallows locale variations
+            foreach ($plng as $v) {
+                $k = explode(';', $v, 2);
+                //$k = explode('-', $k[0]);	// removed - it disallows locale variations
                 // does the language file exists and is it in the array?
                 if (@file_exists('../languages/lang_' . $k[0] . '.php') &&
                         array_key_exists($k[0], $langValue)) {
@@ -238,22 +262,30 @@ if ($langDefault == '') {
 
 // check session validity, except for demo user
 if ($checkSession && !$demoSession) {
-    // a client user trying to get outside of the "client project site"
-    if (($_SESSION['profilSession'] == 3) && (!strstr($_SERVER['PHP_SELF'], 'projects_site'))) {
-        header('Location: ../index.php?session=false');
+    // Keep the reason machine-readable so the login page can explain why the
+    // session was rejected. These values contain no credentials or IDs.
+    $rejectSession = static function ($reason) use ($base_uri) {
+        header('Location: ' . $base_uri . 'general/login.php?session=false&reason=' . rawurlencode($reason));
         exit;
+    };
+
+    if (empty($_SESSION['loginSession']) || empty($_SESSION['tokenSession'])) {
+        $rejectSession(isset($_COOKIE[session_name()]) ? 'session_data_missing' : 'session_cookie_missing');
+    }
+
+    // a client user trying to get outside of the "client project site"
+    if (($_SESSION['profilSession'] ?? null) == 3 && !strstr($_SERVER['PHP_SELF'], 'projects_site')) {
+        $rejectSession('client_area_restricted');
     }
 
     // if auto logout feature used, check the idle time
-    if ($_SESSION['profilSession'] != '3') {
-        if ($_SESSION['logouttimeSession'] != '0' && $_SESSION['logouttimeSession'] != '') {
+    if (($_SESSION['profilSession'] ?? null) != '3') {
+        if (!empty($_SESSION['logouttimeSession'])) {
             $dateunix = date('U');
             $diff = $dateunix - $_SESSION['dateunixSession'];
 
             if ($diff > $_SESSION['logouttimeSession']) {
-                // the defined idle time as passed, log'em out
-                header('Location: ../general/login.php?logout=true');
-                exit;
+                $rejectSession('idle_timeout');
             } else {
                 // update the last activity time in the session
                 $_SESSION['dateunixSession'] = $dateunix;
@@ -263,31 +295,55 @@ if ($checkSession && !$demoSession) {
 
     // verify they have logged in, if not redirect to the login page
     if ($_SESSION['tokenSession'] != md5($_SESSION['loginSession'] . $cryptKey)) {
-        header('Location: ../index.php?session=false');
-        exit;
+        $rejectSession('token_invalid');
     }
 
-    // query the logs table
-    $tmpquery = "WHERE log.login = '" . $_SESSION['loginSession'] . "'";
-    $checkLog = new request();
-    $checkLog->openLogs($tmpquery);
-    $comptCheckLog = count($checkLog->log_id);
+    // Validate the exact login/session pair. Do not use the generic logs
+    // wrapper or rely on the first row when legacy duplicate rows exist.
+    $logConnection = openDatabase();
+    $logTable = str_replace('`', '``', $tableCollab['logs']);
+    $checkLog = mysqli_prepare(
+        $logConnection,
+        "SELECT 1 FROM `$logTable` WHERE login = ? AND session = ? LIMIT 1"
+    );
+    $loginSession = $_SESSION['loginSession'];
+    $currentSessionId = session_id();
+    $validLogSession = false;
+    $logLookupFailed = false;
 
-    // make sure there is a row for them
-    if ($comptCheckLog != '0') {
-        if (session_id() != $checkLog->log_session[0]) {
-            header('Location: ../index.php?session=false');
-            exit;
-        }
+    if ($checkLog) {
+        mysqli_stmt_bind_param($checkLog, 'ss', $loginSession, $currentSessionId);
+        mysqli_stmt_execute($checkLog);
+        mysqli_stmt_store_result($checkLog);
+        $validLogSession = mysqli_stmt_num_rows($checkLog) === 1;
+        mysqli_stmt_close($checkLog);
     } else {
-        header('Location: ../index.php?session=false');
-        exit;
+        $logLookupFailed = true;
+    }
+
+    if (!$validLogSession) {
+        if ($logLookupFailed) {
+            $rejectSession('session_registry_error');
+        }
+
+        $findLogin = mysqli_prepare($logConnection, "SELECT 1 FROM `$logTable` WHERE login = ? LIMIT 1");
+        $loginLogExists = false;
+        if ($findLogin) {
+            mysqli_stmt_bind_param($findLogin, 's', $loginSession);
+            mysqli_stmt_execute($findLogin);
+            mysqli_stmt_store_result($findLogin);
+            $loginLogExists = mysqli_stmt_num_rows($findLogin) > 0;
+            mysqli_stmt_close($findLogin);
+        }
+
+        $rejectSession($loginLogExists ? 'session_replaced' : 'log_row_missing');
     }
 }
 
-if ($checkConnected != 'false') {   //!!! maybe undefined
+if (($checkConnected ?? 'true') != 'false' && !empty($_SESSION['loginSession'])) {
     $dateunix = date('U');
-    $tmpquery1 = 'UPDATE ' . $tableCollab['logs'] . " SET connected='$dateunix' WHERE login = '" . $_SESSION['loginSession'] . "'";
+    $loginSession = $_SESSION['loginSession'];
+    $tmpquery1 = 'UPDATE ' . $tableCollab['logs'] . " SET connected='$dateunix' WHERE login = '" . $loginSession . "'";
     connectSql($tmpquery1);
     $tmpsql = 'SELECT * FROM ' . $tableCollab['logs'] . " WHERE connected > $dateunix-5*60";
     compt($tmpsql);
@@ -395,7 +451,11 @@ function openDatabase() {
         }
     }
     
-    $MY_DBH = @mysqli_connect($host, MYLOGIN, MYPASSWORD, MYDATABASE);
+    try {
+        $MY_DBH = @mysqli_connect($host, MYLOGIN, MYPASSWORD, MYDATABASE);
+    } catch (Throwable $exception) {
+        $MY_DBH = null;
+    }
     
     if (!$MY_DBH) {
         $error_msg = function_exists('mysqli_connect_error') ? mysqli_connect_error() : 'Connection failed';
@@ -406,7 +466,11 @@ function openDatabase() {
     }
 
 	if ( $databaseCharset != '' ) {
-        mysqli_query($MY_DBH, "SET NAMES '".$databaseCharset."'");
+        try {
+            mysqli_query($MY_DBH, "SET NAMES '".$databaseCharset."'");
+        } catch (Throwable $exception) {
+            // Keep the connection usable with its server-default charset.
+        }
     }
     return($MY_DBH);
 }
@@ -418,23 +482,9 @@ function openDatabase() {
  * @access public
  */
 function updatechecker($iCV) {
-    global $strings; 
-
-    // get latest available version number
-    $iNV = trim(implode('', file('http://pxell.net/px/version.txt'))); 
-
-    // version comparisions
-    // version string order: dev < alpha = a < beta = b < RC < pl
-    // this allows for versions such as 2.5.2b1, 2.6.0RC1, and so on
-    if (version_compare($iNV, $iCV, '>')) {
-        $checkMsg  = '<br><b>' . $strings['update_available'] . '</b> ';
-        $checkMsg .= $strings['version_current'] . " $iCV. ";
-        $checkMsg .= $strings['version_latest'] . " $iNV.<br>";
-        $checkMsg .= '<a href="http://www.sourceforge.net/projects/netoffice" target="_blank">';
-        $checkMsg .= $strings['sourceforge_link'] . '</a>.';
-    } 
-
-    return($checkMsg);
+    // Remote update checks are disabled. The legacy implementation fetched:
+    // $versionData = file('http://pxell.net/px/version.txt');
+    return '';
 }
 
 /**
@@ -455,6 +505,8 @@ function getmicrotime() {
  */
 function autoLinks($data) {
     global $newText;
+
+    $newText = '';
 
     $lines = explode("\n", $data);
 
@@ -487,10 +539,10 @@ function autoLinks($data) {
  * @access public
  */
 function diff_date($date1, $date2) {
-    list($an, $mois, $jour) = split('-', $date1, 3);
-    list($an2, $mois2, $jour2) = split('-', $date2, 3);
-    $timestamp1 = mktime(null, null, null, $mois, $jour, $an);
-    $timestamp2 = mktime(null, null, null, $mois2, $jour2, $an2);
+    list($an, $mois, $jour) = explode('-', $date1, 3);
+    list($an2, $mois2, $jour2) = explode('-', $date2, 3);
+    $timestamp1 = mktime(0, 0, 0, $mois, $jour, $an);
+    $timestamp2 = mktime(0, 0, 0, $mois2, $jour2, $an2);
     $diff = ($timestamp1 - $timestamp2) / (3600 * 24);
     $diff = intval($diff + 1);
     return($diff);
@@ -507,31 +559,24 @@ function diff_date($date1, $date2) {
 function is_password_match($formUsername, $formPassword, $storedPassword) {
     global $loginMethod, $useLDAP, $configLDAP;
 
+    // Existing users may have been created under a previous loginMethod.
+    // Detect the stored representation instead of rejecting a correct
+    // password solely because the setting later changed.
+    $matchesStoredPassword = static function ($password, $stored) use ($loginMethod) {
+        $stored = (string) $stored;
+        if (preg_match('/^[a-f0-9]{32}$/i', $stored)) {
+            return hash_equals(strtolower($stored), md5($password));
+        }
+        if ((strlen($stored) === 13 || substr($stored, 0, 1) === '$') &&
+            $stored !== '*0' && $stored !== '*1') {
+            return hash_equals($stored, crypt($password, $stored));
+        }
+        return $loginMethod === 'PLAIN' && hash_equals($stored, $password);
+    };
+
     if ($useLDAP == 'true') {
         if ($formUsername == 'admin') {
-            switch ($loginMethod) {
-                case MD5:
-                    if (md5($formPassword) == $storedPassword) {
-                        return(true);
-                    } else {
-                        return(false);
-                    } 
-                case CRYPT:
-                    $salt = substr($storedPassword, 0, 2);
-                    if (crypt($formPassword, $salt) == $storedPassword) {
-                        return(true);
-                    } else {
-                        return(false);
-                    } 
-                case PLAIN:
-                    if ($formPassword == $storedPassword) {
-                        return(true);
-                    } else {
-                        return(false);
-                    } 
-
-                    return(false);
-            } 
+            return $matchesStoredPassword($formPassword, $storedPassword);
         } 
 
         $conn = ldap_connect($configLDAP['ldapserver']);
@@ -545,30 +590,10 @@ function is_password_match($formUsername, $formPassword, $storedPassword) {
             return(true);
         } 
     } else {
-        switch ($loginMethod) {
-            case MD5:
-                if (md5($formPassword) == $storedPassword) {
-                    return(true);
-                } else {
-                    return(false);
-                } 
-            case CRYPT:
-                $salt = substr($storedPassword, 0, 2);
-                if (crypt($formPassword, $salt) == $storedPassword) {
-                    return(true);
-                } else {
-                    return(false);
-                } 
-            case PLAIN:
-                if ($formPassword == $storedPassword) {
-                    return(true);
-                } else {
-                    return(false);
-                } 
-
-                return(false);
-        } 
+        return $matchesStoredPassword($formPassword, $storedPassword);
     }
+
+    return false;
 }
 
 /**
@@ -581,16 +606,18 @@ function get_password($newPassword) {
     global $loginMethod;
 
     switch ($loginMethod) {
-        case MD5:
+        case 'MD5':
             return(md5($newPassword));
-        case CRYPT:
+        case 'CRYPT':
             $salt = substr($newPassword, 0, 2);
             return(crypt($newPassword, $salt));
-        case PLAIN:
+        case 'PLAIN':
             return($newPassword);
 
             return($newPassword);
     } 
+
+    return $newPassword;
 }
 
 /**
@@ -688,7 +715,7 @@ function deleteFile($source)
     if ($mkdirMethod == 'FTP') {
         $ftp = ftp_connect(FTPSERVER);
         ftp_login($ftp, FTPLOGIN, FTPPASSWORD);
-        ftp_chdir($ftp, $pathNew);
+        ftp_chdir($ftp, $ftpRoot);
         ftp_delete($ftp, $ftpRoot . '/' . $source);
         ftp_quit($ftp);
     } else {
@@ -736,6 +763,7 @@ function createDir($path)
     global $mkdirMethod, $ftpRoot;
 
     $pathNew = explode('/', $path);
+    $create_dir = '';
 
     if ($mkdirMethod == 'FTP') {
         $ftp = ftp_connect(FTPSERVER);
@@ -800,7 +828,7 @@ function folder_info_size($path, $recursive = true)
 {
     $result = 0;
 
-    if (is_dir($path) || is_readable($path)) {
+    if (is_dir($path) && is_readable($path)) {
         $dir = opendir($path);
 
         while ($file = readdir($dir)) {
@@ -815,7 +843,9 @@ function folder_info_size($path, $recursive = true)
 
         closedir($dir);
         return($result);
-    } 
+    }
+
+    return 0;
 }
 
 /**
@@ -868,7 +898,7 @@ function file_info_dim($fichier)
 {
     global $dim;
     $temp = GetImageSize($fichier);
-    $dim = $temp[0] . 'x' . $temp[1];
+    $dim = is_array($temp) ? $temp[0] . 'x' . $temp[1] : '';
     return($dim);
 }
 
@@ -893,6 +923,8 @@ function file_info_date($fichier)
  */
 function recupFile($file)
 {
+    $content = '';
+
     if (!file_exists($file)) {
         echo 'File does not exist : ' . $file;
         return(false);
@@ -935,7 +967,9 @@ function createDate($storedDate, $gmtUser)
         } 
     } else {
         return($storedDate);
-    } 
+    }
+
+    return $storedDate;
 }
 
 /**
@@ -946,18 +980,10 @@ function createDate($storedDate, $gmtUser)
  */
 function convertData($data)
 {
-    if (get_magic_quotes_gpc() == 1) {
-        $data = str_replace('"', '&quot;', $data);
-        $data = str_replace('<', '&lt;', $data);
-        $data = str_replace('>', '&gt;', $data);
-        return($data);
-    } else {
-        $data = str_replace('"', '&quot;', $data);
-        $data = str_replace('<', '&lt;', $data);
-        $data = str_replace('>', '&gt;', $data);
-        $data = addslashes($data);
-        return($data);
-    } 
+    $data = str_replace('"', '&quot;', $data);
+    $data = str_replace('<', '&lt;', $data);
+    $data = str_replace('>', '&gt;', $data);
+    return addslashes($data);
 }
 
 /**
@@ -970,19 +996,23 @@ function compt($tmpsql)
 {
     global $tableCollab, $databaseType, $countEnregTotal, $comptRequest;
 
-    $comptRequest += 1;
+    $countEnreg = array();
+    $countEnregTotal = 0;
+    $comptRequest = (int) ($comptRequest ?? 0) + 1;
 
     if ($databaseType == 'mysql') {
         $res = openDatabase();
         $sql = $tmpsql;
         $index = mysqli_query($res, $sql);
 
-        while ($row = mysqli_fetch_row($index)) {
-            $countEnreg[] = ($row[0]);
-        } 
+        if ($index instanceof mysqli_result) {
+            while ($row = mysqli_fetch_row($index)) {
+                $countEnreg[] = ($row[0]);
+            }
 
-        $countEnregTotal = count($countEnreg);
-        @mysqli_free_result($index);
+            $countEnregTotal = count($countEnreg);
+            mysqli_free_result($index);
+        }
         @mysqli_close($res);
     } 
 
@@ -997,17 +1027,38 @@ function compt($tmpsql)
  */
 function connectSql($tmpsql)
 {
-    global $tableCollab, $databaseType;
+    global $tableCollab, $databaseType, $lastInsertId, $lastSqlError;
+
+    $lastInsertId = null;
+    $lastSqlError = '';
 
     if ($databaseType == 'mysql') {
         $res = openDatabase();
         $sql = $tmpsql;
-        $index = mysqli_query($res, $sql);
-        if ($index) {
-            @mysqli_free_result($index); //!!! index might be invalid
+        try {
+            $index = mysqli_query($res, $sql);
+        } catch (Throwable $exception) {
+            $lastSqlError = $exception->getMessage();
+            @mysqli_close($res);
+            throw new RuntimeException('Database query failed: ' . $lastSqlError, 0, $exception);
+        }
+        if ($index === false) {
+            $lastSqlError = mysqli_error($res);
+            @mysqli_close($res);
+            throw new RuntimeException('Database query failed: ' . $lastSqlError);
+        }
+        $insertId = mysqli_insert_id($res);
+        if ($insertId > 0) {
+            $lastInsertId = $insertId;
+        }
+        if ($index instanceof mysqli_result) {
+            mysqli_free_result($index);
         }
         @mysqli_close($res);
+        return true;
     } 
+
+    return false;
 }
 
 /**
@@ -1018,21 +1069,40 @@ function connectSql($tmpsql)
  */
 function last_id($tmpsql)
 {
-    global $tableCollab, $databaseType;
+    global $tableCollab, $databaseType, $lastId, $lastInsertId, $lastSqlError;
+
+    // Keep the historical global for legacy callers while also returning the
+    // value for modern, explicit callers.
+    $lastId = array();
+
+    // connectSql() captured this from the same connection that performed the
+    // INSERT. This is concurrency-safe and cannot select another user's row.
+    if ($lastInsertId !== null) {
+        $lastId[] = $lastInsertId;
+        $lastInsertId = null;
+        return $lastId;
+    }
+
+    if ($lastSqlError !== '') {
+        throw new RuntimeException('Database INSERT failed: ' . $lastSqlError);
+    }
 
     if ($databaseType == 'mysql') {
         $res = openDatabase();
-        global $lastId;
         $sql = 'SELECT id FROM ' . $tmpsql . ' ORDER BY id DESC';
         $index = mysqli_query($res, $sql);
 
-        while ($row = mysqli_fetch_row($index)) {
-            $lastId[] = $row[0];
-        } 
+        if ($index instanceof mysqli_result) {
+            while ($row = mysqli_fetch_row($index)) {
+                $lastId[] = $row[0];
+            }
 
-        @mysqli_free_result($index);
+            mysqli_free_result($index);
+        }
         @mysqli_close($res);
-    } 
+    }
+
+    return $lastId;
 }
 
 /**
@@ -1061,14 +1131,66 @@ function write_csv($row)
 
 // This function is called by the session handler to initialize things
 // this NEEDS persistent database connections!!
+function _sess_mysql_connect()
+{
+    global $MY_DBH, $databaseCharset;
+
+    if ($MY_DBH instanceof mysqli) {
+        try {
+            $connectionCheck = @mysqli_query($MY_DBH, 'SELECT 1');
+            if ($connectionCheck instanceof mysqli_result) {
+                mysqli_free_result($connectionCheck);
+                return true;
+            }
+        } catch (Throwable $exception) {
+            // Other query helpers may have closed the shared connection.
+        }
+
+        $MY_DBH = null;
+    }
+
+    $host = MYSERVER;
+    if (DB_PCONNECT && strpos($host, 'p:') !== 0) {
+        $host = 'p:' . $host;
+    }
+
+    // A session callback must report failure instead of exiting. Exiting while
+    // PHP is saving a session at shutdown recursively invokes the handler.
+    try {
+        $MY_DBH = @mysqli_connect($host, MYLOGIN, MYPASSWORD, MYDATABASE);
+    } catch (Throwable $exception) {
+        $MY_DBH = null;
+        return false;
+    }
+    if (!$MY_DBH) {
+        return false;
+    }
+
+    if ($databaseCharset != '' && !_sess_mysql_query("SET NAMES '" . $databaseCharset . "'")) {
+        return false;
+    }
+
+    return true;
+}
+
+function _sess_mysql_query($query)
+{
+    global $MY_DBH;
+
+    if (!($MY_DBH instanceof mysqli)) {
+        return false;
+    }
+
+    try {
+        return @mysqli_query($MY_DBH, $query);
+    } catch (Throwable $exception) {
+        return false;
+    }
+}
+
 function _sess_mysql_open($save_path, $session_name)
 {
-    global $MY_DBH; 
-
-    // open database connection
-    $MY_DBH = openDatabase();
-
-    return(true);
+    return _sess_mysql_connect();
 }
 
 // This function is called when the page has finished executing and the session
@@ -1081,9 +1203,19 @@ function _sess_mysql_close()
     global $MY_DBH; 
 
     // Closes non-persistent database connections
-    if (@mysqli_close($MY_DBH) != true) {
-        return(false);
+    if (!($MY_DBH instanceof mysqli)) {
+        return true;
     }
+
+    try {
+        if (@mysqli_close($MY_DBH) != true) {
+            return(false);
+        }
+    } catch (Throwable $exception) {
+        // The application's query helpers may already have closed this handle.
+    }
+
+    $MY_DBH = null;
 
     return(true);
 }
@@ -1113,15 +1245,15 @@ function _sess_mysql_read($session_id)
 
     $select .= 'AND last_access > ' . $valid_session_time; 
 
-    // check database connection, reconnect if necessary
-    $MY_DBH = openDatabase();
+    // Check the database connection without exiting from the session callback.
+    if (!_sess_mysql_connect()) {
+        return '';
+    }
 
     // Execute the query
-    if (!$result = mysqli_query($MY_DBH, $select)) {
+    if (!$result = _sess_mysql_query($select)) {
         // error with query
-        print '<li>Unable to query the database ' . MYDATABASE;
-        print '<li>MySQL Error: ' . mysqli_error($MY_DBH);
-        exit;
+        return '';
     } 
 
     // Check for result, must only be one to return data
@@ -1135,7 +1267,9 @@ function _sess_mysql_read($session_id)
     }
 
     // Free up the resources used by the statement
-    @mysqli_free_result($result);
+    if ($result instanceof mysqli_result) {
+        mysqli_free_result($result);
+    }
 
     return($data);
 }
@@ -1170,14 +1304,16 @@ function _sess_mysql_write($session_id, $val)
 
     $update .= 'AND last_access > ' . $valid_session_time; 
 
-    // check database connection, reconnect if necessary
-    $MY_DBH = openDatabase();
+    // Check the database connection without exiting during request shutdown.
+    if (!_sess_mysql_connect()) {
+        return false;
+    }
 
     // First try the insert, if that doesn't succeed, it means the
     // session already exists and we need to update it instead.
-    if (!mysqli_query($MY_DBH, $insert)) {
+    if (!_sess_mysql_query($insert)) {
         // Insert failed, issue an update
-        if (!mysqli_query($MY_DBH, $update)) {
+        if (!_sess_mysql_query($update)) {
             // Everything faild, return false
             return(false);
         } 
@@ -1201,19 +1337,15 @@ function _sess_mysql_destroy($session_id)
         $select .= ' AND ipaddr="' . SESS_REMOTE_ADDR . '"';
     } 
 
-    // check database connection, reconnect if necessary
-    $MY_DBH = openDatabase();
+    if (!_sess_mysql_connect()) {
+        return false;
+    }
 
     // Execute the query
-    if (!$result = mysqli_query($MY_DBH, $select)) {
+    if (!$result = _sess_mysql_query($select)) {
         // error with query
-        print '<li>Unable to query the database ' . MYDATABASE;
-        print '<li>MySQL Error: ' . mysqli_error($MY_DBH);
-        exit;
+        return false;
     } 
-
-    // Free up resources used by the query
-    @mysqli_free_result($result);
 
     return($result);
 }
@@ -1230,19 +1362,15 @@ function _sess_mysql_gc($max_lifetime)
     // Delete old values from the sessions table, greater than 48 hrs old
     $query = 'DELETE FROM ' . $tableCollab['sessions'] . ' WHERE last_access < ' . $valid_session_time; 
 
-    // check database connection, reconnect if necessary
-   $MY_DBH = openDatabase();
+    if (!_sess_mysql_connect()) {
+        return false;
+    }
 
     // Execute the query
-    if (!$result = mysqli_query($MY_DBH, $query)) {
+    if (!$result = _sess_mysql_query($query)) {
         // error with query
-        print '<li>Unable to query the database ' . MYDATABASE;
-        print '<li>MySQL Error: ' . mysqli_error($MY_DBH);
-        exit;
+        return false;
     } 
-
-    // Free up resources used by the query
-    @mysqli_free_result($result);
 
     return($result);
 }
@@ -1251,7 +1379,7 @@ function _sess_mysql_gc($max_lifetime)
 function get_http_host()
 { 
     // Get the refering host for security checks
-    $sess_host = $_SERVER['HTTP_HOST'];
+    $sess_host = $_SERVER['HTTP_HOST'] ?? '';
 
     if (empty($sess_host)) {
         $sess_host = getenv('HTTP_HOST');
@@ -1271,7 +1399,7 @@ function get_http_host()
 // the SID as the primary key in the database, security.
 function get_remote_addr()
 {
-    $ipaddr = $_SERVER['REMOTE_ADDR'];     //??? maybe undefined
+    $ipaddr = $_SERVER['REMOTE_ADDR'] ?? '';
 
     if (empty($ipaddr)) {
         $ipaddr = getenv('REMOTE_ADDR');
@@ -1316,7 +1444,7 @@ function get_remote_addr()
  * @param string $date1 Date to transform
  */
 function date2timestamp($date1) {
-    list($an1, $mois1, $jour1) = split('-', $date1, 3);
+    list($an1, $mois1, $jour1) = explode('-', $date1, 3);
     $timestamp1 = mktime(0, 0, 0, $mois1, $jour1, $an1);
     return($timestamp1);
 }
@@ -1339,10 +1467,10 @@ function diff_hour($date1, $date2) {
         $tmpquery = " WHERE hol.date='$currDate'";
         $listHoliday = new request();
         $listHoliday->openHoliday($tmpquery);
-        $comptListHoliday = count($listHoliday->hol_id);
+        $comptListHoliday = count($listHoliday->hol_id ?? array());
         if ($comptListHoliday == 0) {
             $weekDay = date("w", $timestamp1);
-            $diff += $dayHourArray[$weekDay];
+            $diff += (float) ($dayHourArray[$weekDay] ?? 0);
         }
         $timestamp1 += (3600 * 24);
     }
@@ -1366,10 +1494,10 @@ function hours_after($date1, $hour1) {
         $tmpquery = " WHERE hol.date='$currDate'";
         $listHoliday = new request();
         $listHoliday->openHoliday($tmpquery);
-        $comptListHoliday = count($listHoliday->hol_id);
+        $comptListHoliday = count($listHoliday->hol_id ?? array());
         if ($comptListHoliday == 0) {
             $weekDay = date("w", $timestamp1);
-            $diff += $dayHourArray[$weekDay];
+            $diff += (float) ($dayHourArray[$weekDay] ?? 0);
             if ($diff >= $hour1)
                 break;
         }
@@ -1395,10 +1523,10 @@ function hours_before($date1, $hour1) {
         $tmpquery = " WHERE hol.date='$currDate'";
         $listHoliday = new request();
         $listHoliday->openHoliday($tmpquery);
-        $comptListHoliday = count($listHoliday->hol_id);
+        $comptListHoliday = count($listHoliday->hol_id ?? array());
         if ($comptListHoliday == 0) {
             $weekDay = date("w", $timestamp1);
-            $diff += $dayHourArray[$weekDay];
+            $diff += (float) ($dayHourArray[$weekDay] ?? 0);
             if ($diff >= $hour1)
                 break;
         }

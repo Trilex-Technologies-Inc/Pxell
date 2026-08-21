@@ -15,6 +15,26 @@
 $checkSession = true;
 require_once('../includes/library.php');
 
+// This page predates PHP's removal of register_globals. Define every optional
+// request value explicitly so an ordinary GET or partially completed form
+// does not generate undefined-variable/array-key warnings.
+$requestedId = (string) ($_GET['id'] ?? '');
+$id = ($requestedId === '' || ctype_digit($requestedId)) ? $requestedId : '';
+$requestedAction = (string) ($_GET['action'] ?? '');
+$action = in_array($requestedAction, array('add', 'update'), true) ? $requestedAction : '';
+$cn = (string) ($_POST['cn'] ?? '');
+$add = (string) ($_POST['add'] ?? '');
+$wp = (string) ($_POST['wp'] ?? '');
+$url = (string) ($_POST['url'] ?? '');
+$email = (string) ($_POST['email'] ?? '');
+$c = (string) ($_POST['c'] ?? '');
+$cown = (string) ($_POST['cown'] ?? ($_SESSION['idSession'] ?? ''));
+$logoDel = (string) ($_POST['logoDel'] ?? '');
+$extensionOld = (string) ($_POST['extensionOld'] ?? '');
+$error = '';
+$clientDetail = null;
+$upload = $_FILES['upload'] ?? array();
+
 // these user levels can't perform this action
 if ( ($_SESSION['profilSession'] == 4) || ($_SESSION['profilSession'] == 3) ||
     ($_SESSION['profilSession'] == 2) ) {
@@ -37,16 +57,19 @@ if ($id != '') {
 }
 // case update client organization
 if ($id != '') {
-    if ($action == 'update') {
+    if ($action == 'update' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         if ($logoDel == 'on') {
             $tmpquery = 'UPDATE ' . $tableCollab['organizations'] . " SET extension_logo='' WHERE id='$id'";
             connectSql($tmpquery);
             @unlink("../logos_clients/" . $id . ".$extensionOld");
         }
 
-        $extension = strtolower(substr(strrchr($_FILES['upload']['name'], '.'), 1));
+        $uploadName = (string) ($upload['name'] ?? '');
+        $uploadTmpName = (string) ($upload['tmp_name'] ?? '');
+        $extension = strtolower((string) pathinfo($uploadName, PATHINFO_EXTENSION));
 
-        if (@move_uploaded_file($_FILES['upload']['tmp_name'], '../logos_clients/' . $id . ".$extension")) {
+        if ($extension !== '' && is_uploaded_file($uploadTmpName) &&
+            move_uploaded_file($uploadTmpName, '../logos_clients/' . $id . ".$extension")) {
             $tmpquery = 'UPDATE ' . $tableCollab['organizations'] . " SET extension_logo='$extension' WHERE id='$id'";
             connectSql($tmpquery);
         }
@@ -70,7 +93,7 @@ if ($id != '') {
 }
 // case add client organization
 if ($id == '') {
-    if ($action == 'add') {
+    if ($action == 'add' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         // test if name blank
         if ($cn == '') {
             $error = $strings['blank_organization_field'];
@@ -96,9 +119,12 @@ if ($id == '') {
                 last_id($tmpquery);
                 $num = $lastId[0];
                 unset($lastId);
-                $extension = strtolower(substr(strrchr($upload_name, '.'), 1));
+                $uploadName = (string) ($upload['name'] ?? '');
+                $uploadTmpName = (string) ($upload['tmp_name'] ?? '');
+                $extension = strtolower((string) pathinfo($uploadName, PATHINFO_EXTENSION));
 
-                if (@move_uploaded_file($upload, '../logos_clients/' . $num . ".$extension")) {
+                if ($extension !== '' && is_uploaded_file($uploadTmpName) &&
+                    move_uploaded_file($uploadTmpName, '../logos_clients/' . $num . ".$extension")) {
                     $tmpquery = 'UPDATE ' . $tableCollab['organizations'] . " SET extension_logo='$extension' WHERE id='$num'";
                     connectSql($tmpquery);
                 }
@@ -130,7 +156,6 @@ $bodyCommand = 'onLoad="document.ecDForm.cn.focus();"';
 require_once('../themes/' . THEME . '/header.php');
 
 //---- content ---
-$block1 = new block();
 ?>
     <div class="container mt-4">
         <?php if ($error != ''): ?>
@@ -154,14 +179,14 @@ $block1 = new block();
             <form method="POST" action="../clients/editclient.php?action=add" name="ecDForm" enctype="multipart/form-data" class="needs-validation" novalidate>
                 <input type="hidden" name="MAX_FILE_SIZE" value="100000000">
                 <?php else: ?>
-                <form method="POST" action="../clients/editclient.php?id=<?php echo $id; ?>&amp;action=update" name="ecDForm" enctype="multipart/form-data" class="needs-validation" novalidate>
+                <form method="POST" action="../clients/editclient.php?id=<?php echo htmlspecialchars($id); ?>&amp;action=update" name="ecDForm" enctype="multipart/form-data" class="needs-validation" novalidate>
                     <input type="hidden" name="MAX_FILE_SIZE" value="100000000">
                     <?php endif; ?>
 
                     <div class="card-body">
                         <h6 class="card-subtitle mb-3 text-muted"><?php echo $strings['details']; ?></h6>
 
-                        <?php if ($clientsFilter == 'true'): ?>
+                        <?php if (($clientsFilter ?? 'false') == 'true'): ?>
                             <div class="row mb-3">
                                 <label class="col-sm-3 col-form-label"><?php echo $strings['owner']; ?> :</label>
                                 <div class="col-sm-9">
@@ -173,7 +198,10 @@ $block1 = new block();
                                         $comptClientOwner = count($clientOwner->mem_id);
 
                                         for ($i = 0; $i < $comptClientOwner; $i++) {
-                                            $selected = ($clientDetail->org_owner[0] == $clientOwner->mem_id[$i] || $_SESSION['idSession'] == $clientOwner->mem_id[$i]) ? 'selected' : '';
+                                            $currentOwner = $clientDetail !== null
+                                                ? $clientDetail->org_owner[0]
+                                                : $cown;
+                                            $selected = ((string) $currentOwner === (string) $clientOwner->mem_id[$i]) ? 'selected' : '';
                                             echo '<option value="' . $clientOwner->mem_id[$i] . '" ' . $selected . '>' .
                                                 htmlspecialchars($clientOwner->mem_login[$i] . ' / ' . $clientOwner->mem_name[$i]) . '</option>';
                                         }
@@ -234,7 +262,7 @@ $block1 = new block();
                             <label class="col-sm-3 col-form-label"><?php echo $strings['logo']; ?> :</label>
                             <div class="col-sm-9">
                                 <input type="file" class="form-control" name="upload" accept="image/*">
-                                <div class="form-text"><?php echo $strings['logo_upload_help']; ?></div>
+                                <div class="form-text"><?php echo $strings['logo_upload_help'] ?? 'Upload an image file for the organization logo.'; ?></div>
                             </div>
                         </div>
 
@@ -270,10 +298,6 @@ $block1 = new block();
 
 
 <?php
-$block1->closeContent();
-$block1->headingForm_close();
-$block1->closeForm();
-
 require_once('../themes/' . THEME . '/footer.php');
 
 ?>

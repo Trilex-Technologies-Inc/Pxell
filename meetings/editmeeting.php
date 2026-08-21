@@ -15,13 +15,18 @@
 $checkSession = true;
 require_once("../includes/library.php");
 
+$id = (string) ($_GET['id'] ?? '');
+$action = (string) ($_GET['action'] ?? '');
+$project = (string) ($_GET['project'] ?? ($_POST['project'] ?? ''));
+$cpy = ($_GET['cpy'] ?? '') === 'true' ? 'true' : 'false';
+$meetingDetail = new request();
+$attendantDetail = new request();
+
 if ($id != "" && $action != "update" && $action != "add") {
     $tmpquery = "WHERE mee.id = '$id'";
-    $meetingDetail = new request();
     $meetingDetail->openMeetings($tmpquery);
 
     $tmpquery = "WHERE att.meeting = '$id'";
-    $attendantDetail = new request();
     $attendantDetail->openAttendants($tmpquery);
     $comptAttendantDetail = count($attendantDetail->att_id);
 
@@ -30,6 +35,9 @@ if ($id != "" && $action != "update" && $action != "add") {
 } else {
     $tmpquery = "WHERE pro.id = '$project'";
     $comptAttendantDetail = "0" ;
+    $meetingDetail->mee_priority = array('3');
+    $meetingDetail->mee_status = array('2');
+    $attendantDetail->att_mem_id = array();
 }
 
 $projectDetail = new request();
@@ -56,7 +64,7 @@ if ($stm != "" && $etm != "" && $stm > $etm) {
 // case update meeting
 if ($id != "") {
     // case update meeting
-    if ($action == "update") {
+    if ($action == "update" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         // concat values from date selector and replace quotes by html code in name
         $mn = convertData($mn);
         $ma = convertData($ma);
@@ -355,7 +363,7 @@ if ($id != "") {
 // case add meeting
 if ($id == "") {
     // case add meeting
-    if ($action == "add") {
+    if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         // concat values from date selector and replace quotes by html code in name
         $mn = convertData($mn);
         $ma = convertData($ma);

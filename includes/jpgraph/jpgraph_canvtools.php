@@ -22,12 +22,13 @@ DEFINE('CORNER_BOTTOMLEFT',3);
 // can abstract away with absolute pixels
 //===================================================
  
+#[\AllowDynamicProperties]
 class CanvasScale {
     var $g;
     var $w,$h;
     var $ixmin=0,$ixmax=10,$iymin=0,$iymax=10;
 
-    function CanvasScale(&$graph,$xmin=0,$xmax=10,$ymin=0,$ymax=10) {
+    function __construct(&$graph,$xmin=0,$xmax=10,$ymin=0,$ymax=10) {
 	$this->g = &$graph;
 	$this->w = $graph->img->width;
 	$this->h = $graph->img->height;
@@ -67,10 +68,11 @@ class CanvasScale {
 // CLASS Shape
 // Description: Methods to draw shapes on canvas
 //===================================================
+#[\AllowDynamicProperties]
 class Shape {
     var $img,$scale;
 
-    function Shape(&$aGraph,&$scale) {
+    function __construct(&$aGraph,&$scale) {
 	$this->img = &$aGraph->img;
 	$this->img->SetColor('black');
 	$this->scale = &$scale;
@@ -373,6 +375,7 @@ class Shape {
 // Description: Draws a text paragraph inside a 
 // rounded, possible filled, rectangle.
 //===================================================
+#[\AllowDynamicProperties]
 class CanvasRectangleText {
     var $ix,$iy,$iw,$ih,$ir=4;
     var $iTxt,$iColor='black',$iFillColor='',$iFontColor='black';
@@ -380,7 +383,7 @@ class CanvasRectangleText {
     var $iAutoBoxMargin=5;
     var $iShadowWidth=3,$iShadowColor='';
 
-    function CanvasRectangleText($aTxt='',$xl=0,$yt=0,$w=0,$h=0) {
+    function __construct($aTxt='',$xl=0,$yt=0,$w=0,$h=0) {
 	$this->iTxt = new Text($aTxt);
 	$this->ix = $xl;
 	$this->iy = $yt;

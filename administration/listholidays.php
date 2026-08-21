@@ -73,8 +73,9 @@ function reschedule($date1) {
             for ($j = 0; $j < $comptPredecessorList; $j++) {
                 $timestampSD2 = date2timestamp($predecessorList->pre_tas2_start_date[$j]);
                 $timestampDD2 = date2timestamp($predecessorList->pre_tas2_due_date[$j]);
-                $timestampSD3 = date2timestamp(hours_after(date('Y-m-d', $timestampSD2), $predecessorList->pre_lag[$j]+1));
-                $timestampDD3 = date2timestamp(hours_after(date('Y-m-d', $timestampDD2), $predecessorList->pre_lag[$j]+1));
+                $lagHours = (float) ($predecessorList->pre_lag[$j] ?? 0) + 1;
+                $timestampSD3 = date2timestamp(hours_after(date('Y-m-d', $timestampSD2), $lagHours));
+                $timestampDD3 = date2timestamp(hours_after(date('Y-m-d', $timestampDD2), $lagHours));
                 
                 switch ($predecessorList->pre_type[$j]) {
                     case 'FF':
@@ -272,8 +273,9 @@ function reschedule($date1) {
             
             $timestampSD2 = date2timestamp($successorList->pre_tas2_start_date[$i]);
             $timestampDD2 = date2timestamp($successorList->pre_tas2_due_date[$i]);
-            $timestampSD3 = date2timestamp(hours_after(date('Y-m-d', $timestampSD2), $successorList->pre_lag[$i]+1));
-            $timestampDD3 = date2timestamp(hours_after(date('Y-m-d', $timestampDD2), $successorList->pre_lag[$i]+1));
+            $lagHours = (float) ($successorList->pre_lag[$i] ?? 0) + 1;
+            $timestampSD3 = date2timestamp(hours_after(date('Y-m-d', $timestampSD2), $lagHours));
+            $timestampDD3 = date2timestamp(hours_after(date('Y-m-d', $timestampDD2), $lagHours));
             
             switch ($successorList->pre_type[$i]) {
                 case 'FF':
@@ -374,7 +376,7 @@ function reschedule($date1) {
 }
 */
 
-if ($action == "add") {
+if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $tmpquery = "INSERT INTO " . $tableCollab["holiday"] . " (date,comments) VALUES ('$d','$c')";
     connectSql("$tmpquery");
     #reschedule($d);

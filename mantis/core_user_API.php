@@ -464,7 +464,7 @@
 		$t_project_view_state = get_project_field( $t_project_id, "view_state" );
 
 		# public project accept all users
-		if ( PUBLIC == $t_project_view_state ) {
+		if ( MANTIS_PUBLIC == $t_project_view_state ) {
 			return;
 		} else {
 			# private projects require users to be assigned
@@ -504,7 +504,7 @@
 		}
 
 		# public project accept all users
-		if ( PUBLIC == $t_project_view_state ) {
+		if ( MANTIS_PUBLIC == $t_project_view_state ) {
 			return;
 		} else {
 			# private projects require users to be assigned
@@ -740,7 +740,14 @@
 	}
 	# --------------------
 	function create_project_user_prefs( $p_project_id ) {
-		global $g_mantis_user_pref_table;
+			global $g_mantis_user_pref_table,
+				$g_default_advanced_report, $g_default_advanced_view, $g_default_advanced_update,
+				$g_default_refresh_delay, $g_default_redirect_delay,
+				$g_default_email_on_new, $g_default_email_on_assigned,
+				$g_default_email_on_feedback, $g_default_email_on_resolved,
+				$g_default_email_on_closed, $g_default_email_on_reopened,
+				$g_default_email_on_bugnote, $g_default_email_on_status,
+				$g_default_email_on_priority, $g_default_language;
 
 		$t_user_id = get_current_user_field( "id" );
 	    $query = "INSERT

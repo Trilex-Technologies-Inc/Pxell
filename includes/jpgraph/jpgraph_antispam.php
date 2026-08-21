@@ -9,10 +9,11 @@
 // Copyright (c) Aditus Consulting. All rights reserved.
 //========================================================================
 
+#[\AllowDynamicProperties]
 class HandDigits {
     var $chars = array();
     var $iHeight=30, $iWidth=30;
-    function HandDigits() {
+    function __construct() {
 
 //==========================================================
 // lj-small.jpg
@@ -543,12 +544,13 @@ $this->chars['q'][1]=
     } 
 }
 
+#[\AllowDynamicProperties]
 class AntiSpam {
 
     var $iData='';
     var $iDD=null;
 
-    function AntiSpam($aData='') {
+    function __construct($aData='') {
 	$this->iData = $aData;
 	$this->iDD = new HandDigits();	
     }

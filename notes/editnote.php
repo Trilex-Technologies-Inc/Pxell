@@ -15,9 +15,14 @@
 $checkSession = true;
 require_once("../includes/library.php");
 
+$id = (string) ($_GET['id'] ?? '');
+$action = (string) ($_GET['action'] ?? '');
+$project = (string) ($_GET['project'] ?? ($_POST['project'] ?? ''));
+$noteDetail = new request();
+$noteDetail->note_project = array($project);
+
 if ($id != "" && $action != "add") {
     $tmpquery = "WHERE note.id = '$id'";
-    $noteDetail = new request();
     $noteDetail->openNotes($tmpquery);
     $tmpquery = "WHERE pro.id = '" . $noteDetail->note_project[0] . "'";
     $project = $noteDetail->note_project[0];
@@ -45,7 +50,7 @@ if ($comptMemberTest == "0") {
 // case update note entry
 if ($id != "") {
     // case update note entry
-    if ($action == "update") {
+    if ($action == "update" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         $subject = convertData($subject);
         $description = convertData($description);
         $tmpquery5 = "UPDATE " . $tableCollab["notes"] . " SET project='$projectMenu',topic='$topic',subject='$subject',description='$description',date='$dd',owner='" . $_SESSION['idSession'] . "' WHERE id = '$id'";
@@ -63,7 +68,7 @@ if ($id != "") {
 // case add note entry
 if ($id == "") {
     // case add note entry
-    if ($action == "add") {
+    if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         $subject = convertData($subject);
         $description = convertData($description);
         $tmpquery1 = "INSERT INTO " . $tableCollab["notes"] . "(project,topic,subject,description,date,owner,published) VALUES('$projectMenu','$topic','$subject','$description','$dd','" . $_SESSION['idSession'] . "','1')";

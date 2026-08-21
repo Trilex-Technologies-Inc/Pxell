@@ -15,9 +15,27 @@
 $checkSession = true;
 require_once('../includes/library.php');
 
+$id = (string) ($_GET['id'] ?? '');
+$action = (string) ($_GET['action'] ?? '');
+$name = (string) ($_POST['name'] ?? '');
+$url = (string) ($_POST['url'] ?? '');
+$description = (string) ($_POST['description'] ?? '');
+$category = (string) ($_POST['category'] ?? '0');
+$category_new = (string) ($_POST['category_new'] ?? '');
+$shared = (string) ($_POST['shared'] ?? '');
+$home = (string) ($_POST['home'] ?? '');
+$comments = (string) ($_POST['comments'] ?? '');
+$piecesNew = $_POST['piecesNew'] ?? array();
+$users = '';
+$error = '';
+$bookmarkDetail = new request();
+if ($id === '') {
+    $bookmarkDetail->boo_category = array($category);
+    $bookmarkDetail->boo_users = array('');
+}
+
 if ($id != '' && $action != 'add') {
     $tmpquery = "WHERE boo.id = '$id'";
-    $bookmarkDetail = new request();
     $bookmarkDetail->openBookmarks($tmpquery);
 
     if ($bookmarkDetail->boo_owner[0] != $_SESSION['idSession']) {
@@ -29,7 +47,7 @@ if ($id != '' && $action != 'add') {
 // case update bookmark entry
 if ($id != '') {
     // case update bookmark entry
-    if ($action == 'update') {
+    if ($action == 'update' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         if ($piecesNew != '') {
             $users = '|' . implode('|', $piecesNew) . '|';
         }
@@ -44,10 +62,11 @@ if ($id != '') {
                 $tmpquery1 = 'INSERT INTO ' . $tableCollab['bookmarks_categories'] . "(name) VALUES('$category_new')";
                 connectSql($tmpquery1);
                 $tmpquery = $tableCollab['bookmarks_categories'];
-                last_id($tmpquery);
-                $num = $lastId[0];
-                unset($lastId);
-                $category = $num;
+                $categoryIds = last_id($tmpquery);
+                if (empty($categoryIds)) {
+                    throw new RuntimeException('The bookmark category was inserted, but its new ID could not be retrieved.');
+                }
+                $category = $categoryIds[0];
             } else {
                 $category = $listCategories->boocat_id[0];
             }
@@ -102,7 +121,7 @@ if ($id == '') {
     $checkedShared = 'checked';
     $checkedComments = 'checked';
     // case add note entry
-    if ($action == 'add') {
+    if ($action == 'add' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         if ($piecesNew != '') {
             $users = '|' . implode('|', $piecesNew) . '|';
         }
@@ -117,10 +136,11 @@ if ($id == '') {
                 $tmpquery1 = 'INSERT INTO ' . $tableCollab['bookmarks_categories'] . "(name) VALUES('$category_new')";
                 connectSql($tmpquery1);
                 $tmpquery = $tableCollab['bookmarks_categories'];
-                last_id($tmpquery);
-                $num = $lastId[0];
-                unset($lastId);
-                $category = $num;
+                $categoryIds = last_id($tmpquery);
+                if (empty($categoryIds)) {
+                    throw new RuntimeException('The bookmark category was inserted, but its new ID could not be retrieved.');
+                }
+                $category = $categoryIds[0];
             } else {
                 $category = $listCategories->boocat_id[0];
             }

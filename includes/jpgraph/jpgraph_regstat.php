@@ -15,6 +15,7 @@
 // Create a new data array from an existing data array but with more points.
 // The new points are interpolated using a cubic spline algorithm
 //------------------------------------------------------------------------
+#[\AllowDynamicProperties]
 class Spline {
     // 3:rd degree polynom approximation
 
@@ -22,7 +23,7 @@ class Spline {
     var $y2;		 // 2:nd derivate of ydata	
     var $n=0;
 
-    function Spline($xdata,$ydata) {
+    function __construct($xdata,$ydata) {
 	$this->y2 = array();
 	$this->xdata = $xdata;
 	$this->ydata = $ydata;

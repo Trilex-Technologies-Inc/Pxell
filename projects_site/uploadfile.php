@@ -15,7 +15,7 @@
 $checkSession = true;
 require_once("../includes/library.php");
 
-if ($action == "add") {
+if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if ($maxCustom != "") {
         $maxFileSize = $maxCustom;
     } 

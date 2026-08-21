@@ -24,7 +24,7 @@ if ($requestDetail->sr_project[0] != $_SESSION['projectSession'] || $requestDeta
     exit;
 } 
 
-if ($action == "add") {
+if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $mes = convertData($mes);
 
     $tmpquery1 = "INSERT INTO " . $tableCollab["support_posts"] . "(request_id,message,date,owner,project) VALUES('$id','$mes','$dateheure','" . $_SESSION['idSession'] . "','" . $requestDetail->sr_project[0] . "')";

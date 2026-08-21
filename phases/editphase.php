@@ -15,9 +15,20 @@
 $checkSession = true;
 require_once("../includes/library.php");
 
+$id = (string) ($_GET['id'] ?? '');
+$action = (string) ($_GET['action'] ?? '');
+$st = (string) ($_POST['st'] ?? '');
+$sd = (string) ($_POST['sd'] ?? '');
+$ed = (string) ($_POST['ed'] ?? '');
+$c = (string) ($_POST['c'] ?? '');
+
 $tmpquery = "WHERE pha.id = '$id'";
 $phaseDetail = new request();
 $phaseDetail->openPhases($tmpquery);
+if (count($phaseDetail->pha_id) === 0) {
+    header('Location: ../projects/listprojects.php?msg=blankPhase');
+    exit;
+}
 $project = $phaseDetail->pha_project_id[0];
 
 $tmpquery = "WHERE pro.id = '$project'";

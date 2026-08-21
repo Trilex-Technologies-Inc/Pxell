@@ -19,7 +19,7 @@ require_once("../includes/library.php");
 $searchFor = urldecode($searchFor);
 $searchfor = convertData($searchfor);
 $searchfor = strtolower($searchfor);
-$mots = split(" ", $searchfor);
+$mots = explode(" ", $searchfor);
 $nombre_mots = count($mots);
 
 if ($heading == "ALL") {

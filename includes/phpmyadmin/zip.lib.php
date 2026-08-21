@@ -20,6 +20,7 @@
  *
  * @access  public
  */
+#[\AllowDynamicProperties]
 class zipfile  
 {  
     /**

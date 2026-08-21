@@ -73,6 +73,9 @@ if ($project != "") {
 	else {
         $teamMember = "true";
     } 
+    if (($_SESSION['profilSession'] ?? '') == '0') {
+        $teamMember = 'true';
+    }
 
     $breadcrumbs[]= buildLink("../projects/listprojects.php?", $strings["projects"], LINK_INSIDE);
     $breadcrumbs[]= buildLink("../projects/viewproject.php?id=" . $projectDetail->pro_id[0], $projectDetail->pro_name[0], LINK_INSIDE);

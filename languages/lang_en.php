@@ -606,7 +606,7 @@ $strings['resource_usage'] = 'Resource Usage';
 $strings['resource_usage_desc'] = 'This report summarizes total time logged for projects and organizations.';
 // 2.5.2
 $strings['install_erase'] = 'Remove the installation directory and its contents!!';
-$strings['error_phpversion'] = 'Your PHP version must be greater than or equal to 4.1.0 to run NetOffice!';
+$strings['error_phpversion'] = 'PHP 8.3 or newer is required to run TaskVibe.';
 $strings['display_options'] = 'Display Options';
 $strings['member_items'] = "Member Items";
 $strings['project_totals'] = "Project Totals";
@@ -804,5 +804,18 @@ $strings['reportsusage'] = 'Resource Usage Detail';
 $strings['reports_from'] = 'from';
 $strings['reports_to'] = 'to';
 $strings['total'] = 'Total';
+
+// Language editor
+$strings['edit_language'] = 'Edit language';
+$strings['language_intro'] = 'Choose a language, then review and update its interface labels.';
+$strings['Choose_Language'] = 'Choose language';
+$strings['Label'] = 'Label';
+$strings['Phrases'] = 'Phrases';
+$strings['Translation'] = 'Translation';
+$strings['add_label'] = 'Add label';
+$strings['add_new_label'] = 'Add a new label';
+$strings['labels_deleted'] = 'labels deleted';
+$strings['save_translation'] = 'Save translations';
+$strings['translations_saved_ok'] = 'translations saved successfully';
 
 ?>

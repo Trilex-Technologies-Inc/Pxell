@@ -220,5 +220,5 @@ $cfgFunctions = array(
 /**
  * Unset magic_quotes_runtime - do not change!
  */
-set_magic_quotes_runtime(0);
+// Magic quotes were removed in PHP 8. Runtime input is always unescaped.
 ?>

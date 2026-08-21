@@ -57,6 +57,9 @@ if ($comptMemberTest == "0") {
 } else {
     $teamMember = "true";
 } 
+if (($_SESSION['profilSession'] ?? '') == '0') {
+    $teamMember = 'true';
+}
 if ($teamMember == "false" && $projectsFilter == "true") {
     header("Location:../general/permissiondenied.php");
     exit;

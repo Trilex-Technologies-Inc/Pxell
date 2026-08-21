@@ -21,8 +21,22 @@ if ($_SESSION['profilSession'] != 0) {
 } 
 
 if ($action == 'delete') {
-    $tmpquery = 'DELETE FROM ' . $tableCollab['logs'];
-    connectSql($tmpquery);
+    // The logs table also acts as the live-session registry. Preserve this
+    // request's row so clearing audit rows does not immediately log out the
+    // administrator who performed the action.
+    $logConnection = openDatabase();
+    $logTable = str_replace('`', '``', $tableCollab['logs']);
+    $deleteLogs = mysqli_prepare(
+        $logConnection,
+        "DELETE FROM `$logTable` WHERE NOT (login = ? AND session = ?)"
+    );
+    if ($deleteLogs) {
+        $activeLogin = $_SESSION['loginSession'];
+        $activeSession = session_id();
+        mysqli_stmt_bind_param($deleteLogs, 'ss', $activeLogin, $activeSession);
+        mysqli_stmt_execute($deleteLogs);
+        mysqli_stmt_close($deleteLogs);
+    }
 } 
 
 
@@ -45,7 +59,7 @@ $tmpquery = 'ORDER BY last_visite DESC';
 
 $listLogs = new request();
 $listLogs->openLogs($tmpquery);
-$comptListLogs = count($listLogs->log_id);
+$comptListLogs = count($listLogs->log_id ?? array());
 
 $dateunix = date("U");
 

@@ -27,6 +27,7 @@ require_once 'class.iCalBase.inc.php';
 * @package iCalendar
 * @version 1.032
 */
+#[\AllowDynamicProperties]
 class iCalFreeBusy extends iCalBase {
 
 	/*-------------------*/
@@ -133,8 +134,8 @@ class iCalFreeBusy extends iCalBase {
 	* @uses setFBTimes()
 	* @uses iCalBase::setURL()
 	*/
-	function iCalFreeBusy($start, $end, $duration, $organizer, $attendees, $fb_times, $url, $uid) {
-		parent::iCalBase();
+	function __construct($start, $end, $duration, $organizer, $attendees, $fb_times, $url, $uid) {
+		parent::__construct();
 		$this->fb_status = (array) array('FREE','BUSY','BUSY-UNAVAILABLE','BUSY-TENTATIVE');
 		parent::setOrganizer($organizer);
 		$this->setStartDate($start);

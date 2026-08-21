@@ -23,7 +23,7 @@ if ($projectDetail->pro_org_id[0] == "1") {
     $projectDetail->pro_org_name[0] = $strings["none"];
 } 
 
-if ($action == "add") {
+if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if ($pub == "") {
         $pub = "1";
     } 

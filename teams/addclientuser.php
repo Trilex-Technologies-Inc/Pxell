@@ -25,7 +25,7 @@ if ($comptProjectDetail == "0") {
     exit;
 } 
 
-if ($action == "add") {
+if ($action == "add" && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if ($id != "") {
         $pieces = explode("**", $id);
         $id = str_replace("**", ",", $id);
@@ -104,7 +104,9 @@ $tmpquery = "WHERE tea.project = '$project' AND mem.profil = '3'";
 $concatMembers = new request();
 $concatMembers->openTeams($tmpquery);
 $comptConcatMembers = count($concatMembers->tea_id);
+$queryBonus = "";
 if ($comptConcatMembers != "0") {
+    $membersTeam = "";
     for ($i = 0;$i < $comptConcatMembers;$i++) {
         $membersTeam .= $concatMembers->tea_mem_id[$i];
         if ($i < $comptConcatMembers-1) {
@@ -154,7 +156,7 @@ if ($comptListMembers != "0") {
 $block1->closeFormResults();
 
 $block1->openPaletteScript();
-$block1->paletteScript(0, "add", "../teams/addclientuser.php?project=$project&action=add", "false,true,true", $strings["add"]);
+$block1->paletteScript(0, "add", "post:../teams/addclientuser.php?project=$project&action=add", "false,true,true", $strings["add"]);
 $block1->paletteScript(1, "info", "../users/viewuser.php?", "false,true,false", $strings["view"]);
 $block1->paletteScript(2, "edit", "../users/updateclientuser.php?organization=" . $projectDetail->pro_organization[0] . "", "false,true,false", $strings["edit"]);
 $block1->closePaletteScript($comptListMembers, $listMembers->mem_id);

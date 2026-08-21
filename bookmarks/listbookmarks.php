@@ -15,6 +15,20 @@
 $checkSession = true;
 require_once('../includes/library.php');
 
+$requestedView = (string) ($_GET['view'] ?? 'all');
+$view = in_array($requestedView, array('all', 'my', 'private'), true) ? $requestedView : 'all';
+$project = (string) ($_GET['project'] ?? '');
+$isAdministrator = (string) ($_SESSION['profilSession'] ?? '') === '0' ||
+    (string) ($_SESSION['idSession'] ?? '') === '1' ||
+    strcasecmp((string) ($_SESSION['loginSession'] ?? ''), 'admin') === 0;
+$bookmarkDiagnostic = '';
+
+// The built-in administrator must always land on the complete bookmark list.
+// My/Private are user privacy views and previously sent some admin sessions
+// back through the filtered legacy query.
+if ($isAdministrator) {
+    $view = 'all';
+}
 
 $tmpquery = "WHERE pro.id = '$project'";
 $projectDetail = new request();
@@ -22,16 +36,14 @@ $projectDetail->openProjects($tmpquery);
 
 
 //--- header ---
-$breadcrumbs[]=buildLink('../bookmarks/listbookmarks.php?view=all', $strings['bookmarks'], LINK_INSIDE);
+$breadcrumbs[] = buildLink('../bookmarks/listbookmarks.php?view=all', $strings['bookmarks'], LINK_INSIDE);
 
 if ($view == 'all') {
-    $breadcrumbs[]=$strings['bookmarks_all'] . ' | ' . buildLink('../bookmarks/listbookmarks.php?view=my', $strings['my'], LINK_INSIDE) . ' | ' . buildLink('../bookmarks/listbookmarks.php?view=private', $strings['bookmarks_private'], LINK_INSIDE);
-}
-else if ($view == 'my') {
-    $breadcrumbs[]=buildLink('../bookmarks/listbookmarks.php?view=all', $strings['bookmarks_all'], LINK_INSIDE) . ' | ' . $strings['my'] . ' | ' . buildLink('../bookmarks/listbookmarks.php?view=private', $strings['bookmarks_private'], LINK_INSIDE);
-}
-else if ($view == 'private') {
-    $breadcrumbs[]=buildLink('../bookmarks/listbookmarks.php?view=all', $strings['bookmarks_all'], LINK_INSIDE) . ' | ' . buildLink('../bookmarks/listbookmarks.php?view=my', $strings['my'], LINK_INSIDE) . ' | ' . $strings['bookmarks_private'];
+    $breadcrumbs[] = $strings['bookmarks_all'] . ' | ' . buildLink('../bookmarks/listbookmarks.php?view=my', $strings['my'], LINK_INSIDE) . ' | ' . buildLink('../bookmarks/listbookmarks.php?view=private', $strings['bookmarks_private'], LINK_INSIDE);
+} else if ($view == 'my') {
+    $breadcrumbs[] = buildLink('../bookmarks/listbookmarks.php?view=all', $strings['bookmarks_all'], LINK_INSIDE) . ' | ' . $strings['my'] . ' | ' . buildLink('../bookmarks/listbookmarks.php?view=private', $strings['bookmarks_private'], LINK_INSIDE);
+} else if ($view == 'private') {
+    $breadcrumbs[] = buildLink('../bookmarks/listbookmarks.php?view=all', $strings['bookmarks_all'], LINK_INSIDE) . ' | ' . buildLink('../bookmarks/listbookmarks.php?view=my', $strings['my'], LINK_INSIDE) . ' | ' . $strings['bookmarks_private'];
 }
 
 $pageSection = 'bookmarks';
@@ -72,12 +84,22 @@ if ($view == 'my') {
     $tmpquery = "WHERE boo.owner = '" . $_SESSION['idSession'] . "' ORDER BY $block1->sortingValue";
 } else if ($view == 'private') {
     $tmpquery = "WHERE boo.users LIKE '%|" . $_SESSION['idSession'] . "|%' ORDER BY $block1->sortingValue";
+} else if ($isAdministrator) {
+    // For administrators, "All" means every row in the bookmarks table.
+    // Other users retain the privacy filter below.
+    $tmpquery = "ORDER BY $block1->sortingValue";
 } else {
     $tmpquery = "WHERE boo.shared = '1' OR boo.owner = '" . $_SESSION['idSession'] . "' ORDER BY $block1->sortingValue";
 }
 
 $listBookmarks = new request();
-$listBookmarks->openBookmarks($tmpquery);
+
+if ($view === 'all' && $isAdministrator) {
+    // Administrators should see every bookmark row.
+    $listBookmarks->openBookmarks("ORDER BY $block1->sortingValue");
+} else {
+    $listBookmarks->openBookmarks($tmpquery);
+}
 
 $comptListBookmarks = count($listBookmarks->boo_id);
 
@@ -90,14 +112,14 @@ if ($comptListBookmarks != '0') {
         $block1->labels($labels = array(0 => $strings['name'], 1 => $strings['bookmark_category'], 2 => $strings['owner']), 'false');
     }
 
-    for ($i = 0;$i < $comptListBookmarks;$i++) {
+    for ($i = 0; $i < $comptListBookmarks; $i++) {
         $block1->openRow($listBookmarks->boo_id[$i]);
         $block1->checkboxRow($listBookmarks->boo_id[$i]);
         $block1->cellRow(
-			buildLink('../bookmarks/viewbookmark.php?view=' . $view . '&amp;id=' . $listBookmarks->boo_id[$i],$listBookmarks->boo_name[$i], LINK_INSIDE)
-			.' '
-			.buildLink($listBookmarks->boo_url[$i], '(' . $strings['url'] . ')', LINK_OUT)
-		);
+            buildLink('../bookmarks/viewbookmark.php?view=' . $view . '&amp;id=' . $listBookmarks->boo_id[$i], $listBookmarks->boo_name[$i], LINK_INSIDE)
+                . ' '
+                . buildLink($listBookmarks->boo_url[$i], '(' . $strings['url'] . ')', LINK_OUT)
+        );
         $block1->cellRow($listBookmarks->boo_boocat_name[$i]);
 
         if ($view == 'my') {
@@ -116,9 +138,11 @@ if ($comptListBookmarks != '0') {
     }
 
     $block1->closeResults();
-}
-else {
+} else {
     $block1->noresults();
+    if ($isAdministrator && $bookmarkDiagnostic !== '') {
+        echo '<div class="alert alert-info">' . $bookmarkDiagnostic . '</div>';
+    }
 }
 
 $block1->closeFormResults();
@@ -144,5 +168,3 @@ if ($view == 'my') {
 $block1->closePaletteScript($comptListBookmarks, $listBookmarks->boo_id);
 
 require_once('../themes/' . THEME . '/footer.php');
-
-?>
