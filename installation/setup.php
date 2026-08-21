@@ -58,7 +58,7 @@ if (substr($ftpRoot, -1) == '/') {
     $ftpRoot = substr($ftpRoot, 0, -1);
 }
 
-$version = '3.0B';
+$version = '3.1b';
 
 $dateheure = date("Y-m-d H:i");
 
