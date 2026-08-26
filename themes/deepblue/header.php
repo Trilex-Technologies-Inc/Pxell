@@ -9,6 +9,26 @@ $setTitle = $setTitle ?? 'TaskVibe';
 $setDescription = $setDescription ?? '';
 $setKeywords = $setKeywords ?? '';
 
+// Build URLs from the application's public directory instead of from the
+// current page. This works whether TaskVibe is installed at the domain root
+// or in a subdirectory (for example, /taskvibe).
+$documentRoot = isset($_SERVER['DOCUMENT_ROOT']) ? realpath($_SERVER['DOCUMENT_ROOT']) : false;
+$applicationRoot = realpath(dirname(__DIR__, 2));
+$applicationBaseUrl = '';
+
+if ($documentRoot !== false && $applicationRoot !== false) {
+    $documentRoot = rtrim(str_replace('\\', '/', $documentRoot), '/');
+    $applicationRoot = rtrim(str_replace('\\', '/', $applicationRoot), '/');
+
+    if ($applicationRoot === $documentRoot) {
+        $applicationBaseUrl = '';
+    } elseif (strpos($applicationRoot . '/', $documentRoot . '/') === 0) {
+        $applicationBaseUrl = substr($applicationRoot, strlen($documentRoot));
+    }
+}
+
+$applicationBaseUrl = rtrim($applicationBaseUrl, '/');
+
 
 echo $setDoctype . "\n";
 echo $setCopyright . "\n";
@@ -23,11 +43,11 @@ echo $setCopyright . "\n";
     <meta name="keywords" content="<?php echo htmlspecialchars($setKeywords); ?>">
 
     <!-- JavaScript files -->
-    <script type="text/javascript" src="../javascript/general.js"></script>
-    <script type="text/javascript" src="../javascript/overlib/overlib.js"></script>
-    <script type="text/javascript" src="../javascript/jscalendar/calendar.js"></script>
-    <script type="text/javascript" src="../javascript/jscalendar/lang/calendar-en.js"></script>
-    <script type="text/javascript" src="../javascript/jscalendar/calendar-setup.js"></script>
+    <script type="text/javascript" src="<?php echo htmlspecialchars($applicationBaseUrl, ENT_QUOTES, 'UTF-8'); ?>/assets-js/general.js"></script>
+    <script type="text/javascript" src="<?php echo htmlspecialchars($applicationBaseUrl, ENT_QUOTES, 'UTF-8'); ?>/assets-js/overlib/overlib.js"></script>
+    <script type="text/javascript" src="<?php echo htmlspecialchars($applicationBaseUrl, ENT_QUOTES, 'UTF-8'); ?>/assets-js/jscalendar/calendar.js"></script>
+    <script type="text/javascript" src="<?php echo htmlspecialchars($applicationBaseUrl, ENT_QUOTES, 'UTF-8'); ?>/assets-js/jscalendar/lang/calendar-en.js"></script>
+    <script type="text/javascript" src="<?php echo htmlspecialchars($applicationBaseUrl, ENT_QUOTES, 'UTF-8'); ?>/assets-js/jscalendar/calendar-setup.js"></script>
 
     <!-- Bootstrap (served locally) -->
     <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -581,8 +601,8 @@ echo $setCopyright . "\n";
                 $logoFile = null;
                 $logoAlt = 'TaskVibe';
                 $defaultLogoUrl = defined('INSTALL')
-                    ? '../themes/deepblue/img/logo-sidebar.png?v=' . rawurlencode($version)
-                    : $base_uri . 'themes/deepblue/img/logo-sidebar.png';
+                    ? '../themes/deepblue/images/logo-sidebar.png?v=' . rawurlencode($version)
+                    : $base_uri . 'themes/deepblue/images/logo-sidebar.png';
                 if (defined('INSTALL')) {
                     echo '<img src="' . htmlspecialchars($defaultLogoUrl, ENT_QUOTES) . '" alt="TaskVibe">';
                 } else if (!$blank && $version >= "2.0") {
