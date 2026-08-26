@@ -53,8 +53,8 @@ echo $setCopyright . "\n";
     <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js" defer></script>
 
-    <!-- Font Awesome (served locally) -->
-    <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css">
+    <!-- Font Awesome (served by CDN so its webfonts are available on every deployment) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
 
     <!-- CSS files -->
     <link rel="stylesheet" href="../themes/<?php echo THEME; ?>/stylesheet.css" type="text/css">
