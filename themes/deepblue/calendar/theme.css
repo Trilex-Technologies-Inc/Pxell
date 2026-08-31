@@ -104,7 +104,7 @@ div.calendar { position: relative; }
   background: url("rowhover-bg.gif");
 }
 
-.calendar tbody td.today { font-weight: bold; /* background: url("today-bg.gif") no-repeat 70% 50%; */ }
+.calendar tbody td.today { font-weight: bold; }
 
 .calendar tbody td.hilite { /* Hovered cells <TD> */
   background: url("hover-bg.gif");
