@@ -658,7 +658,7 @@ require_once('../themes/' . THEME . '/header.php');
         <section class="login-brand" aria-label="NetOffice">
             <div>
                 <div class="login-brand__mark">
-                    <img src="<?php echo htmlspecialchars($base_uri . 'themes/deepblue/img/logo-sidebar.png'); ?>" alt="TaskVibe">
+                    <img src="<?php echo htmlspecialchars($base_uri . 'themes/deepblue/images/logo-sidebar.png'); ?>" alt="TaskVibe">
                 </div>
                 <h1>TaskVibe</h1>
                 <p><?php echo $strings['please_login']; ?></p>

@@ -336,7 +336,7 @@ if ($_SESSION['projectSession'] == "" || $changeProject == "true") {
     <?php
 } else {
     // Show project details if a project is selected
-    $logoPath = $base_uri . "themes/deepblue/img/logo-sidebar.png";
+    $logoPath = $base_uri . "themes/deepblue/images/logo-sidebar.png";
     $logoAlt = "TaskVibe";
     if (isset($clientDetail->org_id[0]) && $clientDetail->org_id[0] != "" && $clientDetail->org_extension_logo[0] != "") {
         $candidateLogo = "../logos_clients/" . $clientDetail->org_id[0] . "." . $clientDetail->org_extension_logo[0];
@@ -357,7 +357,7 @@ if ($_SESSION['projectSession'] == "" || $changeProject == "true") {
                         <p class="project-description"><?php echo nl2br(projectSiteHtml($projectDetail->pro_description[0])); ?></p>
                     <?php endif; ?>
                 </div>
-                <img src="<?php echo projectSiteHtml($logoPath); ?>" class="project-logo" alt="<?php echo projectSiteHtml($logoAlt); ?>" onerror="this.onerror=null;this.src='<?php echo projectSiteHtml($base_uri . 'themes/deepblue/img/logo-sidebar.png'); ?>'">
+                <img src="<?php echo projectSiteHtml($logoPath); ?>" class="project-logo" alt="<?php echo projectSiteHtml($logoAlt); ?>" onerror="this.onerror=null;this.src='<?php echo projectSiteHtml($base_uri . 'themes/deepblue/images/logo-sidebar.png'); ?>'">
             </div>
 
             <div class="project-stats">

@@ -205,7 +205,7 @@ if ($_SESSION['projectSession'] != "" && $changeProject != "true") {
 </head>
 <body class="projectsite-shell">
 <div class="projectsite-topbar">
-    <img class="projectsite-topbar__logo" src="<?php echo projectSiteHeaderHtml($base_uri . 'themes/deepblue/img/logo-sidebar.png'); ?>" alt="TaskVibe">
+    <img class="projectsite-topbar__logo" src="<?php echo projectSiteHeaderHtml($base_uri . 'themes/deepblue/images/logo-sidebar.png'); ?>" alt="TaskVibe">
     <h1><?php echo projectSiteHeaderHtml($titlePage); ?></h1>
 </div>
 <div class="projectsite-layout">
