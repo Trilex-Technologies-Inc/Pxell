@@ -9,25 +9,13 @@ $setTitle = $setTitle ?? 'TaskVibe';
 $setDescription = $setDescription ?? '';
 $setKeywords = $setKeywords ?? '';
 
-// Build URLs from the application's public directory instead of from the
-// current page. This works whether TaskVibe is installed at the domain root
-// or in a subdirectory (for example, /taskvibe).
-$documentRoot = isset($_SERVER['DOCUMENT_ROOT']) ? realpath($_SERVER['DOCUMENT_ROOT']) : false;
-$applicationRoot = realpath(dirname(__DIR__, 2));
-$applicationBaseUrl = '';
+// Reuse the configured install path from includes/library.php so asset URLs
+// follow the same base URI logic everywhere.
+$applicationBaseUrl = rtrim((string) ($base_uri ?? ''), '/');
 
-if ($documentRoot !== false && $applicationRoot !== false) {
-    $documentRoot = rtrim(str_replace('\\', '/', $documentRoot), '/');
-    $applicationRoot = rtrim(str_replace('\\', '/', $applicationRoot), '/');
-
-    if ($applicationRoot === $documentRoot) {
-        $applicationBaseUrl = '';
-    } elseif (strpos($applicationRoot . '/', $documentRoot . '/') === 0) {
-        $applicationBaseUrl = substr($applicationRoot, strlen($documentRoot));
-    }
+if ($applicationBaseUrl === '/') {
+    $applicationBaseUrl = '';
 }
-
-$applicationBaseUrl = rtrim($applicationBaseUrl, '/');
 
 
 echo $setDoctype . "\n";
@@ -50,15 +38,15 @@ echo $setCopyright . "\n";
     <script type="text/javascript" src="<?php echo htmlspecialchars($applicationBaseUrl, ENT_QUOTES, 'UTF-8'); ?>/assets-js/jscalendar/calendar-setup.js"></script>
 
     <!-- Bootstrap (served locally) -->
-    <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js" defer></script>
+    <link href="<?php echo htmlspecialchars($applicationBaseUrl, ENT_QUOTES, 'UTF-8'); ?>/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <script src="<?php echo htmlspecialchars($applicationBaseUrl, ENT_QUOTES, 'UTF-8'); ?>/vendor/bootstrap/js/bootstrap.bundle.min.js" defer></script>
 
-    <!-- Font Awesome (served by CDN so its webfonts are available on every deployment) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($applicationBaseUrl, ENT_QUOTES, 'UTF-8'); ?>/vendor/fontawesome/css/all.min.css">
 
     <!-- CSS files -->
-    <link rel="stylesheet" href="../themes/<?php echo THEME; ?>/stylesheet.css" type="text/css">
-    <link rel="stylesheet" href="../themes/<?php echo THEME; ?>/calendar/theme.css" type="text/css">
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($applicationBaseUrl, ENT_QUOTES, 'UTF-8'); ?>/themes/<?php echo THEME; ?>/stylesheet.css" type="text/css">
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($applicationBaseUrl, ENT_QUOTES, 'UTF-8'); ?>/themes/<?php echo THEME; ?>/calendar/theme.css" type="text/css">
 
     <style>
         :root {
